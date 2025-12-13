@@ -2369,15 +2369,310 @@
         statCards.forEach(card => {
             card.addEventListener('mouseenter', () => {
                 const value = card.querySelector('.stat-value');
-                value.style.transform = 'scale(1.05)';
-                value.style.transition = 'transform 0.3s ease';
+                if (value) {
+                    value.style.transform = 'scale(1.05)';
+                    value.style.transition = 'transform 0.3s ease';
+                }
             });
             
             card.addEventListener('mouseleave', () => {
                 const value = card.querySelector('.stat-value');
-                value.style.transform = 'scale(1)';
+                if (value) {
+                    value.style.transform = 'scale(1)';
+                }
             });
         });
+    </script>
+
+    <!-- ============================================ -->
+    <!-- REAL API INTEGRATION                         -->
+    <!-- Replace YOUR_RAILWAY_URL with actual URL     -->
+    <!-- ============================================ -->
+    <script>
+        // ===== API CONFIGURATION =====
+        // TODO: Replace this with your Railway URL after deployment!
+        const API_URL = 'sponsorhub-backend-production.up.railway.app';
+        // For local testing, use: const API_URL = 'http://localhost:3001/api';
+        
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = null;
+
+        // ===== AUTHENTICATION FUNCTIONS =====
+        
+        async function register(name, email, password) {
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await response.json();
+                
+                if (data.token) {
+                    localStorage.setItem('authToken', data.token);
+                    authToken = data.token;
+                    currentUser = data.user;
+                    await loadUserData();
+                    return { success: true, user: data.user };
+                } else {
+                    return { success: false, error: data.error || 'Registration failed' };
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                return { success: false, error: 'Network error' };
+            }
+        }
+
+        async function login(email, password) {
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                
+                if (data.token) {
+                    localStorage.setItem('authToken', data.token);
+                    authToken = data.token;
+                    currentUser = data.user;
+                    await loadUserData();
+                    return { success: true, user: data.user };
+                } else {
+                    return { success: false, error: data.error || 'Login failed' };
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                return { success: false, error: 'Network error' };
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            authToken = null;
+            currentUser = null;
+            window.location.reload();
+        }
+
+        // ===== DATA LOADING FUNCTIONS =====
+
+        async function loadUserData() {
+            if (!authToken) return;
+            
+            try {
+                // Load user stats
+                const statsRes = await fetch(`${API_URL}/users/stats`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (statsRes.ok) {
+                    const stats = await statsRes.json();
+                    updateDashboardStats(stats);
+                }
+
+                // Load sponsorships
+                const sponsorshipsRes = await fetch(`${API_URL}/sponsorships`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (sponsorshipsRes.ok) {
+                    const sponsorships = await sponsorshipsRes.json();
+                    updateSponsorshipsList(sponsorships);
+                }
+
+                // Load brands for marketplace
+                const brandsRes = await fetch(`${API_URL}/brands`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (brandsRes.ok) {
+                    const brands = await brandsRes.json();
+                    updateBrandsList(brands);
+                }
+
+                // Load analytics
+                const analyticsRes = await fetch(`${API_URL}/analytics/overview`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (analyticsRes.ok) {
+                    const analytics = await analyticsRes.json();
+                    updateAnalytics(analytics);
+                }
+
+            } catch (error) {
+                console.error('Failed to load data:', error);
+            }
+        }
+
+        // ===== UI UPDATE FUNCTIONS =====
+
+        function updateDashboardStats(stats) {
+            // Update the stat cards on dashboard
+            const statCards = document.querySelectorAll('#dashboard .stat-card');
+            if (statCards[0]) {
+                const revenueValue = statCards[0].querySelector('.stat-value');
+                if (revenueValue) revenueValue.textContent = `$${stats.total_revenue.toLocaleString()}`;
+            }
+            if (statCards[1]) {
+                const dealsValue = statCards[1].querySelector('.stat-value');
+                if (dealsValue) dealsValue.textContent = stats.active_deals || 0;
+            }
+            if (statCards[2]) {
+                const matchesValue = statCards[2].querySelector('.stat-value');
+                if (matchesValue) matchesValue.textContent = stats.brand_matches || 0;
+            }
+            if (statCards[3]) {
+                const avgValue = statCards[3].querySelector('.stat-value');
+                if (avgValue) avgValue.textContent = `$${stats.avg_deal_value.toLocaleString()}`;
+            }
+        }
+
+        function updateSponsorshipsList(sponsorships) {
+            // Update active sponsorships on dashboard
+            console.log('Loaded sponsorships:', sponsorships);
+            // You can add more detailed update logic here
+        }
+
+        function updateBrandsList(brands) {
+            // Update brands in marketplace
+            console.log('Loaded brands:', brands);
+            // The brands are already showing from the database!
+        }
+
+        function updateAnalytics(analytics) {
+            // Update analytics page
+            const analyticsPage = document.querySelector('#analytics');
+            if (!analyticsPage) return;
+
+            // Update analytics stat cards
+            const analyticsStats = analyticsPage.querySelectorAll('.stat-card');
+            if (analyticsStats[0]) {
+                const revenueValue = analyticsStats[0].querySelector('.stat-value');
+                const revenueChange = analyticsStats[0].querySelector('.stat-change');
+                if (revenueValue) revenueValue.textContent = `$${analytics.revenue.current.toLocaleString()}`;
+                if (revenueChange) {
+                    revenueChange.textContent = `↑ ${analytics.revenue.change}% from last month`;
+                    revenueChange.className = analytics.revenue.change >= 0 ? 'stat-change' : 'stat-change negative';
+                }
+            }
+        }
+
+        // ===== CALCULATOR FUNCTION =====
+
+        async function calculateRateFromAPI() {
+            if (!authToken) {
+                alert('Please login to use the rate calculator');
+                return;
+            }
+
+            const viewers = parseInt(document.getElementById('viewerSlider').value);
+            const followers = parseInt(document.getElementById('followerSlider').value);
+            const engagement = parseFloat(document.getElementById('engagementSlider').value);
+            const platform = document.getElementById('platformSelect').value;
+            const niche = document.getElementById('nicheSelect').value;
+            const streamCount = parseInt(document.getElementById('streamCount').value);
+
+            try {
+                const response = await fetch(`${API_URL}/calculator/rate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        avg_viewers: viewers,
+                        total_followers: followers,
+                        engagement_rate: engagement,
+                        platform: platform === '1.0' ? 'twitch' : platform === '1.1' ? 'youtube' : 'tiktok',
+                        niche: niche === '1.2' ? 'gaming' : 'tech',
+                        stream_count: streamCount
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Update UI with real API data
+                    animateValue('resultValue', 0, data.recommended_rate, 1000, '$');
+                    animateValue('minRate', 0, data.min_rate, 1000, '$');
+                    animateValue('maxRate', 0, data.max_rate, 1000, '$');
+                    animateValue('baseRate', 0, data.breakdown.base_rate, 800, '$');
+                    animateValue('followerBonus', 0, data.breakdown.follower_bonus, 800, '+$');
+                    animateValue('engagementBonus', 0, data.breakdown.engagement_bonus, 800, '+$');
+                    animateValue('platformBonus', 0, data.breakdown.platform_bonus, 800, '+$');
+                    animateValue('nicheBonus', 0, data.breakdown.niche_bonus, 800, '+$');
+                    animateValue('totalRate', 0, data.recommended_rate, 1000, '$');
+                }
+            } catch (error) {
+                console.error('Calculator API error:', error);
+                // Fallback to local calculation if API fails
+                calculateRate();
+            }
+        }
+
+        // ===== HELPER: Check if logged in =====
+        
+        async function checkAuth() {
+            if (authToken) {
+                try {
+                    const response = await fetch(`${API_URL}/auth/verify`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        currentUser = data.user;
+                        await loadUserData();
+                        return true;
+                    } else {
+                        // Token invalid, clear it
+                        localStorage.removeItem('authToken');
+                        authToken = null;
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Auth check failed:', error);
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        // ===== INITIALIZATION =====
+        
+        // Check authentication on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            const isLoggedIn = await checkAuth();
+            
+            if (isLoggedIn) {
+                console.log('✅ User authenticated:', currentUser?.email);
+                console.log('💡 Your data is now loading from the real API!');
+            } else {
+                console.log('ℹ️ Not logged in - showing demo data');
+                console.log('💡 To use real data:');
+                console.log('   1. Open browser console (F12)');
+                console.log('   2. Run: await register("Your Name", "email@example.com", "password123")');
+                console.log('   3. Or run: await login("email@example.com", "password123")');
+            }
+        });
+
+        // Make functions available globally for console testing
+        window.sponsorHub = {
+            register,
+            login,
+            logout,
+            loadUserData,
+            checkAuth,
+            getAuthToken: () => authToken,
+            getCurrentUser: () => currentUser
+        };
+
+        console.log('🎯 SponsorHub API Integration Ready!');
+        console.log('📝 Quick start commands:');
+        console.log('   sponsorHub.register("Name", "email@test.com", "pass123")');
+        console.log('   sponsorHub.login("email@test.com", "pass123")');
+        console.log('   sponsorHub.logout()');
     </script>
 </body>
 </html>
