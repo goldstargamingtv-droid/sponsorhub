@@ -1,0 +1,8 @@
+/sitemap.xml
+  Content-Type: application/xml
+  Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer-when-downgrade
