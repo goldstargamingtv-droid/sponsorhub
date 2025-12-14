@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Marketplace - PromoSync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Paywall System -->
+    <script src="paywall-system.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #151b2e;
+            --bg-card: rgba(25, 35, 58, 0.6);
+            --accent-primary: #00d9ff;
+            --accent-secondary: #7b61ff;
+            --text-primary: #ffffff;
+            --text-secondary: #c9d1e0;
+            --text-muted: #8b95ab;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --success: #00ffa3;
+            --warning: #ffd93d;
+            --danger: #ff4757;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            opacity: 0.15;
+            background: 
+                radial-gradient(circle at 20% 50%, var(--accent-primary) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, var(--accent-secondary) 0%, transparent 50%);
+            filter: blur(100px);
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        /* Filters Bar */
+        .filters-bar {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .pro-badge {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 6px;
+        }
+
+        .filter-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .apply-limit {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .limit-bar {
+            width: 120px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .limit-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.3s;
+        }
+
+        /* Brand Cards */
+        .brands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .brand-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .brand-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 217, 255, 0.2);
+            border-color: var(--accent-primary);
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .brand-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .brand-info h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .brand-category {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .match-badge {
+            background: rgba(0, 255, 163, 0.2);
+            color: var(--success);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .brand-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .brand-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--accent-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .brand-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            animation: slideUp 0.3s;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .pitch-textarea {
+            width: 100%;
+            height: 250px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            resize: vertical;
+            font-family: 'DM Sans', sans-serif;
+            margin-bottom: 16px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .brands-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">PromoSync</div>
+            <a href="dashboard-improved.html" class="back-btn">← Back to Dashboard</a>
+        </header>
+
+        <h1>Brand Marketplace</h1>
+        <p class="subtitle">Find and connect with brands that match your audience and content niche</p>
+
+        <!-- Filters Bar -->
+        <div class="filters-bar">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Niche</label>
+                    <select class="filter-select" id="nicheFilter" onchange="filterBrands()">
+                        <option value="">All Niches</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="tech">Tech</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="fitness">Fitness</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Budget Range</label>
+                    <select class="filter-select" id="budgetFilter" onchange="filterBrands()">
+                        <option value="">All Budgets</option>
+                        <option value="0-1000">$0 - $1,000</option>
+                        <option value="1000-5000">$1,000 - $5,000</option>
+                        <option value="5000+">$5,000+</option>
+                    </select>
+                </div>
+
+                <div class="filter-group" data-gated="filters:advanced">
+                    <label>Min Followers <span class="pro-badge">PRO</span></label>
+                    <select class="filter-select" id="followersFilter" onchange="filterBrands()">
+                        <option value="">Any</option>
+                        <option value="10k">10K+</option>
+                        <option value="50k">50K+</option>
+                        <option value="100k">100K+</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Sort By</label>
+                    <select class="filter-select" id="sortFilter" onchange="sortBrands()">
+                        <option value="match">Best Match</option>
+                        <option value="budget">Highest Budget</option>
+                        <option value="newest">Newest</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <div class="apply-limit">
+                    <span id="applyLimitText">Quick Apply: 0/10 this month</span>
+                    <div class="limit-bar">
+                        <div class="limit-fill" id="limitFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="resetFilters()">Reset Filters</button>
+            </div>
+        </div>
+
+        <!-- Brand Cards -->
+        <div class="brands-grid" id="brandsGrid">
+            <!-- Brand 1 -->
+            <div class="brand-card" data-niche="gaming" data-budget="2400">
+                <button class="favorite-btn" onclick="toggleFavorite('brand-1')" id="fav-brand-1">
+                    <span id="heart-brand-1">🤍</span>
+                </button>
+
+                <div class="brand-header">
+                    <div class="brand-logo">🎮</div>
+                    <div class="brand-info">
+                        <h3>RazerGear</h3>
+                        <div class="brand-category">Gaming Peripherals</div>
+                    </div>
+                </div>
+
+                <div class="match-badge">92% Match</div>
+
+                <p class="brand-description">
+                    Looking for gaming streamers to showcase our latest RGB keyboards and mice during gameplay sessions.
+                </p>
+
+                <div class="brand-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">$2,400</div>
+                        <div class="stat-label">Budget</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">3 months</div>
+                        <div class="stat-label">Duration</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">10K+</div>
+                        <div class="stat-label">Min Followers</div>
+                    </div>
+                </div>
+
+                <div class="brand-actions">
+                    <button class="btn btn-primary" onclick="quickApply('RazerGear', 'brand-1')">Quick Apply</button>
+                    <button class="btn btn-secondary" onclick="alert('Viewing full details...')">View Details</button>
+                </div>
+            </div>
+
+            <!-- Brand 2 -->
+            <div class="brand-card" data-niche="tech" data-budget="3600">
+                <button class="favorite-btn" onclick="toggleFavorite('brand-2')" id="fav-brand-2">
+                    <span id="heart-brand-2">🤍</span>
+                </button>
+
+                <div class="brand-header">
+                    <div class="brand-logo">🔐</div>
+                    <div class="brand-info">
+                        <h3>TechCore VPN</h3>
+                        <div class="brand-category">Privacy & Security</div>
+                    </div>
+                </div>
+
+                <div class="match-badge">88% Match</div>
+
+                <p class="brand-description">
+                    Seeking tech-savvy creators to promote our VPN service with focus on online privacy and security.
+                </p>
+
+                <div class="brand-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">$3,600</div>
+                        <div class="stat-label">Budget</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">6 months</div>
+                        <div class="stat-label">Duration</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">25K+</div>
+                        <div class="stat-label">Min Followers</div>
+                    </div>
+                </div>
+
+                <div class="brand-actions">
+                    <button class="btn btn-primary" onclick="quickApply('TechCore VPN', 'brand-2')">Quick Apply</button>
+                    <button class="btn btn-secondary" onclick="alert('Viewing full details...')">View Details</button>
+                </div>
+            </div>
+
+            <!-- Brand 3 -->
+            <div class="brand-card" data-niche="fitness" data-budget="1800">
+                <button class="favorite-btn" onclick="toggleFavorite('brand-3')" id="fav-brand-3">
+                    <span id="heart-brand-3">🤍</span>
+                </button>
+
+                <div class="brand-header">
+                    <div class="brand-logo">⚡</div>
+                    <div class="brand-info">
+                        <h3>EnergyMax</h3>
+                        <div class="brand-category">Energy Drinks</div>
+                    </div>
+                </div>
+
+                <div class="match-badge">85% Match</div>
+
+                <p class="brand-description">
+                    Looking for fitness and gaming creators to promote our sugar-free energy drink line during streams.
+                </p>
+
+                <div class="brand-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">$1,800</div>
+                        <div class="stat-label">Budget</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">4 months</div>
+                        <div class="stat-label">Duration</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">15K+</div>
+                        <div class="stat-label">Min Followers</div>
+                    </div>
+                </div>
+
+                <div class="brand-actions">
+                    <button class="btn btn-primary" onclick="quickApply('EnergyMax', 'brand-3')">Quick Apply</button>
+                    <button class="btn btn-secondary" onclick="alert('Viewing full details...')">View Details</button>
+                </div>
+            </div>
+
+            <!-- Brand 4 -->
+            <div class="brand-card" data-niche="tech" data-budget="5200">
+                <button class="favorite-btn" onclick="toggleFavorite('brand-4')" id="fav-brand-4">
+                    <span id="heart-brand-4">🤍</span>
+                </button>
+
+                <div class="brand-header">
+                    <div class="brand-logo">💻</div>
+                    <div class="brand-info">
+                        <h3>CloudHost Pro</h3>
+                        <div class="brand-category">Web Hosting</div>
+                    </div>
+                </div>
+
+                <div class="match-badge">90% Match</div>
+
+                <p class="brand-description">
+                    Need tech creators to showcase our cloud hosting platform for developers and content creators.
+                </p>
+
+                <div class="brand-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">$5,200</div>
+                        <div class="stat-label">Budget</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">12 months</div>
+                        <div class="stat-label">Duration</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">50K+</div>
+                        <div class="stat-label">Min Followers</div>
+                    </div>
+                </div>
+
+                <div class="brand-actions">
+                    <button class="btn btn-primary" onclick="quickApply('CloudHost Pro', 'brand-4')">Quick Apply</button>
+                    <button class="btn btn-secondary" onclick="alert('Viewing full details...')">View Details</button>
+                </div>
+            </div>
+
+            <!-- Brand 5 -->
+            <div class="brand-card" data-niche="gaming" data-budget="2800">
+                <button class="favorite-btn" onclick="toggleFavorite('brand-5')" id="fav-brand-5">
+                    <span id="heart-brand-5">🤍</span>
+                </button>
+
+                <div class="brand-header">
+                    <div class="brand-logo">🎧</div>
+                    <div class="brand-info">
+                        <h3>SoundWave Audio</h3>
+                        <div class="brand-category">Gaming Headsets</div>
+                    </div>
+                </div>
+
+                <div class="match-badge">94% Match</div>
+
+                <p class="brand-description">
+                    Seeking gaming creators for our new wireless headset line with spatial audio technology.
+                </p>
+
+                <div class="brand-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">$2,800</div>
+                        <div class="stat-label">Budget</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">5 months</div>
+                        <div class="stat-label">Duration</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">20K+</div>
+                        <div class="stat-label">Min Followers</div>
+                    </div>
+                </div>
+
+                <div class="brand-actions">
+                    <button class="btn btn-primary" onclick="quickApply('SoundWave Audio', 'brand-5')">Quick Apply</button>
+                    <button class="btn btn-secondary" onclick="alert('Viewing full details...')">View Details</button>
+                </div>
+            </div>
+
+            <!-- Brand 6 -->
+            <div class="brand-card" data-niche="lifestyle" data-budget="1500">
+                <button class="favorite-btn" onclick="toggleFavorite('brand-6')" id="fav-brand-6">
+                    <span id="heart-brand-6">🤍</span>
+                </button>
+
+                <div class="brand-header">
+                    <div class="brand-logo">☕</div>
+                    <div class="brand-info">
+                        <h3>BrewMasters</h3>
+                        <div class="brand-category">Coffee & Tea</div>
+                    </div>
+                </div>
+
+                <div class="match-badge">78% Match</div>
+
+                <p class="brand-description">
+                    Looking for lifestyle and work-from-home creators to feature our premium coffee subscription service.
+                </p>
+
+                <div class="brand-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">$1,500</div>
+                        <div class="stat-label">Budget</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">3 months</div>
+                        <div class="stat-label">Duration</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">10K+</div>
+                        <div class="stat-label">Min Followers</div>
+                    </div>
+                </div>
+
+                <div class="brand-actions">
+                    <button class="btn btn-primary" onclick="quickApply('BrewMasters', 'brand-6')">Quick Apply</button>
+                    <button class="btn btn-secondary" onclick="alert('Viewing full details...')">View Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Apply Modal -->
+    <div class="modal" id="quickApplyModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <h2>Quick Apply to <span id="brandName"></span></h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                Your pitch has been pre-filled with your saved rate and media kit.
+            </p>
+
+            <textarea class="pitch-textarea" id="pitchText" placeholder="Your personalized pitch will appear here..."></textarea>
+
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" onclick="closeModal()" style="flex: 1;">Cancel</button>
+                <button class="btn btn-primary" onclick="submitApplication()" style="flex: 2;">Send Application</button>
+            </div>
+
+            <div style="margin-top: 16px; font-size: 12px; color: var(--text-muted); text-align: center;" id="remainingApplies">
+                Remaining this month: 10 / 10
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentBrand = '';
+        let currentBrandId = '';
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            loadFavorites();
+            updateApplyLimit();
+        });
+
+        // Toggle favorite
+        function toggleFavorite(brandId) {
+            if (!window.paywall || !window.paywall.canAccess('marketplace', 'saveFavorites')) {
+                if (window.paywall) {
+                    window.paywall.showUpgradeModal('marketplace', 'saveFavorites');
+                }
+                return;
+            }
+
+            const heart = document.getElementById(`heart-${brandId}`);
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+
+            if (favorites.includes(brandId)) {
+                const index = favorites.indexOf(brandId);
+                favorites.splice(index, 1);
+                heart.textContent = '🤍';
+            } else {
+                favorites.push(brandId);
+                heart.textContent = '❤️';
+            }
+
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+
+        // Load favorites
+        function loadFavorites() {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            favorites.forEach(brandId => {
+                const heart = document.getElementById(`heart-${brandId}`);
+                if (heart) heart.textContent = '❤️';
+            });
+        }
+
+        // Quick Apply
+        function quickApply(brandName, brandId) {
+            // Check limit
+            if (window.paywall) {
+                const limit = window.paywall.checkLimit('quickApplies');
+
+                if (!limit.allowed) {
+                    window.paywall.showLimitWarning('quickApplies');
+                    return;
+                }
+            }
+
+            currentBrand = brandName;
+            currentBrandId = brandId;
+
+            // Generate pitch
+            const pitch = `Dear ${brandName} Team,
+
+I'm excited to apply for this partnership opportunity! As a content creator with a strong audience in this niche, I believe I can deliver exceptional value for your brand.
+
+My audience demographics and engagement rates align perfectly with your target market. I've successfully completed similar partnerships in the past with measurable ROI.
+
+I'd love to discuss how we can create authentic, engaging content that resonates with my audience while achieving your marketing goals.
+
+Looking forward to partnering with you!
+
+Best regards,
+[Your Name]`;
+
+            document.getElementById('brandName').textContent = brandName;
+            document.getElementById('pitchText').value = pitch;
+            document.getElementById('quickApplyModal').classList.add('active');
+
+            updateApplyLimit();
+        }
+
+        // Submit application
+        function submitApplication() {
+            if (window.paywall) {
+                window.paywall.incrementUsage('quickApplies');
+            }
+
+            alert(`✅ Application sent to ${currentBrand}!`);
+            closeModal();
+            updateApplyLimit();
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('quickApplyModal').classList.remove('active');
+        }
+
+        // Update apply limit
+        function updateApplyLimit() {
+            if (!window.paywall) return;
+
+            const limit = window.paywall.checkLimit('quickApplies');
+            const text = document.getElementById('applyLimitText');
+            const fill = document.getElementById('limitFill');
+            const remaining = document.getElementById('remainingApplies');
+
+            if (limit.limit === Infinity) {
+                text.textContent = 'Quick Apply: Unlimited (Pro)';
+                fill.style.width = '100%';
+                remaining.textContent = 'Unlimited applications on Pro plan';
+            } else {
+                text.textContent = `Quick Apply: ${limit.used}/${limit.limit} this month`;
+                fill.style.width = `${(limit.used / limit.limit) * 100}%`;
+                remaining.textContent = `Remaining this month: ${limit.remaining} / ${limit.limit}`;
+            }
+        }
+
+        // Filter brands
+        function filterBrands() {
+            const niche = document.getElementById('nicheFilter').value;
+            const budget = document.getElementById('budgetFilter').value;
+
+            document.querySelectorAll('.brand-card').forEach(card => {
+                let show = true;
+
+                if (niche && card.dataset.niche !== niche) {
+                    show = false;
+                }
+
+                if (budget) {
+                    const cardBudget = parseInt(card.dataset.budget);
+                    if (budget === '0-1000' && cardBudget > 1000) show = false;
+                    if (budget === '1000-5000' && (cardBudget < 1000 || cardBudget > 5000)) show = false;
+                    if (budget === '5000+' && cardBudget < 5000) show = false;
+                }
+
+                card.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        // Sort brands
+        function sortBrands() {
+            const sort = document.getElementById('sortFilter').value;
+            const grid = document.getElementById('brandsGrid');
+            const cards = Array.from(grid.children);
+
+            cards.sort((a, b) => {
+                if (sort === 'budget') {
+                    return parseInt(b.dataset.budget) - parseInt(a.dataset.budget);
+                }
+                return 0;
+            });
+
+            cards.forEach(card => grid.appendChild(card));
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('nicheFilter').value = '';
+            document.getElementById('budgetFilter').value = '';
+            document.getElementById('followersFilter').value = '';
+            document.getElementById('sortFilter').value = 'match';
+            filterBrands();
+        }
+    </script>
+</body>
+</html>
