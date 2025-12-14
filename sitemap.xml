@@ -13,14 +13,3 @@
     <priority>0.8</priority>
   </url>
 </urlset>
-```
-
-5. Commit the file
-
----
-
-## ✅ **After Upload - Test:**
-
-Visit this URL in your browser:
-```
-https://genuine-sunburst-657b48.netlify.app/sitemap.xml
