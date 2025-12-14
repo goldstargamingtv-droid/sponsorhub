@@ -5,61 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- SEO Meta Tags -->
-    <title>PromoSync - AI-Powered Sponsorship Platform for Content Creators</title>
-    <meta name="description" content="The ultimate sponsorship management platform for streamers and content creators. Find brand deals, calculate rates with AI, track revenue, and manage contracts - all in one place.">
-    <meta name="keywords" content="sponsorship platform, content creator tools, brand deals, streamer sponsorships, twitch sponsorships, youtube sponsorships, influencer marketing, creator economy, sponsorship calculator">
-    <meta name="author" content="PromoSync">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://promosync.com">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://promosync.com">
-    <meta property="og:title" content="PromoSync - AI-Powered Sponsorship Platform for Content Creators">
-    <meta property="og:description" content="Find brand deals, calculate rates with AI, track revenue, and manage contracts. The all-in-one platform for creator sponsorships.">
-    <meta property="og:image" content="https://promosync.com/og-image.jpg">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://promosync.com">
-    <meta property="twitter:title" content="PromoSync - AI-Powered Sponsorship Platform for Content Creators">
-    <meta property="twitter:description" content="Find brand deals, calculate rates with AI, track revenue, and manage contracts.">
-    <meta property="twitter:image" content="https://promosync.com/twitter-image.jpg">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="alternate icon" type="image/png" href="favicon.png">
-    
-    <!-- Google Analytics 4 -->
-    <!-- Replace G-XXXXXXXXXX with your actual Measurement ID -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-XXXXXXXXXX');
-    </script>
+    <title>PromoSync - Land Brand Deals Faster with AI-Powered Matching</title>
+    <meta name="description" content="The all-in-one platform for streamers to get sponsored. Calculate fair rates, build pro media kits, and connect with brands—all in one place.">
+    <meta name="keywords" content="sponsorship platform, content creator tools, brand deals, streamer sponsorships, twitch sponsorships, youtube sponsorships, influencer marketing, creator economy">
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "PromoSync",
-      "applicationCategory": "BusinessApplication",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "description": "AI-powered sponsorship management platform for content creators and streamers.",
-      "operatingSystem": "Web Browser"
-    }
-    </script>
-
     <style>
         * {
             margin: 0;
@@ -74,20 +26,19 @@
             --accent-primary: #00d9ff;
             --accent-secondary: #7b61ff;
             --accent-tertiary: #ff6b9d;
+            --success: #10b981;
             --text-primary: #ffffff;
             --text-secondary: #a8b2d1;
             --text-muted: #6b7794;
             --border-color: rgba(255, 255, 255, 0.08);
-            --success: #00ffa3;
-            --warning: #ffd93d;
         }
 
         body {
             font-family: 'DM Sans', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            overflow-x: hidden;
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         /* Animated Background */
@@ -98,34 +49,21 @@
             top: 0;
             left: 0;
             z-index: 0;
-            opacity: 0.15;
-            background: 
-                radial-gradient(circle at 20% 50%, var(--accent-primary) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, var(--accent-secondary) 0%, transparent 50%),
-                radial-gradient(circle at 40% 20%, var(--accent-tertiary) 0%, transparent 50%);
-            animation: gradientShift 15s ease infinite;
+            background: radial-gradient(ellipse at top, rgba(0, 217, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(ellipse at bottom right, rgba(123, 97, 255, 0.1) 0%, transparent 50%);
         }
 
-        @keyframes gradientShift {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.1) rotate(5deg); }
-        }
-
-        /* Navigation */
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            background: rgba(10, 14, 26, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .nav-container {
-            max-width: 1400px;
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 1.5rem 2rem;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            padding: 24px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -133,842 +71,1378 @@
 
         .logo {
             font-family: 'Syne', sans-serif;
-            font-size: 1.8rem;
+            font-size: 28px;
             font-weight: 800;
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
-        .nav-links {
+        .nav-buttons {
             display: flex;
-            gap: 2rem;
-            list-style: none;
-            align-items: center;
+            gap: 16px;
         }
 
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: var(--accent-primary);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: var(--text-primary);
-            padding: 0.75rem 1.5rem;
+        .btn {
+            padding: 12px 28px;
             border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: none;
+            font-weight: 700;
+            font-size: 15px;
             cursor: pointer;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            border: none;
         }
 
         .btn-secondary {
             background: rgba(255, 255, 255, 0.05);
-            border: 2px solid var(--accent-primary);
-            color: var(--accent-primary);
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-            cursor: pointer;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
 
         .btn-secondary:hover {
-            background: rgba(0, 217, 255, 0.1);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn-primary:hover {
             transform: translateY(-2px);
+            box-shadow: 0 15px 50px rgba(0, 217, 255, 0.4);
         }
 
         /* Hero Section */
         .hero {
-            position: relative;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 60px 0 80px;
             text-align: center;
-            padding: 8rem 2rem 4rem;
         }
 
-        .hero-content {
-            position: relative;
-            z-index: 10;
+        .hero-visual {
+            margin: 0 auto 40px;
             max-width: 900px;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
         }
 
-        .coming-soon-badge {
-            display: inline-block;
-            background: rgba(0, 217, 255, 0.1);
-            border: 1px solid var(--accent-primary);
-            padding: 0.5rem 1.5rem;
-            border-radius: 50px;
-            color: var(--accent-primary);
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-            animation: pulse 2s ease infinite;
+        .hero-visual::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 217, 255, 0.08) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
         }
 
-        h1 {
+        .dashboard-preview {
+            position: relative;
+            z-index: 1;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .preview-title-text {
             font-family: 'Syne', sans-serif;
-            font-size: 4rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #fff, var(--accent-primary));
+            font-size: 18px;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .preview-tabs {
+            display: flex;
+            gap: 6px;
+        }
+
+        .preview-tab {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .preview-tab.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: left;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
+            margin-bottom: 2px;
         }
 
-        .hero p {
-            font-size: 1.3rem;
+        .stat-change {
+            font-size: 10px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .chart-header {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .revenue-chart {
+            height: 120px;
+            background: linear-gradient(180deg, rgba(0, 217, 255, 0.1) 0%, transparent 100%);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            height: 90px;
+        }
+
+        .chart-line svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .donut-chart {
+            width: 90px;
+            height: 90px;
+            margin: 16px auto;
+            background: conic-gradient(
+                from 0deg,
+                var(--accent-primary) 0deg 162deg,
+                var(--success) 162deg 280deg,
+                var(--warning) 280deg 324deg,
+                var(--danger) 324deg 360deg
+            );
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .donut-chart::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+        }
+
+        .chart-legend {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .hero-headline {
+            font-family: 'Syne', sans-serif;
+            font-size: 64px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subheadline {
+            font-size: 22px;
             color: var(--text-secondary);
-            margin-bottom: 3rem;
             max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 0 auto 48px;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
         }
 
         .waitlist-form {
             display: flex;
-            gap: 1rem;
+            gap: 12px;
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
             max-width: 500px;
-            margin: 0 auto 2rem;
         }
 
-        .waitlist-form input {
+        .waitlist-input {
             flex: 1;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            border: 2px solid var(--border-color);
+            padding: 16px 20px;
             background: rgba(255, 255, 255, 0.05);
+            border: none;
+            border-radius: 12px;
             color: var(--text-primary);
-            font-size: 1rem;
-            transition: border-color 0.3s;
+            font-size: 16px;
         }
 
-        .waitlist-form input:focus {
+        .waitlist-input:focus {
             outline: none;
-            border-color: var(--accent-primary);
+            background: rgba(255, 255, 255, 0.08);
         }
 
-        .waitlist-form button {
-            padding: 1rem 2rem;
-        }
-
-        .hero-stats {
-            display: flex;
-            gap: 3rem;
-            justify-content: center;
-            margin-top: 3rem;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stat-label {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-
-        /* Features Section */
-        .features {
+        /* Section Divider */
+        .section {
+            padding: 80px 0;
             position: relative;
-            z-index: 10;
-            padding: 6rem 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
         }
 
         .section-header {
             text-align: center;
-            margin-bottom: 4rem;
-        }
-
-        .section-label {
-            color: var(--accent-primary);
-            font-weight: 700;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
+            margin-bottom: 64px;
         }
 
         .section-title {
             font-family: 'Syne', sans-serif;
-            font-size: 3rem;
+            font-size: 48px;
             font-weight: 800;
-            margin-bottom: 1rem;
+            margin-bottom: 16px;
         }
 
         .section-subtitle {
+            font-size: 20px;
             color: var(--text-secondary);
-            font-size: 1.2rem;
-            max-width: 600px;
-            margin: 0 auto;
         }
 
+        /* Feature Cards */
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
         }
 
         .feature-card {
             background: var(--bg-card);
+            backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
             border-radius: 24px;
-            padding: 2.5rem;
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s, box-shadow 0.3s;
+            padding: 40px;
+            transition: all 0.3s;
         }
 
         .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 60px rgba(0, 217, 255, 0.2);
+            transform: translateY(-8px);
             border-color: var(--accent-primary);
+            box-shadow: 0 20px 60px rgba(0, 217, 255, 0.2);
         }
 
         .feature-icon {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 24px;
+            font-size: 32px;
         }
 
-        .feature-card h3 {
+        .feature-title {
             font-family: 'Syne', sans-serif;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
         }
 
-        .feature-card p {
+        .feature-description {
             color: var(--text-secondary);
             line-height: 1.7;
         }
 
-        /* How It Works */
-        .how-it-works {
-            position: relative;
-            z-index: 10;
-            padding: 6rem 2rem;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .steps {
-            max-width: 1200px;
-            margin: 0 auto;
+        /* Social Proof */
+        .testimonials {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 3rem;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-top: 48px;
         }
 
-        .step {
-            text-align: center;
-            position: relative;
+        .testimonial {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
         }
 
-        .step-number {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: 50%;
+        .testimonial-text {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-style: italic;
+            line-height: 1.7;
+        }
+
+        .testimonial-author {
             display: flex;
             align-items: center;
+            gap: 16px;
+        }
+
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        }
+
+        .author-name {
+            font-weight: 700;
+        }
+
+        .author-role {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Brand Logos */
+        .brand-logos {
+            display: flex;
             justify-content: center;
-            font-size: 2rem;
-            font-weight: 800;
-            margin: 0 auto 1.5rem;
+            align-items: center;
+            gap: 48px;
+            flex-wrap: wrap;
+            opacity: 0.4;
+            filter: grayscale(100%);
         }
 
-        .step h3 {
+        .brand-logo {
             font-family: 'Syne', sans-serif;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .step p {
+            font-size: 24px;
+            font-weight: 700;
             color: var(--text-secondary);
         }
 
-        /* Pricing Preview */
-        .pricing {
+        /* Tool Preview */
+        .tool-preview {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 48px;
+            text-align: center;
+        }
+
+        .preview-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .preview-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .calculator-preview {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 32px;
+            margin-top: 32px;
+            text-align: left;
+        }
+
+        .calculator-inputs {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 24px;
+            border-radius: 16px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .input-bar {
+            background: rgba(255, 255, 255, 0.1);
+            height: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .calculator-result {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            padding: 32px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .result-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+        }
+
+        /* Bottom CTA */
+        .bottom-cta {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(123, 97, 255, 0.1));
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 64px;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .cta-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 48px 0;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            margin-top: 80px;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+        }
+
+        /* Pricing Toggle */
+        .pricing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .toggle-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .toggle-label.active {
+            color: var(--text-primary);
+        }
+
+        .toggle-switch {
+            width: 60px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
             position: relative;
-            z-index: 10;
-            padding: 6rem 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.annual {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        }
+
+        .toggle-slider {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 4px;
+            left: 4px;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.annual .toggle-slider {
+            left: 32px;
         }
 
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
         .pricing-card {
             background: var(--bg-card);
-            border: 2px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
             border-radius: 24px;
-            padding: 3rem 2rem;
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-        }
-
-        .pricing-card.featured {
-            border-color: var(--accent-primary);
-            box-shadow: 0 20px 60px rgba(0, 217, 255, 0.2);
-            transform: scale(1.05);
+            padding: 40px;
+            position: relative;
+            transition: all 0.3s;
         }
 
         .pricing-card:hover {
-            transform: translateY(-10px) scale(1.05);
+            transform: translateY(-4px);
             border-color: var(--accent-primary);
+        }
+
+        .pricing-card.featured {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(123, 97, 255, 0.1));
+            border: 2px solid var(--accent-primary);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
         }
 
         .plan-name {
             font-family: 'Syne', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
 
         .plan-price {
-            font-size: 3rem;
+            font-size: 48px;
             font-weight: 800;
-            margin-bottom: 0.5rem;
+            margin-bottom: 8px;
         }
 
-        .plan-price span {
-            font-size: 1.2rem;
-            color: var(--text-muted);
+        .plan-price .period {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .annual-savings {
+            display: inline-block;
+            background: var(--success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .plan-description {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
         }
 
         .plan-features {
             list-style: none;
-            margin: 2rem 0;
-            text-align: left;
+            margin-bottom: 32px;
         }
 
         .plan-features li {
-            padding: 0.75rem 0;
-            color: var(--text-secondary);
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            align-items: flex-start;
+            gap: 12px;
         }
 
-        .plan-features li:before {
-            content: "✓";
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-check {
             color: var(--success);
-            font-weight: 800;
-            font-size: 1.2rem;
+            font-weight: 700;
+            flex-shrink: 0;
         }
 
-        .transaction-fee {
-            background: rgba(255, 107, 157, 0.1);
-            border: 1px solid var(--accent-tertiary);
-            padding: 0.75rem;
-            border-radius: 12px;
-            margin-top: 1rem;
-            color: var(--accent-tertiary);
-            font-weight: 600;
+        .feature-text {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
-        /* CTA Section */
-        .cta {
-            position: relative;
-            z-index: 10;
-            padding: 8rem 2rem;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .cta-content {
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .cta h2 {
-            font-family: 'Syne', sans-serif;
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-        }
-
-        .cta p {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-        }
-
-        /* Footer */
-        footer {
-            position: relative;
-            z-index: 10;
-            padding: 3rem 2rem;
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-        }
-
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .footer-links a {
+        .feature-limit {
             color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.3s;
+            font-size: 13px;
+            display: block;
+            margin-top: 4px;
         }
-
-        .footer-links a:hover {
-            color: var(--accent-primary);
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .social-link {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-
-        .social-link:hover {
-            background: var(--accent-primary);
-            color: var(--bg-primary);
-            transform: translateY(-3px);
-        }
-
-        /* Mobile Responsive */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
+            .hero-headline {
+                font-size: 42px;
             }
 
-            .hero p {
-                font-size: 1.1rem;
+            .hero-subheadline {
+                font-size: 18px;
+            }
+
+            .hero-visual {
+                height: 300px;
             }
 
             .section-title {
-                font-size: 2rem;
+                font-size: 36px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calculator-preview {
+                grid-template-columns: 1fr;
+            }
+
+            .testimonials {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-cta {
+                flex-direction: column;
             }
 
             .waitlist-form {
                 flex-direction: column;
+                width: 100%;
             }
 
-            .nav-links {
-                display: none;
-            }
-
-            .features-grid,
-            .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-stats {
+            .nav-buttons {
                 flex-direction: column;
-                gap: 1.5rem;
             }
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-in {
-            animation: fadeInUp 0.6s ease backwards;
         }
     </style>
 </head>
 <body>
     <div class="bg-gradient"></div>
 
-    <!-- Navigation -->
-    <nav>
-        <div class="nav-container">
+    <div class="container">
+        <!-- Header -->
+        <header>
             <div class="logo">PromoSync</div>
-            <ul class="nav-links">
-                <li><a href="#features">Features</a></li>
-                <li><a href="#how-it-works">How It Works</a></li>
-                <li><a href="#pricing">Pricing</a></li>
-                <li><a href="login.html" class="btn-secondary">Login</a></li>
-                <li><a href="#waitlist" class="btn-primary">Join Waitlist</a></li>
-            </ul>
-        </div>
-    </nav>
+            <div class="nav-buttons">
+                <a href="login.html" class="btn btn-secondary">Sign In</a>
+                <a href="#waitlist" class="btn btn-primary">Join Waitlist</a>
+            </div>
+        </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <div class="coming-soon-badge">🚀 Launching Soon</div>
-            <h1>Turn Your Audience Into Revenue</h1>
-            <p>The AI-powered sponsorship platform that helps content creators find brand deals, calculate fair rates, and manage partnerships - all in one place.</p>
-            
-            <form class="waitlist-form" id="waitlistForm">
-                <input type="email" placeholder="Enter your email" required id="emailInput">
-                <button type="submit" class="btn-primary">Get Early Access</button>
-            </form>
+        <!-- Hero Section -->
+        <section class="hero">
+            <!-- Hero Visual - Dashboard Preview -->
+            <div class="hero-visual">
+                <div class="dashboard-preview">
+                    <!-- Preview Header -->
+                    <div class="preview-header">
+                        <div class="preview-title-text">Creator Dashboard</div>
+                        <div class="preview-tabs">
+                            <div class="preview-tab active">Overview</div>
+                            <div class="preview-tab">Analytics</div>
+                            <div class="preview-tab">Deals</div>
+                        </div>
+                    </div>
 
-            <div class="hero-stats">
-                <div class="stat">
-                    <div class="stat-number" id="waitlistCount">500+</div>
-                    <div class="stat-label">On Waitlist</div>
+                    <!-- Stats Row -->
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="stat-label">Total Revenue</div>
+                            <div class="stat-value">$47,852</div>
+                            <div class="stat-change">↑ 23.5%</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Active Deals</div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-change">↑ 3 new</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Brand Matches</div>
+                            <div class="stat-value">15</div>
+                            <div class="stat-change">↑ 5 potential</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Avg Deal Value</div>
+                            <div class="stat-value">$3,988</div>
+                            <div class="stat-change">↑ 12.3%</div>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Chart -->
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <div class="chart-header">Revenue Over Time</div>
+                            <div class="revenue-chart">
+                                <div class="chart-line">
+                                    <svg viewBox="0 0 800 90" preserveAspectRatio="none">
+                                        <defs>
+                                            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" style="stop-color:#00d9ff;stop-opacity:1" />
+                                                <stop offset="100%" style="stop-color:#7b61ff;stop-opacity:1" />
+                                            </linearGradient>
+                                        </defs>
+                                        <polyline 
+                                            fill="none" 
+                                            stroke="url(#lineGradient)" 
+                                            stroke-width="3" 
+                                            points="0,70 70,65 140,67 210,55 280,52 350,45 420,48 490,38 560,35 630,32 700,28 770,22"
+                                        />
+                                        <circle cx="770" cy="22" r="4" fill="#7b61ff"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="chart-labels">
+                                <span>Jan</span>
+                                <span>Apr</span>
+                                <span>Jul</span>
+                                <span>Oct</span>
+                                <span>Dec</span>
+                            </div>
+                        </div>
+
+                        <!-- Donut Chart -->
+                        <div class="chart-container">
+                            <div class="chart-header">Deal Status</div>
+                            <div class="donut-chart"></div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-dot" style="background: var(--accent-primary);"></div>
+                                    <span>Active (12)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-dot" style="background: var(--success);"></div>
+                                    <span>Complete (28)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-dot" style="background: var(--warning);"></div>
+                                    <span>Pending (5)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-dot" style="background: var(--danger);"></div>
+                                    <span>Cancelled (3)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat">
-                    <div class="stat-number">$250B</div>
-                    <div class="stat-label">Creator Economy</div>
+            </div>
+
+            <h1 class="hero-headline">Land Brand Deals Faster with AI-Powered Matching</h1>
+            <p class="hero-subheadline">
+                The all-in-one platform for streamers to get sponsored. Calculate fair rates, build pro media kits, and connect with brands—all in one place.
+            </p>
+
+            <div class="hero-cta">
+                <form class="waitlist-form" id="heroWaitlistForm">
+                    <input type="email" class="waitlist-input" placeholder="Enter your email" required>
+                    <button type="submit" class="btn btn-primary">Join Waitlist</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Everything You Need to Get Sponsored</h2>
+                <p class="section-subtitle">Professional tools built for content creators</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🧮</div>
+                    <h3 class="feature-title">AI Rate Calculator</h3>
+                    <p class="feature-description">
+                        Never undervalue your content again. Our AI analyzes your audience, engagement, and niche to recommend fair sponsorship rates based on real market data.
+                    </p>
                 </div>
-                <div class="stat">
-                    <div class="stat-number">AI-Powered</div>
-                    <div class="stat-label">Rate Calculator</div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🤝</div>
+                    <h3 class="feature-title">Smart Brand Matching</h3>
+                    <p class="feature-description">
+                        Get matched with brands that align with your content and audience. Our algorithm considers your niche, viewer demographics, and past performance.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📄</div>
+                    <h3 class="feature-title">Professional Media Kits</h3>
+                    <p class="feature-description">
+                        Create stunning media kits in minutes with customizable templates. Download as PDF and share with brands to land more deals faster.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Revenue Analytics</h3>
+                    <p class="feature-description">
+                        Track all your sponsorship revenue, active deals, and performance metrics in one beautiful dashboard. Know exactly where you stand.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3 class="feature-title">Contract Management</h3>
+                    <p class="feature-description">
+                        Manage all your sponsorship contracts with visual timelines, milestone tracking, and payment schedules. Never miss a deadline again.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Deal Notifications</h3>
+                    <p class="feature-description">
+                        Get instant alerts when brands match with you, payments arrive, or contract milestones are reached. Stay on top of every opportunity.
+                    </p>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Features Section -->
-    <section class="features" id="features">
-        <div class="section-header">
-            <div class="section-label">FEATURES</div>
-            <h2 class="section-title">Everything You Need to Monetize</h2>
-            <p class="section-subtitle">Powerful tools designed specifically for content creators and streamers</p>
-        </div>
-
-        <div class="features-grid">
-            <div class="feature-card animate-in">
-                <div class="feature-icon">🎯</div>
-                <h3>AI Rate Calculator</h3>
-                <p>Get instant, data-driven sponsorship rate recommendations based on your followers, engagement, platform, and niche. Never undersell yourself again.</p>
+        <!-- Social Proof -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Trusted by Creators Like You</h2>
+                <p class="section-subtitle">Join hundreds of streamers already landing better deals</p>
             </div>
 
-            <div class="feature-card animate-in" style="animation-delay: 0.1s">
-                <div class="feature-icon">💼</div>
-                <h3>Brand Marketplace</h3>
-                <p>Browse hundreds of brands actively looking for creators like you. Filter by budget, category, and requirements to find perfect matches.</p>
+            <div class="testimonials">
+                <div class="testimonial">
+                    <p class="testimonial-text">
+                        "PromoSync helped me land my first sponsorship within 2 weeks. The rate calculator alone is worth it—I was charging way too little before!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar"></div>
+                        <div>
+                            <div class="author-name">Alex Chen</div>
+                            <div class="author-role">Gaming Streamer • 12K followers</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial">
+                    <p class="testimonial-text">
+                        "The media kit builder is a game-changer. I used to spend hours making presentations for brands. Now it takes 10 minutes and looks way more professional."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar"></div>
+                        <div>
+                            <div class="author-name">Sarah Martinez</div>
+                            <div class="author-role">Tech Reviewer • 45K subscribers</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial">
+                    <p class="testimonial-text">
+                        "Finally, a platform that gets it. Brand matching actually works—I've gotten 3 relevant sponsorship offers this month alone. My revenue is up 200%."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar"></div>
+                        <div>
+                            <div class="author-name">Marcus Johnson</div>
+                            <div class="author-role">Fitness Creator • 28K followers</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="feature-card animate-in" style="animation-delay: 0.2s">
-                <div class="feature-icon">📊</div>
-                <h3>Analytics Dashboard</h3>
-                <p>Track your total revenue, active deals, and performance metrics. Visualize your growth with beautiful charts and insights.</p>
+            <div class="brand-logos" style="margin-top: 64px;">
+                <div class="brand-logo">RAZER</div>
+                <div class="brand-logo">RED BULL</div>
+                <div class="brand-logo">LOGITECH</div>
+                <div class="brand-logo">GFUEL</div>
+                <div class="brand-logo">DISCORD</div>
+            </div>
+        </section>
+
+        <!-- Tool Preview -->
+        <section class="section">
+            <div class="tool-preview">
+                <h2 class="preview-title">See the Calculator in Action</h2>
+                <p class="preview-subtitle">Get instant rate recommendations based on your stats</p>
+
+                <div class="calculator-preview">
+                    <div class="calculator-inputs">
+                        <div class="input-label">Total Followers</div>
+                        <div class="input-bar" style="width: 70%; background: rgba(0, 217, 255, 0.3);"></div>
+
+                        <div class="input-label">Average Viewers</div>
+                        <div class="input-bar" style="width: 50%; background: rgba(123, 97, 255, 0.3);"></div>
+
+                        <div class="input-label">Engagement Rate</div>
+                        <div class="input-bar" style="width: 60%; background: rgba(255, 107, 157, 0.3);"></div>
+                    </div>
+
+                    <div class="calculator-result">
+                        <div class="result-label">Recommended Rate</div>
+                        <div class="result-value">$926</div>
+                        <div style="margin-top: 8px; opacity: 0.9;">per sponsorship</div>
+                    </div>
+                </div>
+
+                <a href="login.html" class="btn btn-primary" style="margin-top: 32px;">Try Calculator Free →</a>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Simple, Transparent Pricing</h2>
+                <p class="section-subtitle">Choose the plan that fits your creator journey</p>
             </div>
 
-            <div class="feature-card animate-in" style="animation-delay: 0.3s">
-                <div class="feature-icon">📝</div>
-                <h3>Media Kit Generator</h3>
-                <p>Create professional pitch decks instantly. Choose from multiple templates and showcase your stats to attract premium brands.</p>
+            <!-- Pricing Toggle -->
+            <div class="pricing-toggle">
+                <span class="toggle-label active" id="monthlyLabel">Monthly</span>
+                <div class="toggle-switch" id="pricingToggle" onclick="togglePricing()">
+                    <div class="toggle-slider"></div>
+                </div>
+                <span class="toggle-label" id="annualLabel">Annual <span style="color: var(--success);">(Save 20%)</span></span>
             </div>
 
-            <div class="feature-card animate-in" style="animation-delay: 0.4s">
-                <div class="feature-icon">🤝</div>
-                <h3>Contract Management</h3>
-                <p>Manage all your sponsorship deals in one place. Track deliverables, payment terms, and deadlines with automated reminders.</p>
+            <div class="pricing-grid">
+                <!-- Free Plan -->
+                <div class="pricing-card">
+                    <h3 class="plan-name">Free</h3>
+                    <div class="plan-price">$0<span class="period">/forever</span></div>
+                    <p class="plan-description">Perfect for getting started</p>
+                    
+                    <ul class="plan-features">
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                AI Rate Calculator
+                                <span class="feature-limit">Basic calculation only (no save/compare)</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Media Kit Builder
+                                <span class="feature-limit">1 kit/month, basic templates</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Marketplace Browsing
+                                <span class="feature-limit">View brands & matches</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Analytics Dashboard
+                                <span class="feature-limit">Last 30 days, no exports</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Contract Tracking
+                                <span class="feature-limit">Max 3 active contracts</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                AI Pitch Generator
+                                <span class="feature-limit">1 pitch/month</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Community Support
+                                <span class="feature-limit">Forums only</span>
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <a href="login.html" class="btn btn-secondary" style="width: 100%; text-align: center;">Get Started Free</a>
+                </div>
+
+                <!-- Starter Plan -->
+                <div class="pricing-card featured">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    
+                    <h3 class="plan-name">Starter</h3>
+                    <div class="plan-price">
+                        <span id="starterPrice">$9.99</span><span class="period">/mo</span>
+                        <span class="annual-savings" id="starterSavings" style="display: none;">Save $24/year</span>
+                    </div>
+                    <p class="plan-description">For growing creators</p>
+                    
+                    <ul class="plan-features">
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Advanced Rate Calculator
+                                <span class="feature-limit">Save rates + industry comparison</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Media Kit Builder
+                                <span class="feature-limit">5 kits/month, all templates, custom colors</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Quick Apply
+                                <span class="feature-limit">Max 10 applications/month</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Standard Filters & Sorting
+                                <span class="feature-limit">Niche, budget filters</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Analytics Dashboard
+                                <span class="feature-limit">Last 90 days + basic CSV export</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Contract Tracking
+                                <span class="feature-limit">Max 10 active + email reminders</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                AI Pitch Generator
+                                <span class="feature-limit">10 pitches/month + basic templates</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Clean Exports (No Watermark)
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Email Support
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <a href="login.html" class="btn btn-primary" style="width: 100%; text-align: center;">Start Free Trial</a>
+                </div>
+
+                <!-- Pro Plan -->
+                <div class="pricing-card">
+                    <h3 class="plan-name">Pro</h3>
+                    <div class="plan-price">
+                        <span id="proPrice">$19.99</span><span class="period">/mo</span>
+                        <span class="annual-savings" id="proSavings" style="display: none;">Save $48/year</span>
+                    </div>
+                    <p class="plan-description">For professional creators</p>
+                    
+                    <ul class="plan-features">
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                <strong>Everything in Starter, plus:</strong>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Rate History & Trends
+                                <span class="feature-limit">Track rate evolution over time</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Unlimited Media Kits
+                                <span class="feature-limit">Drag-reorder, branded exports, shareable links</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Unlimited Quick Apply
+                                <span class="feature-limit">Save favorites + priority new matches</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Advanced Filters & All Sorting
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Full Analytics History
+                                <span class="feature-limit">PDF/CSV export + sponsor ROI breakdown</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Unlimited Contracts
+                                <span class="feature-limit">Auto-milestone updates + calendar integration</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Unlimited AI Pitches
+                                <span class="feature-limit">Premium templates + auto-attach media kit</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Email + SMS Reminders
+                                <span class="feature-limit">New match alerts</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Fully Branded Exports
+                            </div>
+                        </li>
+                        <li>
+                            <span class="feature-check">✓</span>
+                            <div class="feature-text">
+                                Priority Email Support
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <a href="login.html" class="btn btn-primary" style="width: 100%; text-align: center;">Start Free Trial</a>
+                </div>
             </div>
+        </section>
 
-            <div class="feature-card animate-in" style="animation-delay: 0.5s">
-                <div class="feature-icon">💰</div>
-                <h3>Revenue Tracking</h3>
-                <p>See exactly how much you're earning from each platform and brand. Export reports for taxes and financial planning.</p>
+        <!-- Bottom CTA -->
+        <section class="section" id="waitlist">
+            <div class="bottom-cta">
+                <h2 class="cta-title">Ready to Land Your Next Brand Deal?</h2>
+                <p class="cta-subtitle">Join the waitlist and get early access when we launch</p>
+
+                <form class="waitlist-form" id="bottomWaitlistForm" style="margin: 0 auto;">
+                    <input type="email" class="waitlist-input" placeholder="Enter your email" required>
+                    <button type="submit" class="btn btn-primary">Join Waitlist</button>
+                </form>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- How It Works -->
-    <section class="how-it-works" id="how-it-works">
-        <div class="section-header">
-            <div class="section-label">HOW IT WORKS</div>
-            <h2 class="section-title">Get Started in 3 Simple Steps</h2>
-            <p class="section-subtitle">From signup to your first sponsorship deal in minutes</p>
-        </div>
-
-        <div class="steps">
-            <div class="step animate-in">
-                <div class="step-number">1</div>
-                <h3>Create Your Profile</h3>
-                <p>Sign up and add your platform stats - followers, viewers, engagement rate. Our AI analyzes your value instantly.</p>
-            </div>
-
-            <div class="step animate-in" style="animation-delay: 0.2s">
-                <div class="step-number">2</div>
-                <h3>Browse & Apply</h3>
-                <p>Explore brand opportunities matched to your niche and audience size. Apply with your AI-generated media kit.</p>
-            </div>
-
-            <div class="step animate-in" style="animation-delay: 0.4s">
-                <div class="step-number">3</div>
-                <h3>Close Deals & Get Paid</h3>
-                <p>Negotiate rates using our calculator, sign contracts, deliver content, and track payments - all from your dashboard.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Pricing Preview -->
-    <section class="pricing" id="pricing">
-        <div class="section-header">
-            <div class="section-label">PRICING</div>
-            <h2 class="section-title">Simple, Transparent Pricing</h2>
-            <p class="section-subtitle">Choose the plan that fits your creator journey</p>
-        </div>
-
-        <div class="pricing-grid">
-            <div class="pricing-card animate-in">
-                <div class="plan-name">Free</div>
-                <div class="plan-price">$0<span>/month</span></div>
-                <ul class="plan-features">
-                    <li>Access to brand marketplace</li>
-                    <li>Basic rate calculator</li>
-                    <li>10 applications per month</li>
-                    <li>Basic analytics</li>
-                    <li>Email support</li>
-                </ul>
-                <div class="transaction-fee">10% transaction fee</div>
-                <button class="btn-secondary" style="width: 100%; margin-top: 1.5rem;">Get Started</button>
-            </div>
-
-            <div class="pricing-card featured animate-in" style="animation-delay: 0.1s">
-                <div class="plan-name">Pro</div>
-                <div class="plan-price">$9.99<span>/month</span></div>
-                <ul class="plan-features">
-                    <li>Everything in Free</li>
-                    <li>Unlimited applications</li>
-                    <li>Advanced AI rate calculator</li>
-                    <li>Media kit generator</li>
-                    <li>Priority support</li>
-                    <li>Contract templates</li>
-                </ul>
-                <div class="transaction-fee">5% transaction fee</div>
-                <button class="btn-primary" style="width: 100%; margin-top: 1.5rem;">Get Started</button>
-            </div>
-
-            <div class="pricing-card animate-in" style="animation-delay: 0.2s">
-                <div class="plan-name">Elite</div>
-                <div class="plan-price">$19.99<span>/month</span></div>
-                <ul class="plan-features">
-                    <li>Everything in Pro</li>
-                    <li>Custom contract negotiation</li>
-                    <li>Dedicated account manager</li>
-                    <li>Brand partnership introductions</li>
-                    <li>Advanced analytics & reporting</li>
-                    <li>API access</li>
-                </ul>
-                <div class="transaction-fee" style="background: rgba(0, 255, 163, 0.1); border-color: var(--success); color: var(--success);">0% transaction fee</div>
-                <button class="btn-secondary" style="width: 100%; margin-top: 1.5rem;">Get Started</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta" id="waitlist">
-        <div class="cta-content">
-            <h2>Join 10,000+ Creators on the Waitlist</h2>
-            <p>Be among the first to access PromoSync when we launch. Get exclusive early bird pricing and bonus features.</p>
-            
-            <form class="waitlist-form" id="waitlistFormBottom">
-                <input type="email" placeholder="Enter your email" required>
-                <button type="submit" class="btn-primary">Join Waitlist</button>
-            </form>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="logo">PromoSync</div>
-            
-            <ul class="footer-links">
-                <li><a href="#features">Features</a></li>
-                <li><a href="#pricing">Pricing</a></li>
-                <li><a href="mailto:hello@promosync.com">Contact</a></li>
-                <li><a href="#">Privacy</a></li>
-                <li><a href="#">Terms</a></li>
-            </ul>
-
-            <div class="social-links">
-                <a href="#" class="social-link">𝕏</a>
-                <a href="#" class="social-link">in</a>
-                <a href="#" class="social-link">📧</a>
-            </div>
-        </div>
-        
-        <p style="margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
-            © 2024 PromoSync. All rights reserved.
-        </p>
-    </footer>
+        <!-- Footer -->
+        <footer>
+            <p class="footer-text">© 2024 PromoSync. Built for creators, by creators.</p>
+        </footer>
+    </div>
 
     <script>
-        // API Configuration
         const API_URL = 'https://sponsorhub-backend.onrender.com/api';
 
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
+        // Handle hero waitlist form
+        document.getElementById('heroWaitlistForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = e.target.querySelector('input').value;
+            await submitWaitlist(email, e.target);
         });
 
-        // Waitlist form handling
-        const forms = [document.getElementById('waitlistForm'), document.getElementById('waitlistFormBottom')];
-        
-        forms.forEach(form => {
-            if (form) {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const email = form.querySelector('input[type="email"]').value;
-                    const button = form.querySelector('button');
-                    
-                    button.textContent = 'Joining...';
-                    button.disabled = true;
-                    
-                    try {
-                        const response = await fetch(`${API_URL}/waitlist/join`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email })
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (data.success || data.alreadyExists) {
-                            button.textContent = '✓ You\'re on the list!';
-                            button.style.background = 'linear-gradient(135deg, var(--success), #00cc82)';
-                            form.querySelector('input').value = '';
-                            
-                            setTimeout(() => {
-                                button.textContent = 'Get Early Access';
-                                button.disabled = false;
-                                button.style.background = '';
-                            }, 3000);
-                        } else {
-                            throw new Error(data.error || 'Failed to join');
-                        }
-                    } catch (error) {
-                        console.error('Waitlist error:', error);
-                        button.textContent = 'Try Again';
-                        button.disabled = false;
-                        
-                        setTimeout(() => {
-                            button.textContent = 'Get Early Access';
-                        }, 2000);
-                    }
-                });
-            }
+        // Handle bottom waitlist form
+        document.getElementById('bottomWaitlistForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = e.target.querySelector('input').value;
+            await submitWaitlist(email, e.target);
         });
 
-        // Load and display waitlist count
-        async function loadWaitlistCount() {
+        async function submitWaitlist(email, form) {
+            const button = form.querySelector('button');
+            const originalText = button.textContent;
+            button.textContent = 'Joining...';
+            button.disabled = true;
+
             try {
-                const response = await fetch(`${API_URL}/waitlist/count`);
-                const data = await response.json();
-                
-                if (data.count) {
-                    // Update the hero stats with real count
-                    const countElement = document.getElementById('waitlistCount');
-                    if (countElement) {
-                        countElement.textContent = data.count + '+';
-                    }
+                const response = await fetch(`${API_URL}/waitlist`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                if (response.ok) {
+                    button.textContent = '✅ Joined!';
+                    button.style.background = '#10b981';
+                    form.querySelector('input').value = '';
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                        button.style.background = '';
+                    }, 3000);
+                } else {
+                    throw new Error('Failed to join waitlist');
                 }
             } catch (error) {
-                console.error('Failed to load waitlist count:', error);
+                console.error('Waitlist error:', error);
+                button.textContent = '❌ Error';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }, 3000);
             }
         }
 
-        // Load count on page load
-        loadWaitlistCount();
+        // Pricing toggle functionality
+        let isAnnual = false;
 
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
+        function togglePricing() {
+            isAnnual = !isAnnual;
+            const toggle = document.getElementById('pricingToggle');
+            const monthlyLabel = document.getElementById('monthlyLabel');
+            const annualLabel = document.getElementById('annualLabel');
+            const starterPrice = document.getElementById('starterPrice');
+            const proPrice = document.getElementById('proPrice');
+            const starterSavings = document.getElementById('starterSavings');
+            const proSavings = document.getElementById('proSavings');
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.animate-in').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(el);
-        });
+            if (isAnnual) {
+                toggle.classList.add('annual');
+                monthlyLabel.classList.remove('active');
+                annualLabel.classList.add('active');
+                starterPrice.textContent = '$7.92';
+                proPrice.textContent = '$15.92';
+                starterSavings.style.display = 'inline-block';
+                proSavings.style.display = 'inline-block';
+            } else {
+                toggle.classList.remove('annual');
+                monthlyLabel.classList.add('active');
+                annualLabel.classList.remove('active');
+                starterPrice.textContent = '$9.99';
+                proPrice.textContent = '$19.99';
+                starterSavings.style.display = 'none';
+                proSavings.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>
