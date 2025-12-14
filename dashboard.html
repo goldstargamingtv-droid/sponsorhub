@@ -1570,9 +1570,10 @@
             <nav class="main-nav">
                 <button class="nav-link active" onclick="showPage('dashboard')">Dashboard</button>
                 <button class="nav-link" onclick="showPage('marketplace')">Marketplace</button>
+                <button class="nav-link" onclick="window.location.href='rate-calculator.html'">Calculator</button>
                 <button class="nav-link" onclick="window.location.href='media-kit-builder.html'">Media Kit</button>
                 <button class="nav-link" onclick="window.location.href='analytics.html'">Analytics</button>
-                <button class="nav-link" onclick="showPage('contracts')">Contracts</button>
+                <button class="nav-link" onclick="window.location.href='contracts.html'">Contracts</button>
             </nav>
             
             <div class="header-actions">
@@ -1685,6 +1686,17 @@
                 </div>
                 <button class="action-btn" onclick="window.location.href='media-kit-builder.html'">Create Kit</button>
             </div>
+
+            <div class="action-item">
+                <div class="action-info">
+                    <div class="action-icon success">🧮</div>
+                    <div class="action-text">
+                        <h4>Calculate Your Rate</h4>
+                        <p>Use our AI-powered calculator to determine fair pricing</p>
+                    </div>
+                </div>
+                <button class="action-btn" onclick="window.location.href='rate-calculator.html'">Calculate</button>
+            </div>
         </div>
 
         <!-- Stats Grid with Sparklines -->
@@ -1785,14 +1797,6 @@
             </div>
         </div>
         <!-- END MARKETPLACE PAGE -->
-
-        <!-- CONTRACTS PAGE -->
-        <div id="contracts" class="page">
-            <h2 class="section-title">Contract Management</h2>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 40px; font-size: 18px;">
-                Coming soon! Manage all your sponsorship contracts.
-            </p>
-        </div>
 
         <!-- Tour Start Button (only shown on first visit) -->
         <div style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;" id="tourButton">
