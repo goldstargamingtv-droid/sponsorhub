@@ -913,30 +913,28 @@
                     creator_name: document.getElementById('creatorName').value,
                     tagline: document.getElementById('tagline').value,
                     bio: document.getElementById('bio').value,
-                    followers: document.getElementById('followers').value,
-                    avg_viewers: document.getElementById('avgViewers').value,
-                    engagement: document.getElementById('engagement').value,
-                    streams_per_month: document.getElementById('streams').value,
-                    email: document.getElementById('email').value,
-                    platforms: document.getElementById('platforms').value,
+                    stats: {
+                        followers: document.getElementById('followers').value,
+                        avg_viewers: document.getElementById('avgViewers').value,
+                        engagement: document.getElementById('engagement').value,
+                        streams_per_month: document.getElementById('streams').value
+                    },
+                    contact: {
+                        email: document.getElementById('email').value,
+                        platforms: document.getElementById('platforms').value
+                    },
                     template: currentTemplate,
                     created_at: new Date().toISOString()
                 };
 
-                // Save to backend
-                const response = await fetch(`${API_URL}/media-kits`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(kitData)
-                });
+                // Save to localStorage for now (will connect to Supabase later)
+                const existingKits = JSON.parse(localStorage.getItem('mediaKits') || '[]');
+                existingKits.push(kitData);
+                localStorage.setItem('mediaKits', JSON.stringify(existingKits));
+                localStorage.setItem('currentMediaKit', JSON.stringify(kitData));
 
-                if (response.ok) {
-                    alert('✅ Media kit saved successfully!');
-                } else {
-                    throw new Error('Failed to save');
-                }
+                alert('✅ Media kit saved successfully!\n\nYou can now download it as PDF or share with brands.');
+                
             } catch (error) {
                 console.error('Save error:', error);
                 alert('Error saving media kit. Please try again.');
