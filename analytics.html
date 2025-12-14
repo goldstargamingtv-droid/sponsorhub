@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - PromoSync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js for beautiful charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #151b2e;
+            --bg-card: rgba(25, 35, 58, 0.6);
+            --accent-primary: #00d9ff;
+            --accent-secondary: #7b61ff;
+            --accent-tertiary: #ff6b9d;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #ffffff;
+            --text-secondary: #a8b2d1;
+            --text-muted: #6b7794;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        /* Page Title */
+        .page-header {
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        /* Time Period Selector */
+        .time-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .time-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .time-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .time-btn.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Stats Overview */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.2);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .stat-icon.revenue {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .stat-icon.deals {
+            background: linear-gradient(135deg, #00d9ff, #7b61ff);
+        }
+
+        .stat-icon.applications {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .stat-icon.growth {
+            background: linear-gradient(135deg, #ff6b9d, #c026d3);
+        }
+
+        .stat-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .chart-container.tall {
+            height: 400px;
+        }
+
+        /* Recent Activity */
+        .activity-list {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .activity-amount {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">PromoSync</div>
+            <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+        </header>
+
+        <div class="page-header">
+            <h1 class="page-title">Analytics Dashboard</h1>
+            <p class="page-subtitle">Track your performance, revenue, and growth metrics</p>
+        </div>
+
+        <!-- Time Period Selector -->
+        <div class="time-selector">
+            <button class="time-btn" onclick="changePeriod('7d')">7 Days</button>
+            <button class="time-btn active" onclick="changePeriod('30d')">30 Days</button>
+            <button class="time-btn" onclick="changePeriod('90d')">90 Days</button>
+            <button class="time-btn" onclick="changePeriod('1y')">1 Year</button>
+            <button class="time-btn" onclick="changePeriod('all')">All Time</button>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Total Revenue</span>
+                    <div class="stat-icon revenue">💰</div>
+                </div>
+                <div class="stat-value" id="totalRevenue">$47,852</div>
+                <div class="stat-change positive">↑ 23.5% vs last period</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Active Deals</span>
+                    <div class="stat-icon deals">🤝</div>
+                </div>
+                <div class="stat-value" id="activeDeals">12</div>
+                <div class="stat-change positive">↑ 3 new this month</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Applications Sent</span>
+                    <div class="stat-icon applications">📤</div>
+                </div>
+                <div class="stat-value" id="applications">38</div>
+                <div class="stat-change positive">↑ 15 this month</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Acceptance Rate</span>
+                    <div class="stat-icon growth">📈</div>
+                </div>
+                <div class="stat-value" id="acceptanceRate">68%</div>
+                <div class="stat-change positive">↑ 5% improvement</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <!-- Revenue Chart -->
+            <div class="chart-card full-width">
+                <h3 class="chart-title">Revenue Over Time</h3>
+                <div class="chart-container tall">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Deals Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title">Deal Status Breakdown</h3>
+                <div class="chart-container">
+                    <canvas id="dealsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Applications Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title">Application Success Rate</h3>
+                <div class="chart-container">
+                    <canvas id="applicationsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-list">
+            <h3 class="chart-title">Recent Activity</h3>
+            
+            <div class="activity-item">
+                <div class="activity-icon" style="background: linear-gradient(135deg, #10b981, #059669);">💸</div>
+                <div class="activity-content">
+                    <div class="activity-title">Payment Received</div>
+                    <div class="activity-time">RazerGear - 2 hours ago</div>
+                </div>
+                <div class="activity-amount">+$5,200</div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon" style="background: linear-gradient(135deg, #00d9ff, #7b61ff);">🤝</div>
+                <div class="activity-content">
+                    <div class="activity-title">New Deal Accepted</div>
+                    <div class="activity-time">StreamChair Co - 1 day ago</div>
+                </div>
+                <div class="activity-amount">$3,500</div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">📤</div>
+                <div class="activity-content">
+                    <div class="activity-title">Application Sent</div>
+                    <div class="activity-time">MicroMax Audio - 2 days ago</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon" style="background: linear-gradient(135deg, #10b981, #059669);">💸</div>
+                <div class="activity-content">
+                    <div class="activity-title">Payment Received</div>
+                    <div class="activity-time">EnergyMax - 3 days ago</div>
+                </div>
+                <div class="activity-amount">+$2,800</div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon" style="background: linear-gradient(135deg, #00d9ff, #7b61ff);">🤝</div>
+                <div class="activity-content">
+                    <div class="activity-title">Contract Signed</div>
+                    <div class="activity-time">TechCore VPN - 5 days ago</div>
+                </div>
+                <div class="activity-amount">$2,400</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://sponsorhub-backend.onrender.com/api';
+        let currentPeriod = '30d';
+
+        // Chart.js default config
+        Chart.defaults.color = '#a8b2d1';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.08)';
+        Chart.defaults.font.family = 'DM Sans';
+
+        // Revenue Chart
+        const revenueChart = new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [3200, 4100, 3800, 5200, 4800, 6100, 5900, 7200, 8100, 9200, 8800, 10500],
+                    borderColor: '#00d9ff',
+                    backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(25, 35, 58, 0.95)',
+                        titleColor: '#fff',
+                        bodyColor: '#a8b2d1',
+                        borderColor: 'rgba(0, 217, 255, 0.3)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return '$' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Deals Chart (Doughnut)
+        const dealsChart = new Chart(document.getElementById('dealsChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Active', 'Pending', 'Completed', 'Cancelled'],
+                datasets: [{
+                    data: [12, 5, 28, 3],
+                    backgroundColor: [
+                        '#00d9ff',
+                        '#f59e0b',
+                        '#10b981',
+                        '#ef4444'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(25, 35, 58, 0.95)',
+                        borderColor: 'rgba(0, 217, 255, 0.3)',
+                        borderWidth: 1,
+                        padding: 12
+                    }
+                }
+            }
+        });
+
+        // Applications Chart (Bar)
+        const applicationsChart = new Chart(document.getElementById('applicationsChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Accepted', 'Pending', 'Rejected'],
+                datasets: [{
+                    label: 'Applications',
+                    data: [26, 5, 7],
+                    backgroundColor: [
+                        '#10b981',
+                        '#f59e0b',
+                        '#ef4444'
+                    ],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(25, 35, 58, 0.95)',
+                        borderColor: 'rgba(0, 217, 255, 0.3)',
+                        borderWidth: 1,
+                        padding: 12
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Change time period
+        function changePeriod(period) {
+            currentPeriod = period;
+            
+            // Update active button
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update chart data based on period
+            updateChartsForPeriod(period);
+        }
+
+        // Update charts with period-specific data
+        function updateChartsForPeriod(period) {
+            let revenueData, labels, statsData;
+            
+            switch(period) {
+                case '7d':
+                    labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    revenueData = [1200, 1800, 1500, 2100, 1900, 2400, 2200];
+                    statsData = {
+                        revenue: '$12,100',
+                        change: '↑ 18.2%',
+                        deals: 3,
+                        applications: 8
+                    };
+                    break;
+                    
+                case '30d':
+                    labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                    revenueData = [8500, 11200, 13800, 14352];
+                    statsData = {
+                        revenue: '$47,852',
+                        change: '↑ 23.5%',
+                        deals: 12,
+                        applications: 38
+                    };
+                    break;
+                    
+                case '90d':
+                    labels = ['Month 1', 'Month 2', 'Month 3'];
+                    revenueData = [38500, 42800, 47852];
+                    statsData = {
+                        revenue: '$129,152',
+                        change: '↑ 31.2%',
+                        deals: 28,
+                        applications: 95
+                    };
+                    break;
+                    
+                case '1y':
+                    labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    revenueData = [3200, 4100, 3800, 5200, 4800, 6100, 5900, 7200, 8100, 9200, 8800, 10500];
+                    statsData = {
+                        revenue: '$70,900',
+                        change: '↑ 156%',
+                        deals: 48,
+                        applications: 187
+                    };
+                    break;
+                    
+                case 'all':
+                    labels = ['2022', '2023', '2024', '2025'];
+                    revenueData = [12500, 45200, 98700, 142300];
+                    statsData = {
+                        revenue: '$298,700',
+                        change: '↑ 1092%',
+                        deals: 156,
+                        applications: 542
+                    };
+                    break;
+                    
+                default:
+                    return;
+            }
+            
+            // Update revenue chart
+            revenueChart.data.labels = labels;
+            revenueChart.data.datasets[0].data = revenueData;
+            revenueChart.update('active');
+            
+            // Update stats
+            document.getElementById('totalRevenue').textContent = statsData.revenue;
+            document.getElementById('activeDeals').textContent = statsData.deals;
+            document.getElementById('applications').textContent = statsData.applications;
+            
+            // Update change indicator
+            const changeEl = document.querySelector('.stat-change');
+            changeEl.textContent = `${statsData.change} vs last period`;
+            
+            console.log(`Updated charts for period: ${period}`);
+        }
+
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                // This would fetch from your backend
+                // const response = await fetch(`${API_URL}/analytics?period=${currentPeriod}`);
+                // const data = await response.json();
+                // updateCharts(data);
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Initialize
+        loadAnalytics();
+    </script>
+</body>
+</html>
