@@ -1607,10 +1607,10 @@
                 
                 <!-- User Profile -->
                 <div class="user-profile" onclick="toggleProfileMenu()">
-                    <div class="user-avatar">JD</div>
+                    <div class="user-avatar" id="userAvatar">JD</div>
                     <div>
-                        <div style="font-weight: 600; font-size: 14px;">John Doe</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">Pro Member</div>
+                        <div style="font-weight: 600; font-size: 14px;" id="userName">Loading...</div>
+                        <div style="font-size: 12px; color: var(--text-muted);" id="userTier">Free Plan</div>
                     </div>
                 </div>
                 
@@ -2495,7 +2495,45 @@ function submitApplication() {
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     renderBrands();
+    loadUserProfile();
 });
+
+// Load User Profile Data
+function loadUserProfile() {
+    try {
+        // Get user data from localStorage
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (user.username || user.email) {
+            // Update user name
+            const displayName = user.full_name || user.username || user.email.split('@')[0];
+            document.getElementById('userName').textContent = displayName;
+            
+            // Update avatar with initials
+            const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            document.getElementById('userAvatar').textContent = initials;
+            
+            // Update subscription tier
+            const tier = user.subscription_tier || user.tier || 'free';
+            const tierDisplay = tier === 'free' ? 'Free Plan' : 
+                               tier === 'pro' ? 'Pro Member' : 
+                               tier === 'premium' ? 'Premium Member' : 
+                               'Free Plan';
+            document.getElementById('userTier').textContent = tierDisplay;
+            
+            console.log('User profile loaded:', displayName, tier);
+        } else {
+            // No user data found - show default
+            document.getElementById('userName').textContent = 'Guest';
+            document.getElementById('userAvatar').textContent = 'G';
+            document.getElementById('userTier').textContent = 'Not logged in';
+        }
+    } catch (error) {
+        console.error('Error loading user profile:', error);
+        document.getElementById('userName').textContent = 'User';
+        document.getElementById('userAvatar').textContent = 'U';
+    }
+}
 
 </script>
 </body>
