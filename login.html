@@ -365,7 +365,14 @@
                 const data = await response.json();
                 
                 if (data.token) {
+                    // Save auth token
                     localStorage.setItem('authToken', data.token);
+                    
+                    // Save user data
+                    if (data.user) {
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                    }
+                    
                     showSuccess('Login successful! Redirecting...');
                     setTimeout(() => {
                         window.location.href = 'dashboard.html';
@@ -416,7 +423,14 @@
                 const data = await response.json();
                 
                 if (data.token) {
+                    // Save auth token
                     localStorage.setItem('authToken', data.token);
+                    
+                    // Save user data
+                    if (data.user) {
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                    }
+                    
                     showSuccess('Account created! Redirecting to dashboard...');
                     setTimeout(() => {
                         window.location.href = 'dashboard.html';
