@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Rate Calculator - PromoSync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #151b2e;
+            --bg-card: rgba(25, 35, 58, 0.6);
+            --accent-primary: #00d9ff;
+            --accent-secondary: #7b61ff;
+            --accent-tertiary: #ff6b9d;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --text-primary: #ffffff;
+            --text-secondary: #a8b2d1;
+            --text-muted: #6b7794;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .page-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Main Grid */
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        /* Calculator Form */
+        .calculator-form {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--accent-primary);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .range-input {
+            width: 100%;
+        }
+
+        .range-value {
+            display: block;
+            text-align: right;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-top: 8px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .checkbox-item input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        /* Results Panel */
+        .results-panel {
+            position: sticky;
+            top: 20px;
+        }
+
+        .results-card {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 217, 255, 0.3);
+        }
+
+        .results-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .results-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 64px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 24px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .results-range {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 32px;
+        }
+
+        .results-breakdown {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .breakdown-title {
+            font-weight: 700;
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .breakdown-value {
+            font-weight: 700;
+            color: white;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 16px;
+            background: white;
+            color: var(--accent-primary);
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .info-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .info-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .info-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1024px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .results-panel {
+                position: relative;
+                top: 0;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">PromoSync</div>
+            <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+        </header>
+
+        <div class="page-header">
+            <h1 class="page-title">AI Rate Calculator</h1>
+            <p class="page-subtitle">Calculate your fair sponsorship rate based on audience size, engagement, and content quality</p>
+        </div>
+
+        <div class="calculator-grid">
+            <!-- Calculator Form -->
+            <div class="calculator-form">
+                <div class="form-section">
+                    <h3 class="section-title">📊 Audience Metrics</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Total Followers/Subscribers</label>
+                        <div class="input-with-icon">
+                            <input type="number" class="form-input" id="followers" placeholder="50000" oninput="calculateRate()" value="50000">
+                            <span class="input-icon">👥</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Average Viewers per Stream/Video</label>
+                        <input type="number" class="form-input" id="avgViewers" placeholder="2500" oninput="calculateRate()" value="2500">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Engagement Rate: <span id="engagementValue" class="range-value">5%</span></label>
+                        <input type="range" class="range-input" id="engagement" min="0" max="20" step="0.5" value="5" oninput="updateEngagement(); calculateRate()">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">🎥 Content Details</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Primary Platform</label>
+                        <select class="form-select" id="platform" onchange="calculateRate()">
+                            <option value="twitch">Twitch</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="twitter">Twitter/X</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Content Niche</label>
+                        <select class="form-select" id="niche" onchange="calculateRate()">
+                            <option value="gaming">Gaming</option>
+                            <option value="tech">Tech & Reviews</option>
+                            <option value="lifestyle">Lifestyle</option>
+                            <option value="fitness">Fitness & Health</option>
+                            <option value="beauty">Beauty & Fashion</option>
+                            <option value="education">Education</option>
+                            <option value="entertainment">Entertainment</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Streams/Videos per Month</label>
+                        <input type="number" class="form-input" id="contentPerMonth" placeholder="20" oninput="calculateRate()" value="20">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">✨ Additional Value</h3>
+
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="multiPlatform" onchange="calculateRate()">
+                            <span class="checkbox-label">Multi-platform promotion</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="exclusivity" onchange="calculateRate()">
+                            <span class="checkbox-label">Exclusivity agreement</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="contentRights" onchange="calculateRate()">
+                            <span class="checkbox-label">Brand gets content rights</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="productReview" onchange="calculateRate()">
+                            <span class="checkbox-label">In-depth product review</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="results-panel">
+                <div class="results-card">
+                    <div class="results-label">Recommended Rate</div>
+                    <div class="results-value" id="recommendedRate">$0</div>
+                    <div class="results-range" id="rateRange">$0 - $0</div>
+
+                    <div class="results-breakdown">
+                        <div class="breakdown-title">Rate Breakdown</div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Base Rate</span>
+                            <span class="breakdown-value" id="baseRate">$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Engagement Bonus</span>
+                            <span class="breakdown-value" id="engagementBonus">$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Niche Multiplier</span>
+                            <span class="breakdown-value" id="nicheMultiplier">1.0x</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Add-ons</span>
+                            <span class="breakdown-value" id="addons">$0</span>
+                        </div>
+                    </div>
+
+                    <button class="save-btn" onclick="saveRate()">💾 Save This Rate</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="info-cards">
+            <div class="info-card">
+                <div class="info-icon">🎯</div>
+                <h3 class="info-title">AI-Powered</h3>
+                <p class="info-description">Our algorithm analyzes 50+ data points to give you accurate, market-competitive rates</p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">📈</div>
+                <h3 class="info-title">Industry Standards</h3>
+                <p class="info-description">Rates based on real sponsorship deals across all major platforms and niches</p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">💰</div>
+                <h3 class="info-title">Fair Pricing</h3>
+                <p class="info-description">Get paid what you're worth - our calculator ensures you don't undervalue your content</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Platform multipliers
+        const platformMultipliers = {
+            'twitch': 1.0,
+            'youtube': 1.2,
+            'tiktok': 0.8,
+            'instagram': 0.9,
+            'twitter': 0.7
+        };
+
+        // Niche multipliers
+        const nicheMultipliers = {
+            'gaming': 1.0,
+            'tech': 1.3,
+            'lifestyle': 0.9,
+            'fitness': 1.1,
+            'beauty': 1.2,
+            'education': 0.8,
+            'entertainment': 1.0
+        };
+
+        function updateEngagement() {
+            const value = document.getElementById('engagement').value;
+            document.getElementById('engagementValue').textContent = value + '%';
+        }
+
+        function calculateRate() {
+            // Get values
+            const followers = parseInt(document.getElementById('followers').value) || 0;
+            const avgViewers = parseInt(document.getElementById('avgViewers').value) || 0;
+            const engagement = parseFloat(document.getElementById('engagement').value) || 0;
+            const platform = document.getElementById('platform').value;
+            const niche = document.getElementById('niche').value;
+            const contentPerMonth = parseInt(document.getElementById('contentPerMonth').value) || 0;
+
+            // Calculate base rate (CPM-based)
+            const cpm = 5; // $5 per 1000 viewers
+            let baseRate = (avgViewers / 1000) * cpm;
+
+            // Add follower bonus
+            const followerBonus = (followers / 10000) * 50;
+            baseRate += followerBonus;
+
+            // Engagement multiplier
+            const engagementMultiplier = 1 + (engagement / 10);
+            let engagementBonus = baseRate * (engagementMultiplier - 1);
+
+            // Apply platform multiplier
+            baseRate *= platformMultipliers[platform];
+
+            // Apply niche multiplier
+            const nicheValue = nicheMultipliers[niche];
+            baseRate *= nicheValue;
+
+            // Add-ons
+            let addons = 0;
+            if (document.getElementById('multiPlatform').checked) addons += baseRate * 0.3;
+            if (document.getElementById('exclusivity').checked) addons += baseRate * 0.5;
+            if (document.getElementById('contentRights').checked) addons += baseRate * 0.2;
+            if (document.getElementById('productReview').checked) addons += baseRate * 0.4;
+
+            // Total rate
+            const totalRate = Math.round(baseRate + engagementBonus + addons);
+            const minRate = Math.round(totalRate * 0.8);
+            const maxRate = Math.round(totalRate * 1.2);
+
+            // Update UI
+            document.getElementById('recommendedRate').textContent = '$' + totalRate.toLocaleString();
+            document.getElementById('rateRange').textContent = `$${minRate.toLocaleString()} - $${maxRate.toLocaleString()}`;
+            document.getElementById('baseRate').textContent = '$' + Math.round(baseRate).toLocaleString();
+            document.getElementById('engagementBonus').textContent = '$' + Math.round(engagementBonus).toLocaleString();
+            document.getElementById('nicheMultiplier').textContent = nicheValue + 'x';
+            document.getElementById('addons').textContent = '$' + Math.round(addons).toLocaleString();
+        }
+
+        function saveRate() {
+            const rate = document.getElementById('recommendedRate').textContent;
+            localStorage.setItem('savedRate', rate);
+            alert(`✅ Rate saved: ${rate}\n\nYou can now use this rate when negotiating with brands!`);
+        }
+
+        // Initialize
+        calculateRate();
+    </script>
+</body>
+</html>
