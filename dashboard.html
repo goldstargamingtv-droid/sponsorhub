@@ -1571,7 +1571,7 @@
                 <button class="nav-link active" onclick="showPage('dashboard')">Dashboard</button>
                 <button class="nav-link" onclick="showPage('marketplace')">Marketplace</button>
                 <button class="nav-link" onclick="window.location.href='media-kit-builder.html'">Media Kit</button>
-                <button class="nav-link" onclick="showPage('analytics')">Analytics</button>
+                <button class="nav-link" onclick="window.location.href='analytics.html'">Analytics</button>
                 <button class="nav-link" onclick="showPage('contracts')">Contracts</button>
             </nav>
             
@@ -1786,14 +1786,6 @@
         </div>
         <!-- END MARKETPLACE PAGE -->
 
-        <!-- ANALYTICS PAGE -->
-        <div id="analytics" class="page">
-            <h2 class="section-title">Analytics Dashboard</h2>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 40px; font-size: 18px;">
-                Coming soon! Track your performance and revenue.
-            </p>
-        </div>
-
         <!-- CONTRACTS PAGE -->
         <div id="contracts" class="page">
             <h2 class="section-title">Contract Management</h2>
@@ -1886,53 +1878,68 @@
         }
 
         // Notification Center
-        const notifications = [
-            {
-                id: 1,
-                type: 'success',
-                icon: '🎯',
-                title: 'New Brand Match',
-                message: 'StreamChair Co is looking for creators like you',
-                time: '5 minutes ago',
-                read: false
-            },
-            {
-                id: 2,
-                type: 'payment',
-                icon: '💰',
-                title: 'Payment Received',
-                message: 'RazerGear sent you $5,200',
-                time: '2 hours ago',
-                read: false
-            },
-            {
-                id: 3,
-                type: 'info',
-                icon: '📝',
-                title: 'Contract Renewal Available',
-                message: 'EnergyMax wants to extend your partnership',
-                time: '1 day ago',
-                read: false
-            },
-            {
-                id: 4,
-                type: 'warning',
-                icon: '⚠️',
-                title: 'Deliverable Due Soon',
-                message: 'TechCore VPN stream is scheduled for tomorrow',
-                time: '2 days ago',
-                read: true
-            },
-            {
-                id: 5,
-                type: 'success',
-                icon: '✅',
-                title: 'Application Approved',
-                message: 'GameStream Pro accepted your sponsorship request',
-                time: '3 days ago',
-                read: true
+        // Notifications - Load from localStorage or backend
+        let notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+
+        // Load Notifications from Backend
+        async function loadNotifications() {
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                if (!user.id) {
+                    // Use demo notifications if no user
+                    notifications = [
+                        {
+                            id: 1,
+                            type: 'success',
+                            icon: '🎯',
+                            title: 'New Brand Match',
+                            message: 'StreamChair Co is looking for creators like you',
+                            time: '5 minutes ago',
+                            read: false
+                        },
+                        {
+                            id: 2,
+                            type: 'payment',
+                            icon: '💰',
+                            title: 'Payment Received',
+                            message: 'RazerGear sent you $5,200',
+                            time: '2 hours ago',
+                            read: false
+                        },
+                        {
+                            id: 3,
+                            type: 'info',
+                            icon: '📝',
+                            title: 'Contract Renewal Available',
+                            message: 'EnergyMax wants to extend your partnership',
+                            time: '1 day ago',
+                            read: false
+                        }
+                    ];
+                    localStorage.setItem('notifications', JSON.stringify(notifications));
+                    renderNotifications();
+                    return;
+                }
+
+                // Fetch from backend
+                const response = await fetch(`${API_URL}/notifications/${user.id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    notifications = data.notifications || [];
+                    localStorage.setItem('notifications', JSON.stringify(notifications));
+                    renderNotifications();
+                }
+            } catch (error) {
+                console.log('Using cached notifications:', error);
+                renderNotifications();
             }
-        ];
+        }
 
         // Render Notifications
         function renderNotifications() {
@@ -2011,17 +2018,52 @@
         }
 
         // Mark Single Notification as Read
-        function markAsRead(id) {
+        async function markAsRead(id) {
             const notification = notifications.find(n => n.id === id);
-            if (notification) {
+            if (notification && !notification.read) {
                 notification.read = true;
+                
+                // Save to localStorage
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+                
+                // Save to backend
+                try {
+                    await fetch(`${API_URL}/notifications/${id}/read`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        }
+                    });
+                } catch (error) {
+                    console.log('Could not sync read status to backend:', error);
+                }
+                
                 renderNotifications();
             }
         }
 
         // Mark All as Read
-        function markAllAsRead() {
+        async function markAllAsRead() {
             notifications.forEach(n => n.read = true);
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+            
+            // Sync to backend
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user.id) {
+                    await fetch(`${API_URL}/notifications/mark-all-read`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ user_id: user.id })
+                    });
+                }
+            } catch (error) {
+                console.log('Could not sync to backend:', error);
+            }
+            
             renderNotifications();
         }
 
@@ -2496,6 +2538,10 @@ function submitApplication() {
 document.addEventListener('DOMContentLoaded', function() {
     renderBrands();
     loadUserProfile();
+    loadNotifications(); // Load notifications from backend
+    
+    // Refresh notifications every 60 seconds
+    setInterval(loadNotifications, 60000);
 });
 
 // Load User Profile Data
