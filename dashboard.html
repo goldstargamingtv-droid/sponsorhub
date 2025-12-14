@@ -833,6 +833,7 @@
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .user-profile:hover {
@@ -850,6 +851,47 @@
             justify-content: center;
             font-weight: 700;
             font-size: 14px;
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 8px;
+            min-width: 200px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .profile-dropdown.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .profile-menu-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-menu-item:hover {
+            background: rgba(255, 255, 255, 0.05);
         }
 
         /* Continue with existing styles... */
@@ -1564,11 +1606,24 @@
                 </div>
                 
                 <!-- User Profile -->
-                <div class="user-profile">
+                <div class="user-profile" onclick="toggleProfileMenu()">
                     <div class="user-avatar">JD</div>
                     <div>
                         <div style="font-weight: 600; font-size: 14px;">John Doe</div>
                         <div style="font-size: 12px; color: var(--text-muted);">Pro Member</div>
+                    </div>
+                </div>
+                
+                <!-- Profile Dropdown Menu -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-menu-item" onclick="alert('Profile settings coming soon!')">
+                        ⚙️ Settings
+                    </div>
+                    <div class="profile-menu-item" onclick="alert('Profile page coming soon!')">
+                        👤 My Profile
+                    </div>
+                    <div class="profile-menu-item" onclick="logout()" style="color: var(--danger);">
+                        🚪 Logout
                     </div>
                 </div>
             </div>
@@ -1974,6 +2029,40 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeNotifications();
+                closeProfileMenu();
+            }
+        });
+
+        // Profile Menu Toggle
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profileDropdown');
+            menu.classList.toggle('active');
+            
+            // Close notifications if open
+            closeNotifications();
+        }
+
+        function closeProfileMenu() {
+            const menu = document.getElementById('profileDropdown');
+            menu.classList.remove('active');
+        }
+
+        // Logout Function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                // Clear authentication
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                
+                // Redirect to login
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Close menus when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-profile') && !e.target.closest('.profile-dropdown')) {
+                closeProfileMenu();
             }
         });
 
