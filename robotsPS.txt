@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard.html
+Disallow: /api/
+Sitemap: https://genuine-sunburst-657b4a.netlify.app/sitemap.xml
