@@ -847,30 +847,6 @@
             document.getElementById('userAvatar').textContent = initials;
         }
 
-        // Initialize dashboard
-        window.addEventListener('DOMContentLoaded', function() {
-            loadUserProfile();
-            
-            // Check if actions were dismissed
-            const dismissed = localStorage.getItem('actionsDismissed');
-            if (dismissed) {
-                document.getElementById('pendingActionsCard').style.display = 'none';
-                document.getElementById('reopenActionsBtn').style.display = 'block';
-            }
-            
-            // Remove read actions
-            const readActions = JSON.parse(localStorage.getItem('readActions') || '[]');
-            readActions.forEach(id => {
-                const element = document.getElementById(`action-${id}`);
-                if (element) element.remove();
-            });
-            
-            checkEmptyState();
-            updateUrgentCount();
-            
-            // Initialize sparklines
-            initSparklines();
-        });
 
         // Simple sparkline charts
         function initSparklines() {
@@ -950,6 +926,11 @@
             document.getElementById('dealsChange').textContent = '↑ 3 new this week';
             document.getElementById('matchesChange').textContent = '↑ 5 potential partners';
             document.getElementById('avgChange').textContent = '↑ 12.3% increase';
+            
+            // Demo mode profile
+            document.getElementById('userName').textContent = 'DemoCreator';
+            document.getElementById('userAvatar').textContent = 'DC';
+            initSparklines();
             return;
         }
 
@@ -959,26 +940,35 @@
         }
 
         const userId = window.authManager.user.id;
+        const profile = window.authManager.getProfile();
         
         try {
+            // Update user info from Twitch/profile
+            if (profile) {
+                const displayName = profile.full_name || profile.username || profile.twitch_username || 'Creator';
+                document.getElementById('userName').textContent = displayName;
+                document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+                document.getElementById('userTier').textContent = 'Free Plan';
+            } else if (window.authManager.user.user_metadata) {
+                // Fallback to Twitch metadata
+                const metadata = window.authManager.user.user_metadata;
+                const displayName = metadata.full_name || metadata.name || metadata.nickname || 'Creator';
+                document.getElementById('userName').textContent = displayName;
+                document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+            }
+            
             // Load real metrics
             const metrics = await window.dataService.getUserMetrics(userId);
             
             document.getElementById('totalRevenue').textContent = 
                 '$' + metrics.total_revenue.toLocaleString();
             document.getElementById('activeDeals').textContent = metrics.active_deals;
-            document.getElementById('brandMatches').textContent = metrics.brand_matches;
+            document.getElementById('brandMatches').textContent = metrics.brand_matches || 0;
             document.getElementById('avgDealValue').textContent = 
                 '$' + Math.round(metrics.avg_deal_value).toLocaleString();
             
-            // Update user info
-            const profile = window.authManager.getProfile();
-            if (profile) {
-                document.getElementById('userName').textContent = profile.username || profile.full_name || 'Creator';
-                if (profile.username) {
-                    document.getElementById('userAvatar').textContent = profile.username.charAt(0).toUpperCase();
-                }
-            }
+            // Initialize sparklines
+            initSparklines();
             
         } catch (error) {
             console.error('Error loading dashboard data:', error);
