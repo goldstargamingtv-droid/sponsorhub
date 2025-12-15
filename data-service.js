@@ -205,30 +205,6 @@ class DataService {
         return data;
     }
 
-    // ========== PROFILES ==========
-    async getProfile(userId) {
-        const { data, error } = await this.supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
-
-        if (error && error.code !== 'PGRST116') throw error;
-        return data;
-    }
-
-    async updateProfile(userId, updates) {
-        const { data, error } = await this.supabase
-            .from('profiles')
-            .update(updates)
-            .eq('id', userId)
-            .select()
-            .single();
-
-        if (error) throw error;
-        return data;
-    }
-
     // ========== METRICS CALCULATION ==========
     async recalculateMetrics(userId) {
         const contracts = await this.getContracts(userId);
@@ -250,6 +226,8 @@ class DataService {
 
 // Make it available globally
 window.DataService = DataService;
-if (window.supabase) {
-    window.dataService = new DataService(window.supabase);
+// Initialize after supabase loads
+if (typeof supabase !== 'undefined') {
+    window.dataService = new DataService(supabase);
+    console.log('✅ DataService initialized');
 }
