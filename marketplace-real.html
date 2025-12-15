@@ -107,9 +107,6 @@
             font-family: 'Syne', sans-serif;
             font-size: 42px;
             margin-bottom: 16px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .subtitle {
@@ -322,19 +319,13 @@
     
     <div class="container">
         <header>
-            <div class="logo" onclick="window.location.href='dashboard-real.html'">PromoSync</div>
-            <nav class="main-nav">
-                <a href="dashboard-real.html" class="nav-link">Dashboard</a>
-                <a href="marketplace-real.html" class="nav-link active">Marketplace</a>
-                <a href="rate-calculator-real.html" class="nav-link">Calculator</a>
-                <a href="pitch-generator-real.html" class="nav-link">Pitch AI</a>
-                <a href="media-kit-builder-real.html" class="nav-link">Media Kit</a>
-                <a href="analytics-real.html" class="nav-link">Analytics</a>
-                <a href="contracts-real.html" class="nav-link">Contracts</a>
-            </nav>
+            <div class="logo">PromoSync</div>
+            <a href="dashboard-real.html" style="padding: 10px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 600; transition: all 0.3s;">
+                ← Back to Dashboard
+            </a>
         </header>
 
-        <h1>Brand Marketplace 🎯</h1>
+        <h1><span style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Brand Marketplace</span> 🎯</h1>
         <p class="subtitle">Discover brands that match your content and audience</p>
 
         <div class="filters">
