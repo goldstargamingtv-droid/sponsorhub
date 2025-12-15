@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Pitch Generator - PromoSync</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase & Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="data-service.js"></script>
+    
     <script src="paywall-system.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -275,6 +281,26 @@ Media Kit: [attached]`;
 
             window.paywall.incrementUsage('pitches');
             updatePitchLimit();
+            
+            // Auto-save pitch to database
+            savePitchToDatabase(brand, pitch);
+        }
+        
+        async function savePitchToDatabase(brandName, pitchText) {
+            if (!window.authManager || !window.authManager.isAuthenticated() || window.authManager.isDemoMode) {
+                return; // Silent fail for demo/not logged in
+            }
+
+            try {
+                await window.dataService.savePitch(window.authManager.user.id, {
+                    brandName: brandName,
+                    template: currentTemplate,
+                    pitchText: pitchText
+                });
+                console.log('✅ Pitch auto-saved');
+            } catch (error) {
+                console.error('Error saving pitch:', error);
+            }
         }
 
         function copyPitch() {
