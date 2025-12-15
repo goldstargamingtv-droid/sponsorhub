@@ -437,7 +437,7 @@
             
             <nav class="main-nav">
                 <button class="nav-link active" onclick="showPage('dashboard')">Dashboard</button>
-                <button class="nav-link" onclick="window.location.href='marketplace.html'">Marketplace</button>
+                <button class="nav-link" onclick="showPage('marketplace')">Marketplace</button>
                 <button class="nav-link" onclick="window.location.href='rate-calculator.html'">Calculator</button>
                 <button class="nav-link" onclick="window.location.href='pitch-generator.html'">Pitch AI</button>
                 <button class="nav-link" onclick="window.location.href='media-kit-builder.html'">Media Kit</button>
@@ -478,7 +478,7 @@
                             </div>
                         </div>
                         <div class="action-buttons">
-                            <button class="action-btn" onclick="alert('Opening contract...')">Review</button>
+                            <button class="action-btn" onclick="window.location.href='contracts-enhanced.html'">Review</button>
                             <button class="action-btn-secondary" onclick="markAsRead(1)">Mark Read</button>
                         </div>
                     </div>
@@ -492,7 +492,7 @@
                             </div>
                         </div>
                         <div class="action-buttons">
-                            <button class="action-btn" onclick="alert('Opening deliverables...')">View</button>
+                            <button class="action-btn" onclick="window.location.href='contracts-enhanced.html'">View</button>
                             <button class="action-btn-secondary" onclick="markAsRead(2)">Mark Read</button>
                         </div>
                     </div>
@@ -506,7 +506,7 @@
                             </div>
                         </div>
                         <div class="action-buttons">
-                            <button class="action-btn" onclick="showPage('marketplace')">Browse</button>
+                            <button class="action-btn" onclick="window.location.href='marketplace.html'">Browse</button>
                             <button class="action-btn-secondary" onclick="markAsRead(3)">Mark Read</button>
                         </div>
                     </div>
@@ -633,7 +633,7 @@
                         <div class="empty-state-icon">✅</div>
                         <h3>All Caught Up!</h3>
                         <p>You have no pending actions.</p>
-                        <button class="action-btn" onclick="showPage('marketplace')">Browse New Matches</button>
+                        <button class="action-btn" onclick="window.location.href='marketplace.html'">Browse New Matches</button>
                     </div>
                 `;
             }
