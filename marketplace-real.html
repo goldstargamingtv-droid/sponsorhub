@@ -325,15 +325,17 @@
             </a>
         </header>
 
-        <h1><span style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Brand Marketplace</span> 🎯</h1>
-        <p class="subtitle">Discover brands that match your content and audience</p>
+        <div style="text-align: center; margin-bottom: 48px;">
+            <h1><span style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Brand Marketplace</span> 🎯</h1>
+            <p class="subtitle">Discover brands that match your content and audience</p>
 
-        <div class="filters">
-            <button class="filter-btn active" onclick="filterBrands('all')">All Brands</button>
-            <button class="filter-btn" onclick="filterBrands('gaming')">Gaming</button>
-            <button class="filter-btn" onclick="filterBrands('tech')">Tech</button>
-            <button class="filter-btn" onclick="filterBrands('lifestyle')">Lifestyle</button>
-            <button class="filter-btn" onclick="filterBrands('fitness')">Fitness</button>
+            <div class="filters" style="justify-content: center;">
+                <button class="filter-btn active" onclick="filterBrands('all')">All Brands</button>
+                <button class="filter-btn" onclick="filterBrands('gaming')">Gaming</button>
+                <button class="filter-btn" onclick="filterBrands('tech')">Tech</button>
+                <button class="filter-btn" onclick="filterBrands('lifestyle')">Lifestyle</button>
+                <button class="filter-btn" onclick="filterBrands('fitness')">Fitness</button>
+            </div>
         </div>
 
         <div id="brandsContainer">
