@@ -110,8 +110,7 @@ class AuthManager {
             .from('profiles')
             .insert([{
                 id: this.user.id,
-                email: this.user.email,
-                username: twitchUsername || this.user.email.split('@')[0],
+                username: twitchUsername || this.user.email?.split('@')[0] || 'user',
                 full_name: fullName,
                 avatar_url: metadata.avatar_url || metadata.picture,
                 created_at: new Date().toISOString()
