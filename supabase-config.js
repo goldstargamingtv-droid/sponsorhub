@@ -3,7 +3,6 @@ const SUPABASE_URL = 'https://dvbyxtkghbsjiglxjnvt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2Ynl4dGtnaGJzamlnbHhqbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MTMzNjUsImV4cCI6MjA4MTE4OTM2NX0.7Ari03dGk3fQLUIauZZnl21pDrxz7-ImPYR_idaAoyM';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-window.supabase = supabase; // Make available to data-service.js
 
 class AuthManager {
     constructor() {
@@ -13,7 +12,7 @@ class AuthManager {
     }
 
     async init() {
-        console.log('🔍 AuthManager init started');
+        console.log('ðŸ” AuthManager init started');
         
         // Check for demo mode
         const urlParams = new URLSearchParams(window.location.search);
@@ -23,27 +22,27 @@ class AuthManager {
         }
 
         // Check auth state
-        console.log('🔍 Checking session...');
+        console.log('ðŸ” Checking session...');
         const { data: { session }, error } = await supabase.auth.getSession();
-        console.log('📊 Session result:', session ? 'FOUND' : 'NONE', error);
+        console.log('ðŸ“Š Session result:', session ? 'FOUND' : 'NONE', error);
         
         if (session) {
-            console.log('✅ Session exists, user:', session.user.email);
+            console.log('âœ… Session exists, user:', session.user.email);
             this.user = session.user;
             await this.loadProfile();
         } else {
-            console.log('❌ No session found');
+            console.log('âŒ No session found');
         }
 
         // Listen for auth changes
         supabase.auth.onAuthStateChange((event, session) => {
-            console.log('🔔 Auth event:', event, session ? 'with session' : 'no session');
+            console.log('ðŸ”” Auth event:', event, session ? 'with session' : 'no session');
             
             if (event === 'SIGNED_IN') {
-                console.log('✅ SIGNED_IN event, user:', session.user.email);
+                console.log('âœ… SIGNED_IN event, user:', session.user.email);
                 this.user = session.user;
                 this.loadProfile().then(() => {
-                    console.log('➡️ Redirecting to dashboard');
+                    console.log('âž¡ï¸ Redirecting to dashboard');
                     window.location.href = '/sponsorhub/dashboard-real.html';
                 });
             } else if (event === 'SIGNED_OUT') {
@@ -80,7 +79,7 @@ class AuthManager {
     }
 
     async loadProfile() {
-        console.log('📂 Loading profile for user:', this.user.id);
+        console.log('ðŸ“‚ Loading profile for user:', this.user.id);
         
         const { data, error } = await supabase
             .from('profiles')
@@ -89,18 +88,18 @@ class AuthManager {
             .single();
 
         if (error && error.code === 'PGRST116') {
-            console.log('⚠️ Profile not found, creating new profile...');
+            console.log('âš ï¸ Profile not found, creating new profile...');
             await this.createProfile();
         } else if (error) {
-            console.error('❌ Error loading profile:', error);
+            console.error('âŒ Error loading profile:', error);
         } else {
-            console.log('✅ Profile loaded:', data);
+            console.log('âœ… Profile loaded:', data);
             this.profile = data;
         }
     }
 
     async createProfile() {
-        console.log('🆕 Creating profile...');
+        console.log('ðŸ†• Creating profile...');
         
         // Get Twitch data from user metadata
         const metadata = this.user.user_metadata || {};
@@ -121,12 +120,12 @@ class AuthManager {
             .single();
 
         if (error) {
-            console.error('❌ Error creating profile:', error);
+            console.error('âŒ Error creating profile:', error);
             alert('Error creating profile: ' + error.message);
             return;
         }
 
-        console.log('✅ Profile created:', data);
+        console.log('âœ… Profile created:', data);
         this.profile = data;
     }
 
@@ -153,7 +152,7 @@ class AuthManager {
     }
 
     async signInWithTwitch() {
-        console.log('🎮 Starting Twitch OAuth...');
+        console.log('ðŸŽ® Starting Twitch OAuth...');
         
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'twitch',
@@ -162,10 +161,10 @@ class AuthManager {
             }
         });
 
-        console.log('🎮 OAuth response:', data, error);
+        console.log('ðŸŽ® OAuth response:', data, error);
 
         if (error) {
-            console.error('❌ Error signing in with Twitch:', error);
+            console.error('âŒ Error signing in with Twitch:', error);
             throw error;
         }
     }
@@ -208,5 +207,5 @@ class AuthManager {
     }
 }
 
-console.log('🚀 Creating AuthManager instance');
+console.log('ðŸš€ Creating AuthManager instance');
 window.authManager = new AuthManager();
