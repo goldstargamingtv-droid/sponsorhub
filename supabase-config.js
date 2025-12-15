@@ -1,11 +1,9 @@
 // Supabase Configuration
-const SUPABASE_URL = 'https://dvbyxtkghbsjiglxjnvt.supabase.co'; // Replace with your actual Supabase URL
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2Ynl4dGtnaGJzamlnbHhqbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MTMzNjUsImV4cCI6MjA4MTE4OTM2NX0.7Ari03dGk3fQLUIauZZnl21pDrxz7-ImPYR_idaAoyM'; // Replace with your actual anon key
+const SUPABASE_URL = 'https://dvbyxtkghbsjiglxjnvt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2Ynl4dGtnaGJzamlnbHhqbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MTMzNjUsImV4cCI6MjA4MTE4OTM2NX0.7Ari03dGk3fQLUIauZZnl21pDrxz7-ImPYR_idaAoyM';
 
-// Initialize Supabase client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Auth State Manager
 class AuthManager {
     constructor() {
         this.user = null;
@@ -14,6 +12,8 @@ class AuthManager {
     }
 
     async init() {
+        console.log('🔍 AuthManager init started');
+        
         // Check for demo mode
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('demo') === 'true' || localStorage.getItem('demoMode') === 'true') {
@@ -22,23 +22,33 @@ class AuthManager {
         }
 
         // Check auth state
-        const { data: { session } } = await supabase.auth.getSession();
+        console.log('🔍 Checking session...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('📊 Session result:', session ? 'FOUND' : 'NONE', error);
+        
         if (session) {
+            console.log('✅ Session exists, user:', session.user.email);
             this.user = session.user;
             await this.loadProfile();
+        } else {
+            console.log('❌ No session found');
         }
 
         // Listen for auth changes
         supabase.auth.onAuthStateChange((event, session) => {
+            console.log('🔔 Auth event:', event, session ? 'with session' : 'no session');
+            
             if (event === 'SIGNED_IN') {
+                console.log('✅ SIGNED_IN event, user:', session.user.email);
                 this.user = session.user;
                 this.loadProfile().then(() => {
-                    window.location.href = 'dashboard-improved.html';
+                    console.log('➡️ Redirecting to dashboard');
+                    window.location.href = '/sponsorhub/dashboard-real.html';
                 });
             } else if (event === 'SIGNED_OUT') {
                 this.user = null;
                 this.profile = null;
-                window.location.href = 'index-improved.html';
+                window.location.href = '/sponsorhub/index.html';
             }
         });
     }
@@ -65,10 +75,12 @@ class AuthManager {
     exitDemoMode() {
         this.isDemoMode = false;
         localStorage.removeItem('demoMode');
-        window.location.href = 'index-improved.html';
+        window.location.href = '/sponsorhub/index.html';
     }
 
     async loadProfile() {
+        console.log('📂 Loading profile for user:', this.user.id);
+        
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
@@ -76,36 +88,45 @@ class AuthManager {
             .single();
 
         if (error && error.code === 'PGRST116') {
-            // Profile doesn't exist, create it
+            console.log('⚠️ Profile not found, creating new profile...');
             await this.createProfile();
+        } else if (error) {
+            console.error('❌ Error loading profile:', error);
         } else {
+            console.log('✅ Profile loaded:', data);
             this.profile = data;
         }
     }
 
     async createProfile() {
+        console.log('🆕 Creating profile...');
+        
+        // Get Twitch data from user metadata
+        const metadata = this.user.user_metadata || {};
+        const twitchUsername = metadata.name || metadata.nickname || metadata.preferred_username;
+        const fullName = metadata.full_name || metadata.name || twitchUsername;
+        
         const { data, error } = await supabase
             .from('profiles')
             .insert([{
                 id: this.user.id,
                 email: this.user.email,
-                username: this.user.email.split('@')[0],
+                username: twitchUsername || this.user.email.split('@')[0],
+                full_name: fullName,
+                avatar_url: metadata.avatar_url || metadata.picture,
                 created_at: new Date().toISOString()
             }])
             .select()
             .single();
 
         if (error) {
-            console.error('Error creating profile:', error);
+            console.error('❌ Error creating profile:', error);
+            alert('Error creating profile: ' + error.message);
             return;
         }
 
+        console.log('✅ Profile created:', data);
         this.profile = data;
-        
-        // Redirect to onboarding if profile is incomplete
-        if (!data.twitch_username || !data.content_niche) {
-            window.location.href = 'onboarding.html';
-        }
     }
 
     async updateProfile(updates) {
@@ -131,15 +152,19 @@ class AuthManager {
     }
 
     async signInWithTwitch() {
-        const { error } = await supabase.auth.signInWithOAuth({
+        console.log('🎮 Starting Twitch OAuth...');
+        
+        const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'twitch',
             options: {
-                redirectTo: window.location.origin + '/dashboard-improved.html'
+                redirectTo: 'https://goldstargamingtv-droid.github.io/sponsorhub/dashboard-real.html'
             }
         });
 
+        console.log('🎮 OAuth response:', data, error);
+
         if (error) {
-            console.error('Error signing in with Twitch:', error);
+            console.error('❌ Error signing in with Twitch:', error);
             throw error;
         }
     }
@@ -182,5 +207,5 @@ class AuthManager {
     }
 }
 
-// Global auth instance
+console.log('🚀 Creating AuthManager instance');
 window.authManager = new AuthManager();
