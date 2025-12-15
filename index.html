@@ -969,7 +969,7 @@
             <div class="logo">PromoSync</div>
             <div class="nav-buttons" id="navButtons">
                 <a href="#" onclick="showAuthModal(); return false;" class="btn btn-secondary">Sign In</a>
-                <a href="dashboard.html?demo=true" class="btn btn-primary">Try Demo</a>
+                <a href="dashboard.html" class="btn btn-primary">Try Demo</a>
             </div>
         </header>
 
@@ -1729,7 +1729,7 @@
         try {
             await window.authManager.signInWithEmail(email, password);
             closeAuthModal();
-            window.location.href = 'dashboard.html';
+            window.location.href = 'dashboard-real.html';
         } catch (error) {
             alert('Login failed: ' + error.message);
         }
