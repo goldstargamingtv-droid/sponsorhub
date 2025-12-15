@@ -25,8 +25,8 @@ const PLANS = {
     STARTER: {
         id: 'starter',
         name: 'Starter',
-        price: 9.99,
-        annualPrice: 95,
+        price: 4.99,
+        annualPrice: 47.90,
         features: {
             rateCalculator: { save: true, compare: true, history: false },
             mediaKit: { limit: 5, templates: 'all', customColors: true, dragReorder: false, shareable: false },
@@ -43,8 +43,8 @@ const PLANS = {
     PRO: {
         id: 'pro',
         name: 'Pro',
-        price: 19.99,
-        annualPrice: 191,
+        price: 9.99,
+        annualPrice: 95.90,
         features: {
             rateCalculator: { save: true, compare: true, history: true },
             mediaKit: { limit: Infinity, templates: 'all', customColors: true, dragReorder: true, shareable: true },
@@ -312,7 +312,7 @@ class PaywallSystem {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px;">
                 <div style="background: rgba(255, 255, 255, 0.03); padding: 24px; border-radius: 16px; border: 1px solid var(--border-color);">
                     <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Starter</h3>
-                    <div style="font-size: 36px; font-weight: 800; margin-bottom: 16px;">$9.99<span style="font-size: 16px; color: var(--text-secondary);">/mo</span></div>
+                    <div style="font-size: 36px; font-weight: 800; margin-bottom: 16px;">$4.99<span style="font-size: 16px; color: var(--text-secondary);">/mo</span></div>
                     <button onclick="window.paywall.upgrade('starter')" style="width: 100%; padding: 12px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer;">
                         Upgrade to Starter
                     </button>
@@ -321,7 +321,7 @@ class PaywallSystem {
                 <div style="background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(123, 97, 255, 0.1)); padding: 24px; border-radius: 16px; border: 2px solid var(--accent-primary);">
                     <div style="position: absolute; margin-top: -40px; margin-left: -24px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;">BEST VALUE</div>
                     <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Pro</h3>
-                    <div style="font-size: 36px; font-weight: 800; margin-bottom: 16px;">$19.99<span style="font-size: 16px; color: var(--text-secondary);">/mo</span></div>
+                    <div style="font-size: 36px; font-weight: 800; margin-bottom: 16px;">$9.99<span style="font-size: 16px; color: var(--text-secondary);">/mo</span></div>
                     <button onclick="window.paywall.upgrade('pro')" style="width: 100%; padding: 12px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer;">
                         Upgrade to Pro
                     </button>
