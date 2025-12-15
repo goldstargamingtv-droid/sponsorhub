@@ -1,0 +1,134 @@
+<!-- Auth Modal (to be included in pages) -->
+<style>
+:root {
+    --bg-primary: #0a0e1a;
+    --bg-secondary: #151b2e;
+    --accent-primary: #00d9ff;
+    --accent-secondary: #7b61ff;
+    --text-primary: #ffffff;
+    --text-secondary: #c9d1e0;
+    --text-muted: #8b95ab;
+    --border-color: rgba(255, 255, 255, 0.08);
+}
+</style>
+
+<div id="authModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 24px; padding: 48px; max-width: 500px; width: 90%; position: relative;">
+        <button onclick="closeAuthModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer;">×</button>
+        
+        <h2 style="font-family: 'Syne', sans-serif; font-size: 32px; margin-bottom: 12px; text-align: center;">Welcome to PromoSync</h2>
+        <p style="color: var(--text-secondary); text-align: center; margin-bottom: 32px;">Sign in to access your dashboard</p>
+
+        <!-- OAuth Buttons -->
+        <button onclick="signInWithTwitch()" style="width: 100%; padding: 16px; background: #9146FF; border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+            Continue with Twitch
+        </button>
+
+        <div style="display: flex; align-items: center; margin: 24px 0;">
+            <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+            <span style="padding: 0 16px; color: var(--text-muted); font-size: 14px;">or</span>
+            <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+        </div>
+
+        <!-- Tabs -->
+        <div style="display: flex; gap: 8px; margin-bottom: 24px; background: rgba(255,255,255,0.03); padding: 4px; border-radius: 12px;">
+            <button id="loginTab" onclick="switchAuthTab('login')" style="flex: 1; padding: 10px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">Sign In</button>
+            <button id="signupTab" onclick="switchAuthTab('signup')" style="flex: 1; padding: 10px; background: transparent; border: none; border-radius: 8px; color: var(--text-secondary); font-weight: 600; cursor: pointer;">Sign Up</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Email</label>
+                <input type="email" id="loginEmail" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 16px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Password</label>
+                <input type="password" id="loginPassword" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 16px;">
+            </div>
+            <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer;">Sign In</button>
+        </form>
+
+        <!-- Signup Form -->
+        <form id="signupForm" onsubmit="handleSignup(event)" style="display: none;">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Username</label>
+                <input type="text" id="signupUsername" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 16px;">
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Email</label>
+                <input type="email" id="signupEmail" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 16px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Password</label>
+                <input type="password" id="signupPassword" required minlength="8" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 16px;">
+            </div>
+            <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer;">Create Account</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function showAuthModal() {
+    document.getElementById('authModal').style.display = 'flex';
+}
+
+function closeAuthModal() {
+    document.getElementById('authModal').style.display = 'none';
+}
+
+function switchAuthTab(tab) {
+    if (tab === 'login') {
+        document.getElementById('loginTab').style.background = 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))';
+        document.getElementById('loginTab').style.color = 'white';
+        document.getElementById('signupTab').style.background = 'transparent';
+        document.getElementById('signupTab').style.color = 'var(--text-secondary)';
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('signupForm').style.display = 'none';
+    } else {
+        document.getElementById('signupTab').style.background = 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))';
+        document.getElementById('signupTab').style.color = 'white';
+        document.getElementById('loginTab').style.background = 'transparent';
+        document.getElementById('loginTab').style.color = 'var(--text-secondary)';
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('signupForm').style.display = 'block';
+    }
+}
+
+async function signInWithTwitch() {
+    try {
+        await window.authManager.signInWithTwitch();
+    } catch (error) {
+        alert('Error signing in with Twitch: ' + error.message);
+    }
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        await window.authManager.signInWithEmail(email, password);
+        closeAuthModal();
+    } catch (error) {
+        alert('Login failed: ' + error.message);
+    }
+}
+
+async function handleSignup(e) {
+    e.preventDefault();
+    const username = document.getElementById('signupUsername').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+
+    try {
+        await window.authManager.signUpWithEmail(email, password, username);
+        alert('Account created! Please check your email to verify.');
+        closeAuthModal();
+    } catch (error) {
+        alert('Signup failed: ' + error.message);
+    }
+}
+</script>

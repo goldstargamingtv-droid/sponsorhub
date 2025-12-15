@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to PromoSync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #151b2e;
+            --bg-card: rgba(25, 35, 58, 0.6);
+            --accent-primary: #00d9ff;
+            --accent-secondary: #7b61ff;
+            --text-primary: #ffffff;
+            --text-secondary: #c9d1e0;
+            --text-muted: #8b95ab;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            opacity: 0.15;
+            background: radial-gradient(circle at 20% 50%, var(--accent-primary) 0%, transparent 50%), radial-gradient(circle at 80% 80%, var(--accent-secondary) 0%, transparent 50%);
+            filter: blur(100px);
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            width: 90%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 48px;
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 36px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        select[multiple] {
+            min-height: 150px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 16px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3);
+        }
+
+        .hint {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <div class="container">
+        <h1>Welcome! Let's set up your profile 🚀</h1>
+        <p class="subtitle">Tell us about your channel so we can match you with the right brands</p>
+        
+        <form id="onboardingForm">
+            <div class="form-group">
+                <label>Twitch Username</label>
+                <input type="text" id="twitchUsername" placeholder="your_username" required>
+                <div class="hint">Your Twitch channel name</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Follower Count</label>
+                <input type="number" id="followerCount" placeholder="50000">
+                <div class="hint">Approximate number of followers</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Average Viewers</label>
+                <input type="number" id="avgViewers" placeholder="2500">
+                <div class="hint">Average concurrent viewers per stream</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Content Niche (hold Ctrl/Cmd to select multiple)</label>
+                <select id="contentNiche" multiple required>
+                    <option value="gaming">Gaming</option>
+                    <option value="tech">Tech</option>
+                    <option value="lifestyle">Lifestyle</option>
+                    <option value="fitness">Fitness</option>
+                    <option value="education">Education</option>
+                    <option value="music">Music</option>
+                    <option value="art">Art & Creative</option>
+                </select>
+                <div class="hint">Select all that describe your content</div>
+            </div>
+            
+            <button type="submit" class="btn">Complete Setup</button>
+        </form>
+    </div>
+    
+    <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+        await window.authManager.init();
+        
+        if (!window.authManager.isAuthenticated()) {
+            window.location.href = 'index-improved.html';
+        }
+    });
+
+    document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const selectedNiches = Array.from(document.getElementById('contentNiche').selectedOptions)
+            .map(option => option.value);
+        
+        if (selectedNiches.length === 0) {
+            alert('Please select at least one content niche');
+            return;
+        }
+        
+        try {
+            await window.authManager.updateProfile({
+                twitch_username: document.getElementById('twitchUsername').value,
+                follower_count: parseInt(document.getElementById('followerCount').value) || 0,
+                avg_viewers: parseInt(document.getElementById('avgViewers').value) || 0,
+                content_niche: selectedNiches,
+                primary_platform: 'twitch'
+            });
+            
+            alert('✅ Profile setup complete!');
+            window.location.href = 'dashboard-improved.html';
+        } catch (error) {
+            alert('Error updating profile: ' + error.message);
+        }
+    });
+    </script>
+</body>
+</html>
