@@ -168,6 +168,25 @@ class AuthManager {
         }
     }
 
+    async signInWithYouTube() {
+        console.log('▶️ Starting YouTube/Google OAuth...');
+        
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: 'https://goldstargamingtv-droid.github.io/sponsorhub/dashboard-real.html',
+                scopes: 'https://www.googleapis.com/auth/youtube.readonly'
+            }
+        });
+
+        console.log('▶️ OAuth response:', data, error);
+
+        if (error) {
+            console.error('❌ Error signing in with YouTube:', error);
+            throw error;
+        }
+    }
+
     async signInWithEmail(email, password) {
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
