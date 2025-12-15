@@ -466,3 +466,15 @@ function addTooltip(element, text) {
 
 // Export for use in other files
 window.addTooltip = addTooltip;
+
+// Initialize paywall system
+if (typeof window !== 'undefined') {
+    window.paywall = new PaywallSystem();
+    
+    // Add showPaywall alias for convenience
+    window.paywall.showPaywall = function() {
+        return this.showUpgradeModal();
+    };
+    
+    console.log('Paywall system initialized');
+}
