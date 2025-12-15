@@ -3,184 +3,412 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Pitch Generator - PromoSync</title>
+    <title>AI Rate Calculator - PromoSync</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Supabase & Auth -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="data-service.js"></script>
+    
+    <!-- Paywall System -->
     <script src="paywall-system.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
             --bg-primary: #0a0e1a;
             --bg-secondary: #151b2e;
             --bg-card: rgba(25, 35, 58, 0.6);
             --accent-primary: #00d9ff;
             --accent-secondary: #7b61ff;
+            --accent-tertiary: #ff6b9d;
+            --success: #00ffa3;
+            --warning: #ffd93d;
+            --danger: #ff4757;
             --text-primary: #ffffff;
             --text-secondary: #c9d1e0;
             --text-muted: #8b95ab;
             --border-color: rgba(255, 255, 255, 0.08);
-            --success: #00ffa3;
         }
 
         body {
             font-family: 'DM Sans', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            line-height: 1.6;
             min-height: 100vh;
         }
 
         .bg-gradient {
-            position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 0; opacity: 0.15;
-            background: radial-gradient(circle at 20% 50%, var(--accent-primary) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, var(--accent-secondary) 0%, transparent 50%);
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            opacity: 0.15;
+            background: 
+                radial-gradient(circle at 20% 50%, var(--accent-primary) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, var(--accent-secondary) 0%, transparent 50%);
             filter: blur(100px);
         }
 
-        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
-        
-        header { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; margin-bottom: 32px; }
-        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+            margin-bottom: 40px;
+        }
+
         .logo {
-            font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .back-btn {
-            padding: 10px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color);
-            border-radius: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 600; transition: all 0.3s;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
         }
 
-        h1 { font-family: 'Syne', sans-serif; font-size: 42px; margin-bottom: 8px; text-align: center; }
-        .subtitle { text-align: center; color: var(--text-secondary); font-size: 18px; margin-bottom: 32px; }
-
-        .usage-banner {
-            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(123, 97, 255, 0.1));
-            border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 16px; padding: 16px 24px; margin-bottom: 32px;
-            display: flex; justify-content: space-between; align-items: center;
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
         }
 
-        .usage-count { color: var(--accent-primary); font-weight: 800; }
-        .upgrade-link { color: var(--accent-primary); text-decoration: underline; cursor: pointer; }
-
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-        @media (max-width: 968px) { .grid { grid-template-columns: 1fr; } }
-
-        .card {
-            background: var(--bg-card); backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color); border-radius: 20px; padding: 32px;
+        .page-header {
+            text-align: center;
+            margin-bottom: 48px;
         }
 
-        .card h2 { font-family: 'Syne', sans-serif; font-size: 24px; margin-bottom: 24px; }
+        .page-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-        .form-group { margin-bottom: 24px; }
-        .form-label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary); }
+        .page-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .calculator-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.3s;
+        }
+
+        .calculator-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 217, 255, 0.2);
+            border-color: var(--accent-primary);
+        }
+
+        .card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .input-value {
+            color: var(--accent-primary);
+            font-weight: 700;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            cursor: pointer;
+            border: none;
+        }
+
+        select {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 24px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--accent-primary);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .result-label {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .result-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 64px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+
+        .result-range {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Compare Rates Section */
+        .compare-section {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .compare-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .compare-item {
+            text-align: center;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .compare-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .compare-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .compare-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .compare-value.min { color: var(--warning); }
+        .compare-value.avg { color: var(--accent-primary); }
+        .compare-value.max { color: var(--success); }
+
+        .compare-note {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        /* Explanation Cards */
+        .explanation-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        @media (max-width: 1200px) {
+            .explanation-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .explanation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .explanation-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .explanation-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .explanation-header {
+            margin-bottom: 12px;
+        }
+
+        .explanation-header h4 {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .expand-icon {
+            display: none;
+        }
+
+        .explanation-content {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.5;
+        }
 
         .pro-badge {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; color: white;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 8px;
         }
 
-        input, select, textarea {
-            width: 100%; padding: 12px 16px; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-primary);
-            font-size: 14px; font-family: 'DM Sans', sans-serif;
-        }
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
 
-        textarea { min-height: 100px; resize: vertical; }
+            .compare-grid {
+                grid-template-columns: 1fr;
+            }
 
-        .template-pills { display: flex; gap: 12px; flex-wrap: wrap; }
-        
-        .template-pill {
-            padding: 12px 20px; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--border-color);
-            border-radius: 12px; cursor: pointer; transition: all 0.3s; font-weight: 600;
-        }
+            .page-title {
+                font-size: 36px;
+            }
 
-        .template-pill.active {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border-color: transparent; color: white;
-        }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
-        
-        .stat-item {
-            background: rgba(255, 255, 255, 0.03); padding: 16px;
-            border-radius: 12px; text-align: center;
-        }
-
-        .stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-        .stat-value { font-size: 24px; font-weight: 800; color: var(--accent-primary); }
-
-        .twitch-badge {
-            display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
-            background: rgba(145, 70, 255, 0.2); border: 1px solid rgba(145, 70, 255, 0.4);
-            border-radius: 8px; font-size: 12px; font-weight: 600;
-        }
-
-        .preview-card {
-            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color);
-            border-radius: 16px; padding: 24px; min-height: 400px;
-        }
-
-        .preview-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);
-        }
-
-        .copy-btn, .email-btn {
-            padding: 8px 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border: none; border-radius: 8px; color: white; font-weight: 600;
-            cursor: pointer; transition: all 0.3s; font-size: 13px;
-        }
-
-        .pitch-content { color: var(--text-secondary); line-height: 1.8; }
-        .pitch-subject { font-weight: 700; color: var(--text-primary); margin-bottom: 16px; font-size: 16px; }
-        .pitch-body { margin-bottom: 16px; }
-        .pitch-body strong { color: var(--accent-primary); }
-
-        .placeholder {
-            text-align: center; color: var(--text-muted); padding: 80px 20px; font-size: 16px;
-        }
-
-        .placeholder-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
-
-        .generate-btn {
-            width: 100%; padding: 18px 32px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border: none; border-radius: 16px; color: white; font-size: 18px; font-weight: 800;
-            cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 30px rgba(0, 217, 255, 0.3);
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-        }
-
-        .generate-btn:hover:not(:disabled) {
-            transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0, 217, 255, 0.5);
-        }
-
-        .generate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3); border-top: 3px solid white;
-            border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        .toast {
-            position: fixed; top: 20px; right: 20px; background: var(--success);
-            color: var(--bg-primary); padding: 16px 24px; border-radius: 12px;
-            font-weight: 700; z-index: 10000; animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            .result-value {
+                font-size: 48px;
+            }
         }
     </style>
 </head>
@@ -190,189 +418,346 @@
     <div class="container">
         <header>
             <div class="logo">PromoSync</div>
-            <a href="dashboard-real.html" class="back-btn">← Back to Dashboard</a>
+            <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
         </header>
 
-        <h1><span style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Pitch Generator</span> ✨</h1>
-        <p class="subtitle">Create perfect sponsorship pitches in seconds</p>
-
-        <div class="usage-banner">
-            <div style="font-weight: 600;">
-                Generated <span class="usage-count" id="pitchCount">0</span> of <span class="usage-count" id="pitchLimit">1</span> pitches this month
-            </div>
-            <a class="upgrade-link" onclick="if(window.paywall) window.paywall.showPaywall()">Upgrade for more →</a>
+        <div class="page-header">
+            <h1 class="page-title">AI Rate Calculator</h1>
+            <p class="page-subtitle">Get AI-powered sponsorship rate recommendations based on your audience metrics</p>
         </div>
 
-        <div class="grid">
-            <div class="card">
-                <h2>📝 Pitch Details</h2>
-                
-                <div class="form-group">
-                    <label class="form-label">Brand Name</label>
-                    <input type="text" id="brandName" placeholder="Enter brand name...">
+        <div class="calculator-grid">
+            <!-- Input Card -->
+            <div class="calculator-card">
+                <h2 class="card-title">Your Metrics</h2>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>👥 Followers</span>
+                        <span class="input-value" id="followersValue">50,000</span>
+                    </div>
+                    <input type="range" class="slider" id="followers" min="1000" max="500000" value="50000" step="1000" oninput="updateValue('followers')">
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Your Niche</label>
-                    <select id="niche">
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>👀 Avg Viewers</span>
+                        <span class="input-value" id="viewersValue">2,500</span>
+                    </div>
+                    <input type="range" class="slider" id="viewers" min="100" max="50000" value="2500" step="100" oninput="updateValue('viewers')">
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>💬 Engagement Rate</span>
+                        <span class="input-value" id="engagementValue">5.0%</span>
+                    </div>
+                    <input type="range" class="slider" id="engagement" min="1" max="20" value="5" step="0.1" oninput="updateValue('engagement')">
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>🎯 Content Niche</span>
+                    </div>
+                    <select id="niche" onchange="calculateRate()">
                         <option value="gaming">Gaming</option>
                         <option value="tech">Tech</option>
                         <option value="lifestyle">Lifestyle</option>
                         <option value="fitness">Fitness</option>
+                        <option value="education">Education</option>
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Pitch Template</label>
-                    <div class="template-pills">
-                        <div class="template-pill active" data-template="professional" onclick="selectTemplate('professional')">Professional</div>
-                        <div class="template-pill" data-template="casual" onclick="selectTemplate('casual')">Casual <span class="pro-badge">STARTER</span></div>
-                        <div class="template-pill" data-template="creative" onclick="selectTemplate('creative')">Creative <span class="pro-badge">PRO</span></div>
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>📺 Platform</span>
                     </div>
+                    <select id="platform" onchange="calculateRate()">
+                        <option value="twitch">Twitch</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="instagram">Instagram</option>
+                    </select>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Additional Notes (Optional)</label>
-                    <textarea id="additionalNotes" placeholder="Add specific points..."></textarea>
-                </div>
+                <button class="btn" onclick="calculateRate()">Calculate My Rate</button>
             </div>
 
-            <div>
-                <div class="card" style="margin-bottom: 24px;">
-                    <h2>📊 Your Stats (Auto-filled)</h2>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-label">Followers</div>
-                            <div class="stat-value" id="statFollowers">50K</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Avg Viewers</div>
-                            <div class="stat-value" id="statViewers">2.5K</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Engagement</div>
-                            <div class="stat-value" id="statEngagement">5.0%</div>
-                        </div>
-                    </div>
+            <!-- Result Card -->
+            <div class="calculator-card">
+                <h2 class="card-title">Recommended Rate</h2>
 
-                    <div style="text-align: center;">
-                        <span class="twitch-badge"><span style="font-size: 16px;">📺</span> Stats from Twitch</span>
-                    </div>
+                <div class="result-card">
+                    <div class="result-label">Your Estimated Rate</div>
+                    <div class="result-value" id="recommendedRate">$926</div>
+                    <div class="result-range">per sponsored stream</div>
                 </div>
 
-                <div class="card">
-                    <h2>✉️ Generated Pitch Preview</h2>
-                    
-                    <div class="preview-card">
-                        <div class="placeholder" id="placeholder">
-                            <div class="placeholder-icon">📧</div>
-                            <div>Your pitch will appear here...</div>
-                        </div>
-                        
-                        <div id="pitchPreview" style="display: none;">
-                            <div class="preview-header">
-                                <div style="font-weight: 700;">Email Preview</div>
-                                <div>
-                                    <button class="copy-btn" onclick="copyPitch()">📋 Copy</button>
-                                    <button class="email-btn" onclick="sendEmail()">📧 Send <span class="pro-badge">PRO</span></button>
-                                </div>
-                            </div>
-                            <div class="pitch-content" id="pitchContent"></div>
-                        </div>
-                    </div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span class="pro-badge" style="font-size: 11px; padding: 4px 8px;">STARTER</span>
+                    <span style="color: var(--text-muted); font-size: 13px;">Save & track your rates</span>
                 </div>
+
+                <button class="btn" onclick="saveRate()">
+                    💾 Save This Rate
+                </button>
+
+                <button class="btn btn-secondary" onclick="viewHistory()" style="margin-top: 12px;">
+                    📊 View Rate History
+                </button>
             </div>
         </div>
 
-        <button class="generate-btn" id="generateBtn" onclick="generatePitch()">
-            <span id="btnText">✨ Generate Pitch</span>
-        </button>
+        <!-- Compare Rates Section -->
+        <div class="compare-section" style="position: relative; overflow: hidden;">
+            <!-- Animated background glow -->
+            <div style="position: absolute; top: -100px; left: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0, 217, 255, 0.15), transparent); filter: blur(60px); animation: float 6s ease-in-out infinite;"></div>
+            <div style="position: absolute; bottom: -100px; right: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(123, 97, 255, 0.15), transparent); filter: blur(60px); animation: float 8s ease-in-out infinite reverse;"></div>
+            
+            <h3 style="font-family: 'Syne', sans-serif; font-size: 24px; margin-bottom: 24px; text-align: center; position: relative; z-index: 1;">
+                Compare Your Rate
+                <span class="pro-badge">PRO</span>
+            </h3>
+
+            <div style="position: relative; min-height: 280px;">
+                <!-- Premium card container with gradient border -->
+                <div style="background: linear-gradient(135deg, rgba(0, 217, 255, 0.3), rgba(123, 97, 255, 0.3)); padding: 2px; border-radius: 20px; position: relative;">
+                    <div style="background: rgba(15, 20, 35, 0.95); border-radius: 18px; padding: 40px 20px; position: relative; overflow: hidden;">
+                        
+                        <!-- Teaser numbers on sides with glow -->
+                        <div style="position: absolute; left: 30px; top: 50%; transform: translateY(-50%); text-align: center;">
+                            <div style="font-size: 32px; font-weight: 800; color: rgba(0, 217, 255, 0.4); filter: blur(1.5px); text-shadow: 0 0 20px rgba(0, 217, 255, 0.6);">$3,652</div>
+                            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.3); margin-top: 4px;">Minimum</div>
+                        </div>
+                        
+                        <div style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%); text-align: center;">
+                            <div style="font-size: 32px; font-weight: 800; color: rgba(123, 97, 255, 0.4); filter: blur(1.5px); text-shadow: 0 0 20px rgba(123, 97, 255, 0.6);">$6,328</div>
+                            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.3); margin-top: 4px;">Maximum</div>
+                        </div>
+
+                        <!-- Connecting lines to lock -->
+                        <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;" xmlns="http://www.w3.org/2000/svg">
+                            <line x1="25%" y1="50%" x2="50%" y2="50%" stroke="rgba(0, 217, 255, 0.2)" stroke-width="2" stroke-dasharray="4,4"/>
+                            <line x1="75%" y1="50%" x2="50%" y2="50%" stroke="rgba(123, 97, 255, 0.2)" stroke-width="2" stroke-dasharray="4,4"/>
+                        </svg>
+
+                        <!-- Center content -->
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; position: relative; z-index: 10;">
+                            
+                            <!-- Premium 3D Lock with glow and pulse animation -->
+                            <div style="position: relative; animation: lockPulse 3s ease-in-out infinite;">
+                                <div style="font-size: 72px; background: linear-gradient(135deg, #00d9ff, #7b61ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 30px rgba(0, 217, 255, 0.5)); position: relative;">
+                                    🔒
+                                </div>
+                                <!-- Particle effect -->
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(0, 217, 255, 0.1), transparent); filter: blur(20px); animation: particles 4s linear infinite;"></div>
+                            </div>
+                            
+                            <!-- Title with gradient -->
+                            <h4 style="font-size: 26px; font-weight: 800; background: linear-gradient(135deg, #00d9ff, #7b61ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">
+                                Unlock Rate Comparisons
+                            </h4>
+                            
+                            <!-- Subtext with highlight -->
+                            <p style="color: rgba(255, 255, 255, 0.9); text-align: center; max-width: 340px; font-size: 15px; line-height: 1.5; margin: 0;">
+                                See how your rate compares to other creators in <span style="color: #00d9ff; font-weight: 600;">your niche</span>
+                            </p>
+                            
+                            <!-- Premium stat -->
+                            <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(0, 217, 255, 0.1); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 20px; margin-top: 4px;">
+                                <span style="font-size: 20px;">⚡</span>
+                                <span style="color: rgba(255, 255, 255, 0.9); font-size: 13px; font-weight: 600;">Pro users earn 32% more on average</span>
+                            </div>
+                            
+                            <!-- Premium full-width button with hover effect -->
+                            <button onclick="if(window.paywall) window.paywall.showPaywall()" style="
+                                width: 100%;
+                                max-width: 400px;
+                                padding: 16px 32px;
+                                background: linear-gradient(135deg, #00d9ff, #7b61ff);
+                                border: none;
+                                border-radius: 14px;
+                                color: white;
+                                font-size: 16px;
+                                font-weight: 800;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                box-shadow: 0 8px 30px rgba(0, 217, 255, 0.3);
+                                margin-top: 12px;
+                                position: relative;
+                                overflow: hidden;
+                            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 40px rgba(0, 217, 255, 0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 30px rgba(0, 217, 255, 0.3)'">
+                                <span style="position: relative; z-index: 2;">✨ Upgrade to Pro – Unlock Comparisons</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="compare-note" style="position: relative; z-index: 1; margin-top: 16px;">
+                Based on creators with similar audience size in your niche
+            </p>
+        </div>
+
+        <!-- Add animations -->
+        <style>
+            @keyframes lockPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+            
+            @keyframes float {
+                0%, 100% { transform: translate(0, 0); }
+                50% { transform: translate(20px, 20px); }
+            }
+            
+            @keyframes particles {
+                0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0.3; }
+                50% { opacity: 0.6; }
+                100% { transform: translate(-50%, -50%) rotate(360deg); opacity: 0.3; }
+            }
+        </style>
+
+        <!-- Explanation Cards -->
+        <div class="explanation-grid">
+            <div class="explanation-card">
+                <div class="explanation-header">
+                    <h4>📊 How We Calculate</h4>
+                </div>
+                <div class="explanation-content">
+                    Our AI analyzes your follower count, average viewership, engagement rate, and niche to calculate a fair market rate. We compare your metrics against thousands of successful sponsorship deals to ensure accuracy.
+                </div>
+            </div>
+
+            <div class="explanation-card">
+                <div class="explanation-header">
+                    <h4>💰 Rate Factors</h4>
+                </div>
+                <div class="explanation-content">
+                    Key factors include: audience size (30%), engagement rate (40%), content niche (15%), platform (10%), and content quality (5%). Higher engagement rates significantly boost your value to sponsors.
+                </div>
+            </div>
+
+            <div class="explanation-card">
+                <div class="explanation-header">
+                    <h4>🎯 Negotiation Tips</h4>
+                </div>
+                <div class="explanation-content">
+                    Use this rate as a starting point. If you have exclusive content, niche expertise, or high conversion rates, you can justify rates 20-30% higher. Always be prepared to show engagement metrics and past campaign results.
+                </div>
+            </div>
+
+            <div class="explanation-card">
+                <div class="explanation-header">
+                    <h4>📈 Increase Your Rate</h4>
+                </div>
+                <div class="explanation-content">
+                    Focus on increasing engagement rate (reply to comments, create interactive content), maintain consistent streaming schedule, diversify content to attract premium sponsors, and showcase successful past partnerships.
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        let selectedTemplate = 'professional';
-        let currentPitch = '';
-        let pitchCount = 0;
-        let pitchLimit = 1;
-
-        function selectTemplate(template) {
-            selectedTemplate = template;
-            document.querySelectorAll('.template-pill').forEach(p => p.classList.remove('active'));
-            document.querySelector(`[data-template="${template}"]`).classList.add('active');
+        // Update input values
+        function updateValue(inputId) {
+            const input = document.getElementById(inputId);
+            const valueDisplay = document.getElementById(inputId + 'Value');
+            
+            if (inputId === 'followers' || inputId === 'viewers') {
+                valueDisplay.textContent = parseInt(input.value).toLocaleString();
+            } else if (inputId === 'engagement') {
+                valueDisplay.textContent = parseFloat(input.value).toFixed(1) + '%';
+            }
+            
+            calculateRate();
         }
 
-        async function generatePitch() {
-            const brandName = document.getElementById('brandName').value.trim();
-            if (!brandName) { alert('Please enter a brand name'); return; }
-            if (pitchCount >= pitchLimit) { if (window.paywall) window.paywall.showPaywall(); return; }
+        // Calculate rate
+        function calculateRate() {
+            const followers = parseInt(document.getElementById('followers').value);
+            const viewers = parseInt(document.getElementById('viewers').value);
+            const engagement = parseFloat(document.getElementById('engagement').value);
+            const niche = document.getElementById('niche').value;
+            const platform = document.getElementById('platform').value;
 
-            const btn = document.getElementById('generateBtn');
-            const btnText = document.getElementById('btnText');
-            btn.disabled = true;
-            btnText.innerHTML = '<div class="spinner"></div> Generating...';
+            // Base calculation
+            let baseRate = (followers * 0.015) + (viewers * 0.35) + (engagement * 50);
 
-            try {
-                await new Promise(r => setTimeout(r, 2000));
-                const pitch = `Subject: Partnership Opportunity with ${brandName}
+            // Niche multiplier
+            const nicheMultipliers = {
+                gaming: 1.0,
+                tech: 1.2,
+                lifestyle: 0.9,
+                fitness: 1.1,
+                education: 0.95
+            };
+            baseRate *= nicheMultipliers[niche] || 1.0;
 
-Dear ${brandName} Team,
+            // Platform multiplier
+            const platformMultipliers = {
+                twitch: 1.0,
+                youtube: 1.15,
+                tiktok: 0.85,
+                instagram: 0.9
+            };
+            baseRate *= platformMultipliers[platform] || 1.0;
 
-I'm reaching out to explore a partnership between ${brandName} and my gaming community. With <strong>50,000 followers</strong> and <strong>2,500 average viewers</strong>, I've built an engaged audience that aligns with your brand.
+            // Display recommended rate
+            const recommendedRate = Math.round(baseRate);
+            document.getElementById('recommendedRate').textContent = '$' + recommendedRate.toLocaleString();
 
-<strong>Why Partner With Me?</strong>
-My community has a <strong>5.0% engagement rate</strong>, well above industry standards. My audience actively seeks recommendations from trusted creators.
+            // Calculate min/max for compare section
+            const minRate = Math.round(recommendedRate * 0.8);
+            const maxRate = Math.round(recommendedRate * 1.2);
 
-<strong>Collaboration Ideas:</strong>
-• Sponsored stream segments
-• Product reviews & demonstrations  
-• Custom discount codes
-• Social media promotion
+            document.getElementById('minRate').textContent = '$' + minRate.toLocaleString();
+            document.getElementById('avgRate').textContent = '$' + recommendedRate.toLocaleString();
+            document.getElementById('maxRate').textContent = '$' + maxRate.toLocaleString();
+        }
 
-I'd love to discuss creating authentic content that drives results for ${brandName}.
-
-Best regards,
-[Your Name]`;
-
-                displayPitch(pitch);
-                pitchCount++;
-                document.getElementById('pitchCount').textContent = pitchCount;
-                showToast('✨ Pitch ready!');
-                if (typeof confetti !== 'undefined') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            } finally {
-                btn.disabled = false;
-                btnText.innerHTML = '✨ Generate Pitch';
+        // Save rate
+        function saveRate() {
+            // Show paywall popup (same as marketplace hearts)
+            if (window.paywall) {
+                window.paywall.showPaywall();
             }
         }
 
-        function displayPitch(pitch) {
-            currentPitch = pitch;
-            const html = pitch.split('\n').filter(l => l.trim()).map(line => {
-                if (line.startsWith('Subject:')) return `<div class="pitch-subject">${line}</div>`;
-                return `<p class="pitch-body">${line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</p>`;
-            }).join('');
-            
-            document.getElementById('pitchContent').innerHTML = html;
-            document.getElementById('placeholder').style.display = 'none';
-            document.getElementById('pitchPreview').style.display = 'block';
+        // View history
+        function viewHistory() {
+            // Show paywall popup (same as marketplace hearts)
+            if (window.paywall) {
+                window.paywall.showPaywall();
+            }
         }
 
-        function copyPitch() {
-            navigator.clipboard.writeText(currentPitch);
-            showToast('📋 Copied!');
+        // Toggle expand
+        function toggleExpand(card) {
+            card.classList.toggle('expanded');
         }
 
-        function sendEmail() {
-            if (window.paywall) window.paywall.showPaywall();
-        }
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            calculateRate();
+        });
+    </script>
+    <script>
+        let currentCalculatedRate = 0;
 
-        function showToast(msg) {
-            const t = document.createElement('div');
-            t.className = 'toast';
-            t.textContent = msg;
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
-        }
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            calculateRate();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            calculateRate();
+            // Add listeners to all inputs
+            ['followers', 'avgViewers', 'engagement', 'niche', 'platform'].forEach(id => {
+                document.getElementById(id).addEventListener('input', calculateRate);
+            });
+        });
     </script>
 </body>
 </html>
