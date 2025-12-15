@@ -336,9 +336,21 @@
         /* Explanation Cards */
         .explanation-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
             margin-bottom: 32px;
+        }
+        
+        @media (max-width: 1200px) {
+            .explanation-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .explanation-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .explanation-card {
@@ -346,8 +358,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 24px;
-            cursor: pointer;
+            padding: 20px;
             transition: all 0.3s;
         }
 
@@ -357,39 +368,23 @@
         }
 
         .explanation-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .explanation-header h4 {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
         }
 
         .expand-icon {
-            font-size: 12px;
-            color: var(--text-muted);
-            transition: transform 0.3s;
-        }
-
-        .explanation-card.expanded .expand-icon {
-            transform: rotate(180deg);
+            display: none;
         }
 
         .explanation-content {
-            display: none;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .explanation-card.expanded .explanation-content {
             display: block;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.5;
         }
 
         .pro-badge {
@@ -540,40 +535,36 @@
 
         <!-- Explanation Cards -->
         <div class="explanation-grid">
-            <div class="explanation-card" onclick="toggleExpand(this)">
+            <div class="explanation-card">
                 <div class="explanation-header">
                     <h4>📊 How We Calculate</h4>
-                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Our AI analyzes your follower count, average viewership, engagement rate, and niche to calculate a fair market rate. We compare your metrics against thousands of successful sponsorship deals to ensure accuracy.
                 </div>
             </div>
 
-            <div class="explanation-card" onclick="toggleExpand(this)">
+            <div class="explanation-card">
                 <div class="explanation-header">
                     <h4>💰 Rate Factors</h4>
-                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Key factors include: audience size (30%), engagement rate (40%), content niche (15%), platform (10%), and content quality (5%). Higher engagement rates significantly boost your value to sponsors.
                 </div>
             </div>
 
-            <div class="explanation-card" onclick="toggleExpand(this)">
+            <div class="explanation-card">
                 <div class="explanation-header">
                     <h4>🎯 Negotiation Tips</h4>
-                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Use this rate as a starting point. If you have exclusive content, niche expertise, or high conversion rates, you can justify rates 20-30% higher. Always be prepared to show engagement metrics and past campaign results.
                 </div>
             </div>
 
-            <div class="explanation-card" onclick="toggleExpand(this)">
+            <div class="explanation-card">
                 <div class="explanation-header">
                     <h4>📈 Increase Your Rate</h4>
-                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Focus on increasing engagement rate (reply to comments, create interactive content), maintain consistent streaming schedule, diversify content to attract premium sponsors, and showcase successful past partnerships.
