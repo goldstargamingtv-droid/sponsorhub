@@ -986,6 +986,12 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
+        // Handle auth hash fragment from OAuth redirect
+        if (window.location.hash.includes('access_token')) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
         if (window.authManager) {
             await window.authManager.init();
         }
