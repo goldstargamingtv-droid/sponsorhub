@@ -276,31 +276,9 @@
                 </div>
                 <button type="submit" class="btn-primary" id="loginBtn">Login</button>
                 <div class="forgot-password">
-                    <a href="#" onclick="showForgotPassword(event)">Forgot password?</a>
+                    <a href="reset-password.html">Forgot password?</a>
                 </div>
             </form>
-
-            <!-- Forgot Password Modal -->
-            <div id="forgotPasswordModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center;">
-                <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 24px; padding: 40px; max-width: 500px; width: 90%; position: relative;">
-                    <button onclick="closeForgotPassword()" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; line-height: 1;">×</button>
-                    
-                    <h2 style="font-family: 'Syne', sans-serif; font-size: 28px; margin-bottom: 16px;">Reset Password</h2>
-                    <p style="color: var(--text-secondary); margin-bottom: 24px;">Enter your email and we'll send you a reset link.</p>
-                    
-                    <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)">
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input type="email" id="forgotEmail" required placeholder="your@email.com">
-                        </div>
-                        <button type="submit" class="btn-primary" id="forgotBtn">Send Reset Link</button>
-                    </form>
-                    
-                    <div id="forgotSuccess" style="display: none; margin-top: 20px; padding: 16px; background: rgba(0, 255, 163, 0.1); border: 1px solid var(--success); border-radius: 12px; color: var(--success); text-align: center;">
-                        ✅ Reset link sent! Check your email.
-                    </div>
-                </div>
-            </div>
 
             <!-- Register Form -->
             <form class="auth-form" id="registerForm">
@@ -517,35 +495,6 @@
         // Check if already logged in
         if (localStorage.getItem('authToken')) {
             window.location.href = 'dashboard.html';
-        }
-
-        // Forgot Password Functions
-        function showForgotPassword(event) {
-            event.preventDefault();
-            document.getElementById('forgotPasswordModal').style.display = 'flex';
-        }
-
-        function closeForgotPassword() {
-            document.getElementById('forgotPasswordModal').style.display = 'none';
-            document.getElementById('forgotSuccess').style.display = 'none';
-            document.getElementById('forgotPasswordForm').reset();
-        }
-
-        async function handleForgotPassword(event) {
-            event.preventDefault();
-            const email = document.getElementById('forgotEmail').value;
-            const btn = document.getElementById('forgotBtn');
-            
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
-            
-            // Save email for reset page
-            localStorage.setItem('resetEmail', email);
-            
-            // Redirect to reset page
-            setTimeout(() => {
-                window.location.href = 'reset-password.html';
-            }, 500);
         }
     </script>
 </body>
