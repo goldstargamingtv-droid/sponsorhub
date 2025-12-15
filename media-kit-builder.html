@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Kit Builder - PromoSync</title>
+    
+    <!-- Supabase & Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="data-service.js"></script>
+    
     <script src="paywall-system.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -910,7 +916,20 @@
             loading.classList.add('active');
 
             try {
+                if (!window.authManager || !window.authManager.isAuthenticated()) {
+                    alert('Please sign in to save media kits!');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                if (window.authManager.isDemoMode) {
+                    alert('Demo mode - Sign up to save your media kits!');
+                    loading.classList.remove('active');
+                    return;
+                }
+
                 const kitData = {
+                    name: document.getElementById('creatorName').value + "'s Media Kit",
                     creator_name: document.getElementById('creatorName').value,
                     tagline: document.getElementById('tagline').value,
                     bio: document.getElementById('bio').value,
@@ -928,10 +947,7 @@
                     created_at: new Date().toISOString()
                 };
 
-                // Save to localStorage for now (will connect to Supabase later)
-                const existingKits = JSON.parse(localStorage.getItem('mediaKits') || '[]');
-                existingKits.push(kitData);
-                localStorage.setItem('mediaKits', JSON.stringify(existingKits));
+                await window.dataService.saveMediaKit(window.authManager.user.id, kitData);
                 localStorage.setItem('currentMediaKit', JSON.stringify(kitData));
 
                 alert('✅ Media kit saved successfully!\n\nYou can now download it as PDF or share with brands.');
