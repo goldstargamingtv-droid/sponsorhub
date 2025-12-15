@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /dashboard-real.html
+Disallow: /dashboard.html
 Disallow: /api/
-Sitemap: https://goldstargamingtv-droid.github.io/sponsorhub/sitemap.xml
+Sitemap: https://genuine-sunburst-657b4a.netlify.app/sitemap.xml
