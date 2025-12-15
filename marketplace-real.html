@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Marketplace - PromoSync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="data-service.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #151b2e;
+            --bg-card: rgba(25, 35, 58, 0.6);
+            --accent-primary: #00d9ff;
+            --accent-secondary: #7b61ff;
+            --text-primary: #ffffff;
+            --text-secondary: #c9d1e0;
+            --text-muted: #8b95ab;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --success: #00ffa3;
+            --warning: #ffd93d;
+            --danger: #ff4757;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            opacity: 0.15;
+            background: radial-gradient(circle at 20% 50%, var(--accent-primary) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, var(--accent-secondary) 0%, transparent 50%);
+            filter: blur(100px);
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .main-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border-color: transparent;
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 42px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border-color: transparent;
+        }
+
+        .brands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .brand-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .brand-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 12px 40px rgba(0, 217, 255, 0.15);
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .brand-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .brand-info h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .brand-category {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .brand-stats {
+            display: flex;
+            gap: 16px;
+            margin: 16px 0;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+        }
+
+        .stat {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .brand-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .tag {
+            padding: 6px 12px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--accent-primary);
+        }
+
+        .brand-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        .match-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(0, 255, 163, 0.1);
+            border: 1px solid rgba(0, 255, 163, 0.3);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .match-percentage {
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 48px;
+            color: var(--text-muted);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .empty-state h3 {
+            margin-top: 16px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo" onclick="window.location.href='dashboard-real.html'">PromoSync</div>
+            <nav class="main-nav">
+                <a href="dashboard-real.html" class="nav-link">Dashboard</a>
+                <a href="marketplace-real.html" class="nav-link active">Marketplace</a>
+                <a href="rate-calculator-real.html" class="nav-link">Calculator</a>
+                <a href="pitch-generator-real.html" class="nav-link">Pitch AI</a>
+                <a href="media-kit-builder-real.html" class="nav-link">Media Kit</a>
+                <a href="analytics-real.html" class="nav-link">Analytics</a>
+                <a href="contracts-real.html" class="nav-link">Contracts</a>
+            </nav>
+        </header>
+
+        <h1>Brand Marketplace 🎯</h1>
+        <p class="subtitle">Discover brands that match your content and audience</p>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterBrands('all')">All Brands</button>
+            <button class="filter-btn" onclick="filterBrands('gaming')">Gaming</button>
+            <button class="filter-btn" onclick="filterBrands('tech')">Tech</button>
+            <button class="filter-btn" onclick="filterBrands('lifestyle')">Lifestyle</button>
+            <button class="filter-btn" onclick="filterBrands('fitness')">Fitness</button>
+        </div>
+
+        <div id="brandsContainer" class="brands-grid">
+            <div class="loading">Loading brands...</div>
+        </div>
+    </div>
+
+    <script>
+    let allBrands = [];
+    let currentFilter = 'all';
+
+    async function loadBrands() {
+        if (!window.authManager || !window.authManager.isAuthenticated()) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        try {
+            // Fetch brands from Supabase
+            const { data, error } = await supabase
+                .from('brands')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            allBrands = data || [];
+            
+            if (allBrands.length === 0) {
+                document.getElementById('brandsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 48px;">📦</div>
+                        <h3>No brands available yet</h3>
+                        <p style="color: var(--text-muted); margin-top: 8px;">Check back soon for new opportunities!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            displayBrands(allBrands);
+        } catch (error) {
+            console.error('Error loading brands:', error);
+            document.getElementById('brandsContainer').innerHTML = `
+                <div class="empty-state">
+                    <div style="font-size: 48px;">⚠️</div>
+                    <h3>Error loading brands</h3>
+                    <p style="color: var(--text-muted); margin-top: 8px;">${error.message}</p>
+                </div>
+            `;
+        }
+    }
+
+    function displayBrands(brands) {
+        const container = document.getElementById('brandsContainer');
+        
+        if (brands.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div style="font-size: 48px;">🔍</div>
+                    <h3>No brands found</h3>
+                    <p style="color: var(--text-muted); margin-top: 8px;">Try adjusting your filters</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = brands.map(brand => {
+            const logo = brand.logo || brand.name.charAt(0).toUpperCase();
+            const category = brand.category || 'Uncategorized';
+            const budget = brand.budget_range || 'Contact for pricing';
+            const niches = brand.target_niches || [];
+            
+            return `
+                <div class="brand-card">
+                    <div class="brand-header">
+                        <div class="brand-logo">${logo}</div>
+                        <div class="brand-info">
+                            <h3>${brand.name}</h3>
+                            <div class="brand-category">${category}</div>
+                        </div>
+                    </div>
+
+                    <div class="brand-stats">
+                        <div class="stat">
+                            <div class="stat-value">${budget}</div>
+                            <div class="stat-label">Budget</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${brand.active_campaigns || 0}</div>
+                            <div class="stat-label">Campaigns</div>
+                        </div>
+                    </div>
+
+                    <div class="brand-tags">
+                        ${niches.map(niche => `<span class="tag">${niche}</span>`).join('')}
+                    </div>
+
+                    <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">
+                        ${brand.description || 'No description available'}
+                    </p>
+
+                    <div class="brand-actions">
+                        <button class="btn btn-primary" onclick="viewBrand('${brand.id}')">View Details</button>
+                        <button class="btn btn-secondary" onclick="saveBrand('${brand.id}')">Save</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function filterBrands(category) {
+        currentFilter = category;
+        
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // Filter brands
+        let filtered = allBrands;
+        if (category !== 'all') {
+            filtered = allBrands.filter(brand => 
+                brand.category?.toLowerCase() === category.toLowerCase() ||
+                brand.target_niches?.includes(category)
+            );
+        }
+
+        displayBrands(filtered);
+    }
+
+    async function viewBrand(brandId) {
+        alert('Brand detail page coming soon! Brand ID: ' + brandId);
+    }
+
+    async function saveBrand(brandId) {
+        try {
+            const userId = window.authManager.user.id;
+            
+            const { error } = await supabase
+                .from('saved_brands')
+                .insert([{
+                    user_id: userId,
+                    brand_id: brandId
+                }]);
+
+            if (error) throw error;
+
+            alert('✅ Brand saved to your list!');
+        } catch (error) {
+            console.error('Error saving brand:', error);
+            alert('Error saving brand: ' + error.message);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        if (window.authManager) {
+            await window.authManager.init();
+        }
+        await loadBrands();
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pitch Generator - PromoSync</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="data-service.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase & Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="data-service.js"></script>
+    
+    <script src="paywall-system.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #151b2e;
+            --bg-card: rgba(25, 35, 58, 0.6);
+            --accent-primary: #00d9ff;
+            --accent-secondary: #7b61ff;
+            --success: #00ffa3;
+            --text-primary: #ffffff;
+            --text-secondary: #c9d1e0;
+            --text-muted: #8b95ab;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); }
+        .bg-gradient { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 0; opacity: 0.15; background: radial-gradient(circle at 20% 50%, var(--accent-primary) 0%, transparent 50%), radial-gradient(circle at 80% 80%, var(--accent-secondary) 0%, transparent 50%); filter: blur(100px); }
+        .container { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; margin-bottom: 32px; }
+        .logo { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .back-btn { padding: 10px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 600; transition: all 0.3s; }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--accent-primary); transform: translateY(-2px); }
+        h1 { font-family: 'Syne', sans-serif; font-size: 36px; margin-bottom: 8px; }
+        .subtitle { color: var(--text-secondary); margin-bottom: 32px; }
+        .limit-banner { background: linear-gradient(135deg, rgba(0,217,255,0.1), rgba(123,97,255,0.1)); padding: 16px; border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--border-color); text-align: center; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .card { background: var(--bg-card); backdrop-filter: blur(10px); border: 1px solid var(--border-color); border-radius: 20px; padding: 28px; transition: all 0.3s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0, 217, 255, 0.2); border-color: var(--accent-primary); }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; }
+        textarea { resize: vertical; min-height: 120px; }
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 16px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .pitch-output { display: none; margin-top: 24px; }
+        .pitch-text { background: rgba(255, 255, 255, 0.03); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); white-space: pre-wrap; line-height: 1.8; }
+        .actions { display: flex; gap: 12px; margin-top: 16px; }
+        .template-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+        .template-option { padding: 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; text-align: center; transition: all 0.3s; }
+        .template-option:hover { border-color: var(--accent-primary); background: rgba(255, 255, 255, 0.06); }
+        .template-option.active { border-color: var(--accent-primary); background: rgba(0, 217, 255, 0.1); }
+        .pro-badge { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; margin-left: 6px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } .template-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="container">
+        <header>
+            <div class="logo">PromoSync</div>
+            <a href="dashboard-real.html" class="back-btn">← Back</a>
+        </header>
+
+        <h1>🤖 AI Pitch Generator</h1>
+        <p class="subtitle">Create professional, personalized pitch emails in seconds</p>
+
+        <div class="limit-banner" id="pitchLimitBanner">
+            <span id="pitchLimitText">Loading...</span>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">Pitch Details</h3>
+
+                <div class="form-group">
+                    <label>Brand Name</label>
+                    <select id="brandSelect">
+                        <option value="">-- Select Brand --</option>
+                        <option value="RazerGear">RazerGear (Gaming)</option>
+                        <option value="TechCore VPN">TechCore VPN (Security)</option>
+                        <option value="EnergyMax">EnergyMax (Energy Drinks)</option>
+                        <option value="CloudHost Pro">CloudHost Pro (Web Hosting)</option>
+                        <option value="SoundWave Audio">SoundWave Audio (Gaming Audio)</option>
+                        <option value="custom">Custom Brand...</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="customBrandGroup" style="display: none;">
+                    <label>Custom Brand Name</label>
+                    <input type="text" id="customBrand" placeholder="Enter brand name">
+                </div>
+
+                <div class="form-group">
+                    <label>Your Niche</label>
+                    <select id="niche">
+                        <option value="gaming">Gaming</option>
+                        <option value="tech">Tech</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="fitness">Fitness</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Pitch Template</label>
+                    <div class="template-grid">
+                        <div class="template-option active" onclick="selectTemplate('professional')" id="temp-professional">
+                            Professional
+                        </div>
+                        <div class="template-option" onclick="selectTemplate('casual')" id="temp-casual">
+                            Casual
+                        </div>
+                        <div class="template-option" onclick="selectTemplate('creative')" id="temp-creative" data-gated="pitchGenerator:premiumTemplates">
+                            Creative <span class="pro-badge">PRO</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Notes (Optional)</label>
+                    <textarea id="additionalNotes" placeholder="Any specific points you want to highlight..."></textarea>
+                </div>
+
+                <button class="btn" onclick="generatePitch()">✨ Generate Pitch</button>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">Your Stats (Auto-filled)</h3>
+
+                <div class="form-group">
+                    <label>Followers</label>
+                    <input type="text" id="followers" value="50,000" readonly style="opacity: 0.7;">
+                </div>
+
+                <div class="form-group">
+                    <label>Avg Viewers</label>
+                    <input type="text" id="viewers" value="2,500" readonly style="opacity: 0.7;">
+                </div>
+
+                <div class="form-group">
+                    <label>Engagement Rate</label>
+                    <input type="text" id="engagement" value="5.2%" readonly style="opacity: 0.7;">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="attachKit" data-gated="pitchGenerator:autoAttach" style="width: auto; margin-right: 8px;">
+                        Auto-attach Media Kit <span class="pro-badge">PRO</span>
+                    </label>
+                </div>
+
+                <div class="pitch-output" id="pitchOutput">
+                    <h4 style="margin-bottom: 16px;">Generated Pitch</h4>
+                    <div class="pitch-text" id="pitchText"></div>
+                    <div class="actions">
+                        <button class="btn" onclick="copyPitch()">📋 Copy Pitch</button>
+                        <button class="btn btn-secondary" onclick="downloadPitch()">⬇️ Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTemplate = 'professional';
+
+        function updatePitchLimit() {
+            if (!window.paywall) return;
+            const limit = window.paywall.checkLimit('pitches');
+            const banner = document.getElementById('pitchLimitText');
+            
+            if (limit.limit === Infinity) {
+                banner.textContent = '✨ Unlimited AI pitches on Pro plan';
+            } else {
+                banner.textContent = `🤖 Generated ${limit.used} of ${limit.limit} AI pitches this month`;
+                if (!limit.allowed) {
+                    banner.innerHTML += ' - <a href="#" onclick="window.paywall.showUpgradeModal(\'pitchGenerator\'); return false;" style="color: var(--accent-primary); text-decoration: underline;">Upgrade for more</a>';
+                }
+            }
+        }
+
+        document.getElementById('brandSelect').addEventListener('change', function() {
+            const custom = document.getElementById('customBrandGroup');
+            custom.style.display = this.value === 'custom' ? 'block' : 'none';
+        });
+
+        function selectTemplate(template) {
+            if (template === 'creative' && (!window.paywall || !window.paywall.canAccess('pitchGenerator', 'premiumTemplates'))) {
+                if (window.paywall) window.paywall.showUpgradeModal('pitchGenerator', 'premiumTemplates');
+                return;
+            }
+            
+            currentTemplate = template;
+            document.querySelectorAll('.template-option').forEach(t => t.classList.remove('active'));
+            document.getElementById('temp-' + template).classList.add('active');
+        }
+
+        function generatePitch() {
+            if (!window.paywall) return;
+            
+            const limit = window.paywall.checkLimit('pitches');
+            if (!limit.allowed) {
+                window.paywall.showLimitWarning('pitches');
+                return;
+            }
+
+            const brandSelect = document.getElementById('brandSelect').value;
+            const brand = brandSelect === 'custom' ? document.getElementById('customBrand').value : brandSelect;
+            const niche = document.getElementById('niche').value;
+            const notes = document.getElementById('additionalNotes').value;
+
+            if (!brand) {
+                alert('Please select a brand');
+                return;
+            }
+
+            let pitch = '';
+
+            if (currentTemplate === 'professional') {
+                pitch = `Subject: Partnership Opportunity with ${brand}
+
+Dear ${brand} Team,
+
+I hope this email finds you well. My name is [Your Name], and I'm a ${niche} content creator with a dedicated following of 50,000 and an average viewership of 2,500 per stream.
+
+I've been following ${brand} for some time and believe there's a strong alignment between your brand values and my audience demographics. With a 5.2% engagement rate, my community is highly active and responsive to authentic brand partnerships.
+
+I'd love to discuss how we could collaborate to create compelling content that showcases your products to my engaged audience. I specialize in ${niche} content and have successfully partnered with similar brands in the past.
+
+${notes ? '\n' + notes + '\n' : ''}
+I've attached my media kit for your review, which includes detailed analytics, past campaign results, and partnership options.
+
+I'm excited about the possibility of working together and would be happy to schedule a call to discuss this opportunity further.
+
+Best regards,
+[Your Name]`;
+            } else if (currentTemplate === 'casual') {
+                pitch = `Subject: Let's Work Together! 🚀
+
+Hey ${brand}!
+
+I'm [Your Name], a ${niche} creator with 50K followers who absolutely love what you do!
+
+My community (2.5K avg viewers per stream, 5.2% engagement) is always asking about gear/products in my niche, and I think ${brand} would be a perfect fit.
+
+${notes ? notes + '\n\n' : ''}I'd love to chat about a partnership! I've worked with similar brands before and always bring authentic, engaging content that converts.
+
+Media kit attached - let me know if you want to hop on a quick call!
+
+Cheers,
+[Your Name]`;
+            } else if (currentTemplate === 'creative') {
+                pitch = `Subject: 🎯 ${brand} x [Your Name] - A Match Made in ${niche.charAt(0).toUpperCase() + niche.slice(1)} Heaven
+
+Hey there, ${brand} Squad!
+
+Picture this: 50,000 passionate ${niche} fans. 2,500 live viewers hanging on every word. 5.2% engagement that most brands dream about.
+
+Now picture them discovering ${brand} through authentic, creative content that doesn't feel like an ad.
+
+That's what I bring to the table.
+
+${notes ? '\n💡 ' + notes + '\n' : ''}
+I don't just promote products - I tell stories. I create experiences. I build communities.
+
+And I think ${brand} deserves that kind of partnership.
+
+Ready to create something amazing together?
+
+Let's talk! 🚀
+
+[Your Name]
+Media Kit: [attached]`;
+            }
+
+            document.getElementById('pitchText').textContent = pitch;
+            document.getElementById('pitchOutput').style.display = 'block';
+
+            window.paywall.incrementUsage('pitches');
+            updatePitchLimit();
+            
+            // Auto-save pitch to database
+            savePitchToDatabase(brand, pitch);
+        }
+        
+        async function savePitchToDatabase(brandName, pitchText) {
+            if (!window.authManager || !window.authManager.isAuthenticated() || window.authManager.isDemoMode) {
+                return; // Silent fail for demo/not logged in
+            }
+
+            try {
+                await window.dataService.savePitch(window.authManager.user.id, {
+                    brandName: brandName,
+                    template: currentTemplate,
+                    pitchText: pitchText
+                });
+                console.log('✅ Pitch auto-saved');
+            } catch (error) {
+                console.error('Error saving pitch:', error);
+            }
+        }
+
+        function copyPitch() {
+            const pitch = document.getElementById('pitchText').textContent;
+            navigator.clipboard.writeText(pitch);
+            
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Copied!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+
+        function downloadPitch() {
+            const pitch = document.getElementById('pitchText').textContent;
+            const blob = new Blob([pitch], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pitch.txt';
+            a.click();
+        }
+
+        window.addEventListener('DOMContentLoaded', updatePitchLimit);
+    </script>
+</body>
+</html>

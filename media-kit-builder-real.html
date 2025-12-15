@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Kit Builder - PromoSync</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="data-service.js"></script>
+    
+    <!-- Supabase & Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="data-service.js"></script>
+    
+    <script src="paywall-system.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- html2canvas for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #151b2e;
+            --bg-card: rgba(25, 35, 58, 0.6);
+            --accent-primary: #00d9ff;
+            --accent-secondary: #7b61ff;
+            --accent-tertiary: #ff6b9d;
+            --text-primary: #ffffff;
+            --text-secondary: #c9d1e0;
+            --text-muted: #8b95ab;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        /* Main Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 32px;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* Editor Panel */
+        .editor-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 32px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .panel-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        /* Template Selector */
+        .template-selector {
+            margin-bottom: 32px;
+        }
+
+        .template-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .template-option {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .template-option:hover {
+            background: rgba(0, 217, 255, 0.05);
+            border-color: var(--accent-primary);
+        }
+
+        .template-option.active {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(123, 97, 255, 0.15));
+            border-color: var(--accent-primary);
+        }
+
+        .template-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .template-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Form Fields */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Preview Panel */
+        .preview-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 32px;
+            position: relative;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .preview-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .preview-note {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Media Kit Preview - Template 1: Professional */
+        .media-kit-preview {
+            background: white;
+            color: #1a202c;
+            border-radius: 16px;
+            padding: 48px;
+            min-height: 800px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .kit-header {
+            text-align: center;
+            padding-bottom: 32px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 32px;
+        }
+
+        .kit-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d9ff, #7b61ff);
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .kit-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+
+        .kit-tagline {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+
+        .kit-platforms {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        .platform-badge {
+            padding: 8px 16px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .kit-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin: 32px 0;
+            padding: 32px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: #7b61ff;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kit-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .section-content {
+            color: #475569;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .category-tag {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #00d9ff15, #7b61ff15);
+            border: 1px solid #00d9ff;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #7b61ff;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .contact-icon {
+            font-size: 20px;
+        }
+
+        .contact-text {
+            font-size: 14px;
+            color: #475569;
+        }
+
+        /* Loading State */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 26, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 217, 255, 0.2);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .editor-panel,
+            .preview-header,
+            header {
+                display: none !important;
+            }
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Template Variations */
+        .media-kit-preview.template-minimal {
+            background: #ffffff;
+            padding: 60px;
+        }
+
+        .template-minimal .kit-header {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .template-minimal .kit-name {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .template-minimal .kit-stats {
+            background: transparent;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 24px 0;
+        }
+
+        .template-minimal .section-title {
+            font-size: 18px;
+            border-bottom: none;
+            margin-bottom: 12px;
+        }
+
+        .template-minimal .category-tag {
+            background: #f1f5f9;
+            border: none;
+            color: #475569;
+        }
+
+        /* Creative Template */
+        .media-kit-preview.template-creative {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .template-creative .kit-header {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .template-creative .kit-avatar {
+            background: rgba(255, 255, 255, 0.2);
+            border: 3px solid white;
+        }
+
+        .template-creative .kit-name {
+            color: white;
+        }
+
+        .template-creative .kit-tagline {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .template-creative .platform-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .template-creative .kit-stats {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .template-creative .stat-value {
+            color: white;
+        }
+
+        .template-creative .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .template-creative .section-title {
+            color: white;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .template-creative .section-content {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .template-creative .category-tag {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .template-creative .contact-item {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .template-creative .contact-text {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Bold Template */
+        .media-kit-preview.template-bold {
+            background: #000000;
+            color: white;
+            border: 3px solid #00d9ff;
+        }
+
+        .template-bold .kit-header {
+            border-bottom: 3px solid #00d9ff;
+        }
+
+        .template-bold .kit-avatar {
+            background: linear-gradient(135deg, #00d9ff, #ff6b9d);
+            border: 4px solid #00d9ff;
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.5);
+        }
+
+        .template-bold .kit-name {
+            color: #00d9ff;
+            font-size: 42px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .template-bold .kit-tagline {
+            color: #a8b2d1;
+        }
+
+        .template-bold .platform-badge {
+            background: linear-gradient(135deg, #00d9ff, #7b61ff);
+            color: white;
+            border: none;
+            font-weight: 700;
+        }
+
+        .template-bold .kit-stats {
+            background: #1a1a1a;
+            border: 2px solid #00d9ff;
+        }
+
+        .template-bold .stat-value {
+            color: #00d9ff;
+            font-size: 36px;
+        }
+
+        .template-bold .stat-label {
+            color: #a8b2d1;
+        }
+
+        .template-bold .section-title {
+            color: #00d9ff;
+            border-bottom: 3px solid #00d9ff;
+            font-size: 28px;
+            text-transform: uppercase;
+        }
+
+        .template-bold .section-content {
+            color: #a8b2d1;
+        }
+
+        .template-bold .category-tag {
+            background: transparent;
+            border: 2px solid #00d9ff;
+            color: #00d9ff;
+        }
+
+        .template-bold .contact-item {
+            background: #1a1a1a;
+            border: 2px solid #00d9ff;
+        }
+
+        .template-bold .contact-text {
+            color: #a8b2d1;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">PromoSync</div>
+            <a href="dashboard-real.html" class="back-btn">← Back to Dashboard</a>
+        </header>
+
+        <div class="main-grid">
+            <!-- Editor Panel -->
+            <div class="editor-panel">
+                <h2 class="panel-title">Media Kit Builder</h2>
+
+                <!-- Template Selector -->
+                <div class="template-selector">
+                    <label class="template-label">Template Style</label>
+                    <div class="template-grid">
+                        <div class="template-option active" onclick="switchTemplate('professional')" id="template-professional">
+                            <div class="template-icon">💼</div>
+                            <div class="template-name">Professional</div>
+                        </div>
+                        <div class="template-option" onclick="switchTemplate('minimal')" id="template-minimal">
+                            <div class="template-icon">✨</div>
+                            <div class="template-name">Minimal</div>
+                        </div>
+                        <div class="template-option" onclick="switchTemplate('creative')" id="template-creative">
+                            <div class="template-icon">🎨</div>
+                            <div class="template-name">Creative</div>
+                        </div>
+                        <div class="template-option" onclick="switchTemplate('bold')" id="template-bold">
+                            <div class="template-icon">⚡</div>
+                            <div class="template-name">Bold</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Fields -->
+                <form id="mediaKitForm">
+                    <div class="form-group">
+                        <label class="form-label">Creator Name</label>
+                        <input type="text" class="form-input" id="creatorName" placeholder="Your Name" oninput="updatePreview()">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tagline</label>
+                        <input type="text" class="form-input" id="tagline" placeholder="Gaming Creator & Streamer" oninput="updatePreview()">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Bio</label>
+                        <textarea class="form-textarea" id="bio" placeholder="Tell brands about yourself..." oninput="updatePreview()"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Platform Stats</label>
+                        <div class="stats-grid">
+                            <input type="text" class="form-input" id="followers" placeholder="Followers" oninput="updatePreview()">
+                            <input type="text" class="form-input" id="avgViewers" placeholder="Avg Viewers" oninput="updatePreview()">
+                            <input type="text" class="form-input" id="engagement" placeholder="Engagement %" oninput="updatePreview()">
+                            <input type="text" class="form-input" id="streams" placeholder="Streams/Month" oninput="updatePreview()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="email" placeholder="your@email.com" oninput="updatePreview()">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Platforms (comma-separated)</label>
+                        <input type="text" class="form-input" id="platforms" placeholder="Twitch, YouTube, TikTok" oninput="updatePreview()">
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-primary" onclick="downloadPDF()">
+                            📥 Download PDF
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="saveKit()">
+                            💾 Save Kit
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <div>
+                        <h3 class="preview-title">Live Preview</h3>
+                        <p class="preview-note">Updates in real-time as you type</p>
+                    </div>
+                </div>
+
+                <!-- Media Kit Preview -->
+                <div class="media-kit-preview" id="mediaKitPreview">
+                    <div class="kit-header">
+                        <div class="kit-avatar" id="previewAvatar">JD</div>
+                        <h1 class="kit-name" id="previewName">John Doe</h1>
+                        <p class="kit-tagline" id="previewTagline">Gaming Creator & Streamer</p>
+                        <div class="kit-platforms" id="previewPlatforms">
+                            <span class="platform-badge">Twitch</span>
+                            <span class="platform-badge">YouTube</span>
+                        </div>
+                    </div>
+
+                    <div class="kit-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="previewFollowers">47.8K</div>
+                            <div class="stat-label">Total Followers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="previewViewers">2.5K</div>
+                            <div class="stat-label">Avg Viewers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="previewEngagement">12.8%</div>
+                            <div class="stat-label">Engagement Rate</div>
+                        </div>
+                    </div>
+
+                    <div class="kit-section">
+                        <h2 class="section-title">About Me</h2>
+                        <p class="section-content" id="previewBio">
+                            I'm a passionate gaming creator focused on FPS and competitive gameplay. My engaged community loves authentic content and real product recommendations.
+                        </p>
+                    </div>
+
+                    <div class="kit-section">
+                        <h2 class="section-title">Content Categories</h2>
+                        <div class="categories">
+                            <span class="category-tag">Gaming</span>
+                            <span class="category-tag">Tech Reviews</span>
+                            <span class="category-tag">Streaming</span>
+                        </div>
+                    </div>
+
+                    <div class="kit-section">
+                        <h2 class="section-title">Contact</h2>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <span class="contact-icon">📧</span>
+                                <span class="contact-text" id="previewEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="334a5c464173565e525a5f1d505c5e">[email&#160;protected]</a></span>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📊</span>
+                                <span class="contact-text" id="previewStreams">20 streams/month</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        const API_URL = 'https://sponsorhub-backend.onrender.com/api';
+        let currentTemplate = 'professional';
+
+        // Load user data on page load
+        async function loadUserData() {
+            try {
+                // Get user from localStorage
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                if (user.username) {
+                    document.getElementById('creatorName').value = user.full_name || user.username;
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('tagline').value = user.tagline || 'Gaming Creator & Streamer';
+                    document.getElementById('bio').value = user.bio || '';
+                    document.getElementById('followers').value = user.followers || '47800';
+                    document.getElementById('avgViewers').value = user.avg_viewers || '2500';
+                    document.getElementById('engagement').value = user.engagement_rate || '12.8';
+                    document.getElementById('platforms').value = 'Twitch, YouTube, TikTok';
+                    
+                    updatePreview();
+                }
+            } catch (error) {
+                console.log('No user data found, using defaults');
+            }
+        }
+
+        // Update preview in real-time
+        function updatePreview() {
+            const name = document.getElementById('creatorName').value || 'John Doe';
+            const tagline = document.getElementById('tagline').value || 'Gaming Creator & Streamer';
+            const bio = document.getElementById('bio').value || "I'm a passionate gaming creator focused on FPS and competitive gameplay.";
+            const followers = document.getElementById('followers').value || '47.8K';
+            const avgViewers = document.getElementById('avgViewers').value || '2.5K';
+            const engagement = document.getElementById('engagement').value || '12.8';
+            const streams = document.getElementById('streams').value || '20';
+            const email = document.getElementById('email').value || 'your@email.com';
+            const platforms = document.getElementById('platforms').value || 'Twitch, YouTube';
+
+            // Update preview
+            document.getElementById('previewName').textContent = name;
+            document.getElementById('previewTagline').textContent = tagline;
+            document.getElementById('previewBio').textContent = bio;
+            document.getElementById('previewFollowers').textContent = followers;
+            document.getElementById('previewViewers').textContent = avgViewers;
+            document.getElementById('previewEngagement').textContent = engagement + '%';
+            document.getElementById('previewEmail').textContent = email;
+            document.getElementById('previewStreams').textContent = streams + ' streams/month';
+
+            // Update avatar with initials
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            document.getElementById('previewAvatar').textContent = initials;
+
+            // Update platforms
+            const platformsDiv = document.getElementById('previewPlatforms');
+            platformsDiv.innerHTML = platforms.split(',').map(p => 
+                `<span class="platform-badge">${p.trim()}</span>`
+            ).join('');
+        }
+
+        // Switch template
+        function switchTemplate(template) {
+            currentTemplate = template;
+            
+            // Update active state
+            document.querySelectorAll('.template-option').forEach(el => el.classList.remove('active'));
+            document.getElementById(`template-${template}`).classList.add('active');
+            
+            // Apply template styles (simplified for now)
+            const preview = document.getElementById('mediaKitPreview');
+            preview.className = 'media-kit-preview template-' + template;
+        }
+
+        // Download as PDF
+        async function downloadPDF() {
+            const loading = document.getElementById('loading');
+            loading.classList.add('active');
+
+            try {
+                const element = document.getElementById('mediaKitPreview');
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    backgroundColor: '#ffffff'
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const imgWidth = 210;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save(`${document.getElementById('creatorName').value || 'MediaKit'}_PromoSync.pdf`);
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                alert('Error generating PDF. Please try again.');
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        // Save media kit to database
+        async function saveKit() {
+            const loading = document.getElementById('loading');
+            loading.classList.add('active');
+
+            try {
+                if (!window.authManager || !window.authManager.isAuthenticated()) {
+                    alert('Please sign in to save media kits!');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                if (window.authManager.isDemoMode) {
+                    alert('Demo mode - Sign up to save your media kits!');
+                    loading.classList.remove('active');
+                    return;
+                }
+
+                const kitData = {
+                    name: document.getElementById('creatorName').value + "'s Media Kit",
+                    creator_name: document.getElementById('creatorName').value,
+                    tagline: document.getElementById('tagline').value,
+                    bio: document.getElementById('bio').value,
+                    stats: {
+                        followers: document.getElementById('followers').value,
+                        avg_viewers: document.getElementById('avgViewers').value,
+                        engagement: document.getElementById('engagement').value,
+                        streams_per_month: document.getElementById('streams').value
+                    },
+                    contact: {
+                        email: document.getElementById('email').value,
+                        platforms: document.getElementById('platforms').value
+                    },
+                    template: currentTemplate,
+                    created_at: new Date().toISOString()
+                };
+
+                await window.dataService.saveMediaKit(window.authManager.user.id, kitData);
+                localStorage.setItem('currentMediaKit', JSON.stringify(kitData));
+
+                alert('✅ Media kit saved successfully!\n\nYou can now download it as PDF or share with brands.');
+                
+            } catch (error) {
+                console.error('Save error:', error);
+                alert('Error saving media kit. Please try again.');
+            } finally {
+           
