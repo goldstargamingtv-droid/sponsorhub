@@ -29,12 +29,13 @@ class AuthManager {
         }
 
         // Listen for auth changes
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN') {
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('Auth event:', event, session ? 'with session' : 'no session');
+            
+            if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
                 this.user = session.user;
-                this.loadProfile().then(() => {
-                    window.location.href = 'dashboard-real.html';
-                });
+                await this.loadProfile();
+                // loadProfile will handle routing based on onboarding status
             } else if (event === 'SIGNED_OUT') {
                 this.user = null;
                 this.profile = null;
@@ -76,19 +77,34 @@ class AuthManager {
             .single();
 
         if (error && error.code === 'PGRST116') {
-            // Profile doesn't exist, create it
+            // Profile doesn't exist, create it (which redirects to onboarding)
             await this.createProfile();
-        } else {
-            this.profile = data;
-            
-            // Check if onboarding is completed
-            if (data && !data.onboarding_completed) {
+            return;
+        }
+        
+        this.profile = data;
+        
+        // Route based on onboarding status
+        if (data && !data.onboarding_completed) {
+            // Not completed - go to onboarding
+            if (window.location.pathname !== '/sponsorhub/onboarding.html') {
                 window.location.href = 'onboarding.html';
+            }
+        } else {
+            // Completed - go to dashboard (unless already there or on other pages)
+            const currentPage = window.location.pathname;
+            const protectedPages = ['/sponsorhub/dashboard-real.html', '/sponsorhub/marketplace-real.html', 
+                                   '/sponsorhub/rate-calculator-real.html', '/sponsorhub/pitch-generator-real.html'];
+            
+            // Only redirect to dashboard if on landing page
+            if (currentPage === '/sponsorhub/index.html' || currentPage === '/sponsorhub/') {
+                window.location.href = 'dashboard-real.html';
             }
         }
     }
 
     async createProfile() {
+        console.log('Creating new profile...');
         // Get Twitch data from user metadata
         const metadata = this.user.user_metadata || {};
         const twitchUsername = metadata.name || metadata.nickname || metadata.preferred_username;
@@ -113,6 +129,7 @@ class AuthManager {
             return;
         }
 
+        console.log('Profile created, redirecting to onboarding...');
         this.profile = data;
         
         // Always redirect to onboarding for new users
@@ -172,11 +189,22 @@ class AuthManager {
             options: {
                 data: {
                     username: username
-                }
+                },
+                emailRedirectTo: window.location.origin + '/sponsorhub/onboarding.html'
             }
         });
 
         if (error) throw error;
+        
+        // Check if email confirmation is required
+        if (data.user && !data.session) {
+            alert('✅ Account created! Please check your email to confirm your account.');
+        } else if (data.session) {
+            // If instant login (email confirmation disabled)
+            this.user = data.user;
+            await this.loadProfile();
+        }
+        
         return data;
     }
 
