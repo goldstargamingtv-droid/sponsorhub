@@ -327,33 +327,47 @@
         async function loadUserData() {
             try {
                 if (!window.authManager || !window.authManager.isAuthenticated()) {
-                    // Show demo data
-                    document.getElementById('statFollowers').textContent = '50K';
-                    document.getElementById('statViewers').textContent = '2.5K';
-                    document.getElementById('statEngagement').textContent = '5.0%';
+                    document.getElementById("statFollowers").textContent = "50K";
+                    document.getElementById("statViewers").textContent = "2.5K";
+                    document.getElementById("statEngagement").textContent = "5.0%";
                     return;
                 }
 
                 const userId = window.authManager.user.id;
-                const metadata = window.authManager.user.user_metadata;
+                const profile = await window.dataService.getProfile(userId);
                 
-                // Load from Twitch metadata
-                if (metadata) {
-                    if (metadata.followers) {
-                        document.getElementById('statFollowers').textContent = formatNumber(metadata.followers);
-                    }
-                    if (metadata.avg_viewers) {
-                        document.getElementById('statViewers').textContent = formatNumber(metadata.avg_viewers);
-                    }
-                    if (metadata.engagement_rate) {
-                        document.getElementById('statEngagement').textContent = metadata.engagement_rate.toFixed(1) + '%';
+                if (profile) {
+                    if (profile.followers) {
+                        document.getElementById("statFollowers").textContent = formatNumber(profile.followers);
+                    } else {
+                        document.getElementById("statFollowers").textContent = "50K";
                     }
                     
-                    // Show Twitch badge
-                    document.getElementById('twitchBadge').style.display = 'inline-flex';
+                    if (profile.avg_viewers) {
+                        document.getElementById("statViewers").textContent = formatNumber(profile.avg_viewers);
+                    } else {
+                        document.getElementById("statViewers").textContent = "2.5K";
+                    }
+                    
+                    if (profile.engagement_rate) {
+                        document.getElementById("statEngagement").textContent = profile.engagement_rate.toFixed(1) + "%";
+                    } else {
+                        document.getElementById("statEngagement").textContent = "5.0%";
+                    }
+                    
+                    if (profile.content_niche) {
+                        document.getElementById("niche").value = profile.content_niche;
+                    }
+                    
+                    if (profile.twitch_username) {
+                        document.getElementById("twitchBadge").style.display = "inline-flex";
+                    }
                 }
             } catch (error) {
-                console.error('Error loading user data:', error);
+                console.error("Error loading user data:", error);
+                document.getElementById("statFollowers").textContent = "50K";
+                document.getElementById("statViewers").textContent = "2.5K";
+                document.getElementById("statEngagement").textContent = "5.0%";
             }
         }
 
