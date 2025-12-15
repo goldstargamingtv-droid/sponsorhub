@@ -8,8 +8,7 @@
     <meta name="robots" content="noindex">
     
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Paywall System -->
-    <script src="paywall-system.js"></script>
+    
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-6BST5QZPDL"></script>
     <script>
@@ -308,6 +307,41 @@
     <script>
         // API Configuration
         const API_URL = 'https://sponsorhub-backend.onrender.com/api';
+        const API_TIMEOUT = 5000; // 5 second timeout
+
+        // Fetch with timeout
+        async function fetchWithTimeout(url, options, timeout = API_TIMEOUT) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                    throw new Error('Request timeout - using demo mode');
+                }
+                throw error;
+            }
+        }
+
+        // Demo mode login
+        function demoLogin(email) {
+            const demoUser = {
+                id: 1,
+                name: email.split('@')[0],
+                email: email,
+                plan: 'free'
+            };
+            localStorage.setItem('authToken', 'demo-token-' + Date.now());
+            localStorage.setItem('user', JSON.stringify(demoUser));
+            return true;
+        }
 
         // Tab switching
         function showTab(tab) {
@@ -357,7 +391,7 @@
             btn.textContent = 'Logging in...';
             
             try {
-                const response = await fetch(`${API_URL}/auth/login`, {
+                const response = await fetchWithTimeout(`${API_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -366,27 +400,32 @@
                 const data = await response.json();
                 
                 if (data.token) {
-                    // Save auth token
                     localStorage.setItem('authToken', data.token);
-                    
-                    // Save user data
                     if (data.user) {
                         localStorage.setItem('user', JSON.stringify(data.user));
                     }
-                    
                     showSuccess('Login successful! Redirecting...');
                     setTimeout(() => {
                         window.location.href = 'dashboard.html';
-                    }, 1000);
+                    }, 500);
                 } else {
                     showError(data.error || 'Login failed. Please check your credentials.');
                     btn.disabled = false;
                     btn.textContent = 'Login';
                 }
             } catch (error) {
-                showError('Network error. Please try again.');
-                btn.disabled = false;
-                btn.textContent = 'Login';
+                // Fallback to demo mode if API fails
+                if (error.message.includes('timeout') || error.message.includes('Network')) {
+                    demoLogin(email);
+                    showSuccess('Demo mode activated! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+                } else {
+                    showError('Login failed. Please try again.');
+                    btn.disabled = false;
+                    btn.textContent = 'Login';
+                }
             }
         });
 
@@ -415,7 +454,7 @@
             btn.textContent = 'Creating account...';
             
             try {
-                const response = await fetch(`${API_URL}/auth/register`, {
+                const response = await fetchWithTimeout(`${API_URL}/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email, password })
@@ -424,27 +463,32 @@
                 const data = await response.json();
                 
                 if (data.token) {
-                    // Save auth token
                     localStorage.setItem('authToken', data.token);
-                    
-                    // Save user data
                     if (data.user) {
                         localStorage.setItem('user', JSON.stringify(data.user));
                     }
-                    
                     showSuccess('Account created! Redirecting to dashboard...');
                     setTimeout(() => {
                         window.location.href = 'dashboard.html';
-                    }, 1000);
+                    }, 500);
                 } else {
                     showError(data.error || 'Registration failed. Please try again.');
                     btn.disabled = false;
                     btn.textContent = 'Create Account';
                 }
             } catch (error) {
-                showError('Network error. Please try again.');
-                btn.disabled = false;
-                btn.textContent = 'Create Account';
+                // Fallback to demo mode if API fails
+                if (error.message.includes('timeout') || error.message.includes('Network')) {
+                    demoLogin(email);
+                    showSuccess('Demo mode activated! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+                } else {
+                    showError('Registration failed. Please try again.');
+                    btn.disabled = false;
+                    btn.textContent = 'Create Account';
+                }
             }
         });
 
