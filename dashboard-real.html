@@ -989,8 +989,13 @@
         
         if (window.authManager) {
             await window.authManager.init();
+            // loadProfile() in init will redirect to onboarding if needed
         }
-        await loadDashboardData();
+        
+        // Only load dashboard if we're still here (onboarding check passed)
+        if (window.authManager && window.authManager.isAuthenticated()) {
+            await loadDashboardData();
+        }
     });
     </script>
 </body>
