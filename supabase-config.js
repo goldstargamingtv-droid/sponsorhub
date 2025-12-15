@@ -134,7 +134,7 @@ class AuthManager {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'twitch',
             options: {
-                redirectTo: window.location.origin + '/dashboard.html'
+                redirectTo: window.location.origin + '/dashboard-real.html'
             }
         });
 
