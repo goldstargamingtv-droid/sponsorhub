@@ -6,6 +6,11 @@
     <title>AI Rate Calculator - PromoSync</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Supabase & Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="data-service.js"></script>
+    
     <!-- Paywall System -->
     <script src="paywall-system.js"></script>
     
@@ -691,6 +696,66 @@
         // Initialize
         window.addEventListener('DOMContentLoaded', function() {
             calculateRate();
+        });
+    </script>
+    <script>
+        let currentCalculatedRate = 0;
+
+        function calculateRate() {
+            const followers = parseInt(document.getElementById('followers').value);
+            const viewers = parseInt(document.getElementById('avgViewers').value);
+            const engagement = parseFloat(document.getElementById('engagement').value);
+            const niche = parseFloat(document.getElementById('niche').value);
+            const platform = parseFloat(document.getElementById('platform').value);
+
+            // Updated calculation formula
+            const baseRate = (followers * 0.015) + (viewers * 0.35) + (engagement * 50);
+            currentCalculatedRate = Math.round(baseRate * niche * platform);
+
+            document.getElementById('recommendedRate').textContent = '$' + currentCalculatedRate.toLocaleString();
+        }
+
+        async function saveRate() {
+            if (!window.authManager || !window.authManager.isAuthenticated()) {
+                alert('Please sign in to save your rates!');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            if (window.authManager.isDemoMode) {
+                alert('Demo mode - Sign up to save your rates!');
+                return;
+            }
+
+            const rateData = {
+                followers: parseInt(document.getElementById('followers').value),
+                avgViewers: parseInt(document.getElementById('avgViewers').value),
+                engagementRate: parseFloat(document.getElementById('engagement').value),
+                niche: document.getElementById('niche').options[document.getElementById('niche').selectedIndex].text,
+                platform: document.getElementById('platform').options[document.getElementById('platform').selectedIndex].text,
+                calculatedRate: currentCalculatedRate
+            };
+
+            try {
+                await window.dataService.saveRate(window.authManager.user.id, rateData);
+                alert('✅ Rate saved to your history!');
+            } catch (error) {
+                console.error('Error saving rate:', error);
+                alert('Error saving rate. Please try again.');
+            }
+        }
+
+        function viewHistory() {
+            alert('Rate history feature coming soon!');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            calculateRate();
+            // Add listeners to all inputs
+            ['followers', 'avgViewers', 'engagement', 'niche', 'platform'].forEach(id => {
+                document.getElementById(id).addEventListener('input', calculateRate);
+            });
         });
     </script>
 </body>
