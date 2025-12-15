@@ -14,6 +14,8 @@ class AuthManager {
     }
 
     async init() {
+        console.log('🔍 AuthManager init started');
+        
         // Check for demo mode
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('demo') === 'true' || localStorage.getItem('demoMode') === 'true') {
@@ -22,23 +24,33 @@ class AuthManager {
         }
 
         // Check auth state
-        const { data: { session } } = await supabase.auth.getSession();
+        console.log('🔍 Checking session...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('📊 Session result:', session ? 'FOUND' : 'NONE', error);
+        
         if (session) {
+            console.log('✅ Session exists, user:', session.user.email);
             this.user = session.user;
             await this.loadProfile();
+        } else {
+            console.log('❌ No session found');
         }
 
         // Listen for auth changes
         supabase.auth.onAuthStateChange((event, session) => {
+            console.log('🔔 Auth event:', event, session ? 'with session' : 'no session');
+            
             if (event === 'SIGNED_IN') {
+                console.log('✅ SIGNED_IN event, user:', session.user.email);
                 this.user = session.user;
                 this.loadProfile().then(() => {
-                    window.location.href = 'dashboard-improved.html';
+                    console.log('➡️ Redirecting to dashboard');
+                    window.location.href = 'dashboard-real.html';
                 });
             } else if (event === 'SIGNED_OUT') {
                 this.user = null;
                 this.profile = null;
-                window.location.href = 'index-improved.html';
+                window.location.href = 'index.html';
             }
         });
     }
@@ -65,10 +77,12 @@ class AuthManager {
     exitDemoMode() {
         this.isDemoMode = false;
         localStorage.removeItem('demoMode');
-        window.location.href = 'index-improved.html';
+        window.location.href = 'index.html';
     }
 
     async loadProfile() {
+        console.log('📂 Loading profile for user:', this.user.id);
+        
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
@@ -76,14 +90,19 @@ class AuthManager {
             .single();
 
         if (error && error.code === 'PGRST116') {
-            // Profile doesn't exist, create it
+            console.log('⚠️ Profile not found, creating new profile...');
             await this.createProfile();
+        } else if (error) {
+            console.error('❌ Error loading profile:', error);
         } else {
+            console.log('✅ Profile loaded:', data);
             this.profile = data;
         }
     }
 
     async createProfile() {
+        console.log('🆕 Creating profile...');
+        
         const { data, error } = await supabase
             .from('profiles')
             .insert([{
@@ -96,16 +115,13 @@ class AuthManager {
             .single();
 
         if (error) {
-            console.error('Error creating profile:', error);
+            console.error('❌ Error creating profile:', error);
+            alert('Error creating profile: ' + error.message);
             return;
         }
 
+        console.log('✅ Profile created:', data);
         this.profile = data;
-        
-        // Redirect to onboarding if profile is incomplete
-        if (!data.twitch_username || !data.content_niche) {
-            window.location.href = 'onboarding.html';
-        }
     }
 
     async updateProfile(updates) {
@@ -131,15 +147,19 @@ class AuthManager {
     }
 
     async signInWithTwitch() {
-        const { error } = await supabase.auth.signInWithOAuth({
+        console.log('🎮 Starting Twitch OAuth...');
+        
+        const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'twitch',
             options: {
-                redirectTo: window.location.origin + '/dashboard-real.html'
+                redirectTo: window.location.origin + '/sponsorhub/dashboard-real.html'
             }
         });
 
+        console.log('🎮 OAuth response:', data, error);
+
         if (error) {
-            console.error('Error signing in with Twitch:', error);
+            console.error('❌ Error signing in with Twitch:', error);
             throw error;
         }
     }
@@ -183,4 +203,5 @@ class AuthManager {
 }
 
 // Global auth instance
+console.log('🚀 Creating AuthManager instance');
 window.authManager = new AuthManager();
