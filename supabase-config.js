@@ -84,12 +84,19 @@ class AuthManager {
     }
 
     async createProfile() {
+        // Get Twitch data from user metadata
+        const metadata = this.user.user_metadata || {};
+        const twitchUsername = metadata.name || metadata.nickname || metadata.preferred_username;
+        const fullName = metadata.full_name || metadata.name || twitchUsername;
+        
         const { data, error } = await supabase
             .from('profiles')
             .insert([{
                 id: this.user.id,
                 email: this.user.email,
-                username: this.user.email.split('@')[0],
+                username: twitchUsername || this.user.email.split('@')[0],
+                full_name: fullName,
+                avatar_url: metadata.avatar_url || metadata.picture,
                 created_at: new Date().toISOString()
             }])
             .select()
