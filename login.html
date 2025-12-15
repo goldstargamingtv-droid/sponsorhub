@@ -537,37 +537,15 @@
             const btn = document.getElementById('forgotBtn');
             
             btn.disabled = true;
-            btn.textContent = 'Sending...';
+            btn.textContent = 'Processing...';
             
-            try {
-                const response = await fetchWithTimeout(`${API_URL}/auth/forgot-password`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-                
-                // Show success regardless (security best practice)
-                document.getElementById('forgotSuccess').style.display = 'block';
-                document.getElementById('forgotPasswordForm').style.display = 'none';
-                
-                setTimeout(() => {
-                    closeForgotPassword();
-                    document.getElementById('forgotPasswordForm').style.display = 'block';
-                }, 3000);
-                
-            } catch (error) {
-                // Still show success message (don't reveal if email exists)
-                document.getElementById('forgotSuccess').style.display = 'block';
-                document.getElementById('forgotPasswordForm').style.display = 'none';
-                
-                setTimeout(() => {
-                    closeForgotPassword();
-                    document.getElementById('forgotPasswordForm').style.display = 'block';
-                }, 3000);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Send Reset Link';
-            }
+            // Save email for reset page
+            localStorage.setItem('resetEmail', email);
+            
+            // Redirect to reset page
+            setTimeout(() => {
+                window.location.href = 'reset-password.html';
+            }, 500);
         }
     </script>
 </body>
