@@ -917,47 +917,15 @@
             <h2 style="font-family: 'Syne', sans-serif; font-size: 32px; margin-bottom: 12px; text-align: center;">Welcome to PromoSync</h2>
             <p style="color: var(--text-secondary); text-align: center; margin-bottom: 32px;">Sign in to access your dashboard</p>
 
+            <!-- Twitch OAuth Button -->
             <button onclick="handleTwitchLogin()" style="width: 100%; padding: 16px; background: #9146FF; border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 12px;">
                 <span>🎮</span> Continue with Twitch
             </button>
 
-            <div style="display: flex; align-items: center; margin: 24px 0;">
-                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-                <span style="padding: 0 16px; color: var(--text-muted); font-size: 14px;">or</span>
-                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-            </div>
-
-            <!-- Tabs -->
-            <div style="display: flex; gap: 8px; margin-bottom: 24px; background: rgba(255,255,255,0.03); padding: 4px; border-radius: 12px;">
-                <button id="loginTab" onclick="switchTab('login')" style="flex: 1; padding: 10px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">Sign In</button>
-                <button id="signupTab" onclick="switchTab('signup')" style="flex: 1; padding: 10px; background: transparent; border: none; border-radius: 8px; color: var(--text-secondary); font-weight: 600; cursor: pointer;">Sign Up</button>
-            </div>
-
-            <!-- Login Form -->
-            <div id="loginForm">
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Email</label>
-                    <input type="email" id="loginEmail" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 16px; font-family: 'DM Sans', sans-serif;">
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Password</label>
-                    <input type="password" id="loginPassword" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 16px; font-family: 'DM Sans', sans-serif;">
-                </div>
-                <button onclick="handleLogin()" style="width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer;">Sign In</button>
-            </div>
-
-            <!-- Signup Form -->
-            <div id="signupForm" style="display: none;">
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Email</label>
-                    <input type="email" id="signupEmail" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 16px; font-family: 'DM Sans', sans-serif;">
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Password</label>
-                    <input type="password" id="signupPassword" minlength="6" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 16px; font-family: 'DM Sans', sans-serif;">
-                </div>
-                <button onclick="handleSignup()" style="width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer;">Create Account</button>
-            </div>
+            <!-- YouTube/Google OAuth Button -->
+            <button onclick="handleYouTubeLogin()" style="width: 100%; padding: 16px; background: #FF0000; border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;">
+                <span>▶️</span> Continue with YouTube
+            </button>
         </div>
     </div>
 
@@ -1694,75 +1662,19 @@
         }
     }
 
-    function switchTab(tab) {
-        if (tab === 'login') {
-            document.getElementById('loginTab').style.background = 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))';
-            document.getElementById('loginTab').style.color = 'white';
-            document.getElementById('signupTab').style.background = 'transparent';
-            document.getElementById('signupTab').style.color = 'var(--text-secondary)';
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('signupForm').style.display = 'none';
-        } else {
-            document.getElementById('signupTab').style.background = 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))';
-            document.getElementById('signupTab').style.color = 'white';
-            document.getElementById('loginTab').style.background = 'transparent';
-            document.getElementById('loginTab').style.color = 'var(--text-secondary)';
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('signupForm').style.display = 'block';
-        }
-    }
-
-    async function handleLogin() {
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        
-        if (!email || !password) {
-            alert('Please enter email and password');
-            return;
-        }
-
-        if (!window.authManager || !window.supabase) {
-            alert('⚠️ Setup Required:\n\n1. Upload supabase-config.js to your server\n2. Make sure it has your Supabase credentials\n\nFor now, use "Try Demo" button to explore!');
-            return;
-        }
-
-        try {
-            await window.authManager.signInWithEmail(email, password);
-            closeAuthModal();
-            window.location.href = 'dashboard-real.html';
-        } catch (error) {
-            alert('Login failed: ' + error.message);
-        }
-    }
-
-    async function handleSignup() {
-        const email = document.getElementById('signupEmail').value;
-        const password = document.getElementById('signupPassword').value;
-        
-        if (!email || !password) {
-            alert('Please enter email and password');
-            return;
-        }
-
-        if (password.length < 6) {
-            alert('Password must be at least 6 characters');
-            return;
-        }
-
+    async function handleYouTubeLogin() {
         if (!window.authManager) {
-            alert('⚠️ Auth system loading...');
+            alert('Loading...');
             return;
         }
-
+        
         try {
-            await window.authManager.signUpWithEmail(email, password, email.split('@')[0]);
-            alert('✅ Account created! You can now sign in.');
-            switchTab('login');
-            document.getElementById('loginEmail').value = email;
+            await window.authManager.signInWithYouTube();
         } catch (error) {
-            alert('Signup failed: ' + error.message);
+            alert('YouTube login failed: ' + error.message);
         }
     }
+
 
     window.addEventListener('DOMContentLoaded', async () => {
         if (typeof window.authManager !== 'undefined') {
