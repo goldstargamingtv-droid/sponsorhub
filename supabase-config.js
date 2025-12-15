@@ -33,12 +33,12 @@ class AuthManager {
             if (event === 'SIGNED_IN') {
                 this.user = session.user;
                 this.loadProfile().then(() => {
-                    window.location.href = 'dashboard-improved.html';
+                    window.location.href = 'dashboard.html';
                 });
             } else if (event === 'SIGNED_OUT') {
                 this.user = null;
                 this.profile = null;
-                window.location.href = 'index-improved.html';
+                window.location.href = 'index.html';
             }
         });
     }
@@ -65,7 +65,7 @@ class AuthManager {
     exitDemoMode() {
         this.isDemoMode = false;
         localStorage.removeItem('demoMode');
-        window.location.href = 'index-improved.html';
+        window.location.href = 'index.html';
     }
 
     async loadProfile() {
