@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to PromoSync</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <script src="data-service.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,13 +17,13 @@
         :root {
             --bg-primary: #0a0e1a;
             --bg-secondary: #151b2e;
-            --bg-card: rgba(25, 35, 58, 0.6);
             --accent-primary: #00d9ff;
             --accent-secondary: #7b61ff;
             --text-primary: #ffffff;
             --text-secondary: #c9d1e0;
             --text-muted: #8b95ab;
             --border-color: rgba(255, 255, 255, 0.08);
+            --success: #00ffa3;
         }
 
         body {
@@ -31,6 +34,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
+            padding: 40px 0;
         }
 
         .bg-gradient {
@@ -41,25 +46,88 @@
             left: 0;
             z-index: 0;
             opacity: 0.15;
-            background: radial-gradient(circle at 20% 50%, var(--accent-primary) 0%, transparent 50%), radial-gradient(circle at 80% 80%, var(--accent-secondary) 0%, transparent 50%);
+            background: 
+                radial-gradient(circle at 20% 50%, var(--accent-primary) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, var(--accent-secondary) 0%, transparent 50%);
             filter: blur(100px);
         }
 
-        .container {
+        .onboarding-container {
             position: relative;
             z-index: 1;
-            max-width: 700px;
-            width: 90%;
-            background: var(--bg-secondary);
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .progress-dot.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+            transform: scale(1.3);
+        }
+
+        .progress-dot.completed {
+            background: var(--success);
+        }
+
+        .step {
+            background: rgba(25, 35, 58, 0.6);
+            backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
             border-radius: 24px;
-            padding: 48px;
+            padding: 60px 40px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         h1 {
             font-family: 'Syne', sans-serif;
             font-size: 36px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -67,147 +135,559 @@
 
         .subtitle {
             color: var(--text-secondary);
-            margin-bottom: 40px;
             font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 40px;
         }
 
-        .form-group {
+        .btn-primary {
+            width: 100%;
+            padding: 18px 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 30px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 217, 255, 0.5);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 14px 32px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 12px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        .connect-button {
+            width: 100%;
+            padding: 20px 32px;
+            background: #9146ff;
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .connect-button:hover {
+            background: #7d3de0;
+            transform: translateY(-2px);
+        }
+
+        .stats-preview {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 0;
+            display: none;
+        }
+
+        .stats-preview.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent-primary);
+        }
+
+        .checkmark {
+            font-size: 48px;
+            color: var(--success);
+            margin-bottom: 16px;
+        }
+
+        .niche-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
             margin-bottom: 24px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
+        .niche-tag {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
             font-weight: 600;
             font-size: 14px;
         }
 
-        input, select {
-            width: 100%;
-            padding: 14px;
+        .niche-tag:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .niche-tag.selected {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(123, 97, 255, 0.2));
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .goals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .goal-option {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .goal-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .goal-option.selected {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(123, 97, 255, 0.2));
+            border-color: var(--accent-primary);
+        }
+
+        .goal-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .goal-option.selected .goal-checkbox {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .upgrade-tease {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(123, 97, 255, 0.1));
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .upgrade-tease strong {
+            color: var(--accent-primary);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 16px;
-            font-family: 'DM Sans', sans-serif;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        select[multiple] {
-            min-height: 150px;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-weight: 700;
-            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .skip-link {
             margin-top: 16px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3);
-        }
-
-        .hint {
-            font-size: 13px;
             color: var(--text-muted);
-            margin-top: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .skip-link:hover {
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 0;
+            }
+            
+            .step {
+                padding: 40px 24px;
+                max-height: 85vh;
+            }
+            
+            h1 {
+                font-size: 28px;
+            }
+            
+            .niche-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
 <body>
     <div class="bg-gradient"></div>
     
-    <div class="container">
-        <h1>Welcome! Let's set up your profile 🚀</h1>
-        <p class="subtitle">Tell us about your channel so we can match you with the right brands</p>
+    <div class="onboarding-container">
+        <button class="back-button" id="backButton" style="display: none;" onclick="previousStep()">← Back</button>
         
-        <form id="onboardingForm">
-            <div class="form-group">
-                <label>Twitch Username</label>
-                <input type="text" id="twitchUsername" placeholder="your_username" required>
-                <div class="hint">Your Twitch channel name</div>
-            </div>
-            
-            <div class="form-group">
-                <label>Follower Count</label>
-                <input type="number" id="followerCount" placeholder="50000">
-                <div class="hint">Approximate number of followers</div>
-            </div>
-            
-            <div class="form-group">
-                <label>Average Viewers</label>
-                <input type="number" id="avgViewers" placeholder="2500">
-                <div class="hint">Average concurrent viewers per stream</div>
-            </div>
-            
-            <div class="form-group">
-                <label>Content Niche (hold Ctrl/Cmd to select multiple)</label>
-                <select id="contentNiche" multiple required>
-                    <option value="gaming">Gaming</option>
-                    <option value="tech">Tech</option>
-                    <option value="lifestyle">Lifestyle</option>
-                    <option value="fitness">Fitness</option>
-                    <option value="education">Education</option>
-                    <option value="music">Music</option>
-                    <option value="art">Art & Creative</option>
-                </select>
-                <div class="hint">Select all that describe your content</div>
-            </div>
-            
-            <button type="submit" class="btn">Complete Setup</button>
-        </form>
-    </div>
-    
-    <script>
-    window.addEventListener('DOMContentLoaded', async () => {
-        await window.authManager.init();
-        
-        if (!window.authManager.isAuthenticated()) {
-            window.location.href = 'index-.html';
-        }
-    });
+        <div class="progress-bar">
+            <div class="progress-dot" data-step="1"></div>
+            <div class="progress-dot" data-step="2"></div>
+            <div class="progress-dot" data-step="3"></div>
+            <div class="progress-dot" data-step="4"></div>
+        </div>
 
-    document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const selectedNiches = Array.from(document.getElementById('contentNiche').selectedOptions)
-            .map(option => option.value);
-        
-        if (selectedNiches.length === 0) {
-            alert('Please select at least one content niche');
-            return;
-        }
-        
-        try {
-            await window.authManager.updateProfile({
-                twitch_username: document.getElementById('twitchUsername').value,
-                follower_count: parseInt(document.getElementById('followerCount').value) || 0,
-                avg_viewers: parseInt(document.getElementById('avgViewers').value) || 0,
-                content_niche: selectedNiches,
-                primary_platform: 'twitch'
-            });
+        <!-- Step 1: Welcome -->
+        <div class="step active" data-step="1">
+            <div class="step-icon">🚀</div>
+            <h1>Welcome to PromoSync!</h1>
+            <p class="subtitle">Let's set up your profile in 2 minutes so you can start landing brand deals.</p>
+            <button class="btn-primary" onclick="nextStep()">Get Started</button>
+        </div>
+
+        <!-- Step 2: Connect Platform -->
+        <div class="step" data-step="2">
+            <div class="step-icon">📺</div>
+            <h1>Connect Your Platform</h1>
+            <p class="subtitle">We'll auto-fill your stats to power your rate calculator and media kits.</p>
             
-            alert('✅ Profile setup complete!');
-            window.location.href = 'dashboard.html';
-        } catch (error) {
-            alert('Error updating profile: ' + error.message);
+            <button class="connect-button" onclick="connectTwitch()">
+                <span style="font-size: 24px;">📺</span>
+                Connect Twitch
+            </button>
+            
+            <button class="btn-secondary" onclick="enterManually()">Enter Stats Manually</button>
+            
+            <div class="stats-preview" id="statsPreview">
+                <div class="checkmark">✓</div>
+                <div style="font-weight: 700; margin-bottom: 16px; color: var(--success);">Stats Loaded Successfully!</div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Followers</div>
+                        <div class="stat-value" id="previewFollowers">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Avg Viewers</div>
+                        <div class="stat-value" id="previewViewers">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Engagement</div>
+                        <div class="stat-value" id="previewEngagement">-</div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="nextStep()" style="margin-top: 16px;">Continue</button>
+            </div>
+            
+            <div class="skip-link" onclick="nextStep()">Skip for now</div>
+        </div>
+
+        <!-- Step 3: Niche -->
+        <div class="step" data-step="3">
+            <div class="step-icon">🎮</div>
+            <h1>Tell Us About Your Content</h1>
+            <p class="subtitle">This helps us match you with the right brand deals.</p>
+            
+            <div class="niche-grid">
+                <div class="niche-tag" onclick="toggleNiche(this, 'gaming')">🎮 Gaming</div>
+                <div class="niche-tag" onclick="toggleNiche(this, 'fps')">🔫 FPS</div>
+                <div class="niche-tag" onclick="toggleNiche(this, 'cozy')">☕ Cozy</div>
+                <div class="niche-tag" onclick="toggleNiche(this, 'irl')">📹 IRL</div>
+                <div class="niche-tag" onclick="toggleNiche(this, 'tech')">💻 Tech</div>
+                <div class="niche-tag" onclick="toggleNiche(this, 'fitness')">💪 Fitness</div>
+                <div class="niche-tag" onclick="toggleNiche(this, 'music')">🎵 Music</div>
+                <div class="niche-tag" onclick="toggleNiche(this, 'art')">🎨 Art</div>
+            </div>
+            
+            <button class="btn-primary" onclick="saveNiche()">Continue</button>
+            <div class="skip-link" onclick="nextStep()">Skip for now</div>
+        </div>
+
+        <!-- Step 4: Goals -->
+        <div class="step" data-step="4">
+            <div class="step-icon">🎯</div>
+            <h1>What Are Your Sponsorship Goals?</h1>
+            <p class="subtitle">We'll tailor your experience to help you achieve them.</p>
+            
+            <div class="goals-list">
+                <div class="goal-option" onclick="toggleGoal(this, 'first-deal')">
+                    <div class="goal-checkbox"></div>
+                    <div>
+                        <div style="font-weight: 700;">First Brand Deal</div>
+                        <div style="font-size: 13px; color: var(--text-muted);">Land your first sponsorship</div>
+                    </div>
+                </div>
+                <div class="goal-option" onclick="toggleGoal(this, 'consistent')">
+                    <div class="goal-checkbox"></div>
+                    <div>
+                        <div style="font-weight: 700;">Consistent Monthly Sponsors</div>
+                        <div style="font-size: 13px; color: var(--text-muted);">Regular partnership income</div>
+                    </div>
+                </div>
+                <div class="goal-option" onclick="toggleGoal(this, '1k-month')">
+                    <div class="goal-checkbox"></div>
+                    <div>
+                        <div style="font-weight: 700;">$1k+ Per Month</div>
+                        <div style="font-size: 13px; color: var(--text-muted);">Hit major revenue milestone</div>
+                    </div>
+                </div>
+                <div class="goal-option" onclick="toggleGoal(this, 'full-time')">
+                    <div class="goal-checkbox"></div>
+                    <div>
+                        <div style="font-weight: 700;">Full-Time Streaming</div>
+                        <div style="font-size: 13px; color: var(--text-muted);">Make content your career</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="upgrade-tease">
+                <strong>💡 Pro Tip:</strong> Pro users close deals 3x faster with unlimited pitches and priority matches.
+            </div>
+            
+            <button class="btn-primary" onclick="completeOnboarding()">Complete Setup</button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedNiches = [];
+        let selectedGoals = [];
+        let userStats = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress();
+        });
+
+        function nextStep() {
+            if (currentStep < 4) {
+                currentStep++;
+                updateSteps();
+                updateProgress();
+            }
         }
-    });
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateSteps();
+                updateProgress();
+            }
+        }
+
+        function updateSteps() {
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+            
+            // Show/hide back button
+            document.getElementById('backButton').style.display = currentStep > 1 ? 'block' : 'none';
+        }
+
+        function updateProgress() {
+            document.querySelectorAll('.progress-dot').forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                if (index + 1 < currentStep) {
+                    dot.classList.add('completed');
+                } else if (index + 1 === currentStep) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+
+        async function connectTwitch() {
+            // Trigger Twitch OAuth
+            if (window.authManager && window.authManager.supabase) {
+                const { data, error } = await window.authManager.supabase.auth.signInWithOAuth({
+                    provider: 'twitch',
+                    options: {
+                        redirectTo: window.location.origin + '/sponsorhub/onboarding.html?step=2'
+                    }
+                });
+                
+                if (error) {
+                    console.error('Twitch connection error:', error);
+                    alert('Failed to connect Twitch. Please try again.');
+                }
+            }
+        }
+
+        function enterManually() {
+            // For now, show demo stats
+            showStatsPreview(50000, 2500, 5.0);
+        }
+
+        function showStatsPreview(followers, viewers, engagement) {
+            userStats = { followers, viewers, engagement };
+            
+            document.getElementById('previewFollowers').textContent = formatNumber(followers);
+            document.getElementById('previewViewers').textContent = formatNumber(viewers);
+            document.getElementById('previewEngagement').textContent = engagement.toFixed(1) + '%';
+            
+            document.getElementById('statsPreview').classList.add('show');
+        }
+
+        function toggleNiche(element, niche) {
+            element.classList.toggle('selected');
+            if (selectedNiches.includes(niche)) {
+                selectedNiches = selectedNiches.filter(n => n !== niche);
+            } else {
+                selectedNiches.push(niche);
+            }
+        }
+
+        async function saveNiche() {
+            if (selectedNiches.length === 0) {
+                alert('Please select at least one niche');
+                return;
+            }
+            
+            // Save to profile
+            if (window.authManager && window.authManager.isAuthenticated()) {
+                try {
+                    await window.dataService.updateProfile(window.authManager.user.id, {
+                        content_niche: selectedNiches[0],
+                        niches: selectedNiches
+                    });
+                } catch (error) {
+                    console.error('Error saving niche:', error);
+                }
+            }
+            
+            nextStep();
+        }
+
+        function toggleGoal(element, goal) {
+            element.classList.toggle('selected');
+            if (selectedGoals.includes(goal)) {
+                selectedGoals = selectedGoals.filter(g => g !== goal);
+            } else {
+                selectedGoals.push(goal);
+            }
+        }
+
+        async function completeOnboarding() {
+            // Save all data
+            if (window.authManager && window.authManager.isAuthenticated()) {
+                try {
+                    await window.dataService.updateProfile(window.authManager.user.id, {
+                        ...userStats,
+                        goals: selectedGoals,
+                        onboarding_completed: true
+                    });
+                } catch (error) {
+                    console.error('Error completing onboarding:', error);
+                }
+            }
+            
+            // Show success
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 150,
+                    spread: 100,
+                    origin: { y: 0.6 }
+                });
+            }
+            
+            // Redirect to dashboard
+            setTimeout(() => {
+                window.location.href = 'dashboard-real.html';
+            }, 1500);
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        // Check for OAuth callback
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('step') === '2') {
+            currentStep = 2;
+            updateSteps();
+            updateProgress();
+            
+            // Try to load Twitch stats
+            setTimeout(async () => {
+                if (window.authManager && window.authManager.user) {
+                    const metadata = window.authManager.user.user_metadata;
+                    if (metadata) {
+                        const followers = metadata.followers || 50000;
+                        const viewers = metadata.avg_viewers || 2500;
+                        const engagement = metadata.engagement_rate || 5.0;
+                        showStatsPreview(followers, viewers, engagement);
+                    }
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>
