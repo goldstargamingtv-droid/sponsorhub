@@ -80,6 +80,11 @@ class AuthManager {
             await this.createProfile();
         } else {
             this.profile = data;
+            
+            // Check if onboarding is completed
+            if (data && !data.onboarding_completed) {
+                window.location.href = 'onboarding.html';
+            }
         }
     }
 
@@ -97,6 +102,7 @@ class AuthManager {
                 username: twitchUsername || this.user.email.split('@')[0],
                 full_name: fullName,
                 avatar_url: metadata.avatar_url || metadata.picture,
+                onboarding_completed: false,
                 created_at: new Date().toISOString()
             }])
             .select()
@@ -109,10 +115,8 @@ class AuthManager {
 
         this.profile = data;
         
-        // Redirect to onboarding if profile is incomplete
-        if (!data.twitch_username || !data.content_niche) {
-            window.location.href = 'onboarding.html';
-        }
+        // Always redirect to onboarding for new users
+        window.location.href = 'onboarding.html';
     }
 
     async updateProfile(updates) {
