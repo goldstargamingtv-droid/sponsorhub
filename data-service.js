@@ -205,6 +205,30 @@ class DataService {
         return data;
     }
 
+    // ========== PROFILES ==========
+    async getProfile(userId) {
+        const { data, error } = await this.supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+        if (error && error.code !== 'PGRST116') throw error;
+        return data;
+    }
+
+    async updateProfile(userId, updates) {
+        const { data, error } = await this.supabase
+            .from('profiles')
+            .update(updates)
+            .eq('id', userId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
     // ========== METRICS CALCULATION ==========
     async recalculateMetrics(userId) {
         const contracts = await this.getContracts(userId);
