@@ -333,9 +333,21 @@
         /* Explanation Cards */
         .explanation-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
             margin-bottom: 32px;
+        }
+        
+        @media (max-width: 1200px) {
+            .explanation-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .explanation-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .explanation-card {
@@ -343,8 +355,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 24px;
-            cursor: pointer;
+            padding: 20px;
             transition: all 0.3s;
         }
 
@@ -354,39 +365,23 @@
         }
 
         .explanation-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .explanation-header h4 {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
         }
 
         .expand-icon {
-            font-size: 12px;
-            color: var(--text-muted);
-            transition: transform 0.3s;
-        }
-
-        .explanation-card.expanded .expand-icon {
-            transform: rotate(180deg);
+            display: none;
         }
 
         .explanation-content {
-            display: none;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .explanation-card.expanded .explanation-content {
             display: block;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.5;
         }
 
         .pro-badge {
@@ -498,92 +493,163 @@
                     <div class="result-range">per sponsored stream</div>
                 </div>
 
-                <button class="btn" onclick="saveRate()" data-gated="rateCalculator:save">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span class="pro-badge" style="font-size: 11px; padding: 4px 8px;">STARTER</span>
+                    <span style="color: var(--text-muted); font-size: 13px;">Save & track your rates</span>
+                </div>
+
+                <button class="btn" onclick="saveRate()">
                     💾 Save This Rate
                 </button>
 
-                <button class="btn btn-secondary" onclick="viewHistory()" data-gated="rateCalculator:history" style="margin-top: 12px;">
+                <button class="btn btn-secondary" onclick="viewHistory()" style="margin-top: 12px;">
                     📊 View Rate History
                 </button>
             </div>
         </div>
 
         <!-- Compare Rates Section -->
-        <div class="compare-section">
-            <h3 style="font-family: 'Syne', sans-serif; font-size: 24px; margin-bottom: 24px; text-align: center;">
+        <div class="compare-section" style="position: relative; overflow: hidden;">
+            <!-- Animated background glow -->
+            <div style="position: absolute; top: -100px; left: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0, 217, 255, 0.15), transparent); filter: blur(60px); animation: float 6s ease-in-out infinite;"></div>
+            <div style="position: absolute; bottom: -100px; right: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(123, 97, 255, 0.15), transparent); filter: blur(60px); animation: float 8s ease-in-out infinite reverse;"></div>
+            
+            <h3 style="font-family: 'Syne', sans-serif; font-size: 24px; margin-bottom: 24px; text-align: center; position: relative; z-index: 1;">
                 Compare Your Rate
-                <span class="pro-badge">STARTER</span>
+                <span class="pro-badge">PRO</span>
             </h3>
 
-            <div class="compare-grid" style="position: relative;">
-                <!-- Locked overlay -->
-                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 14, 26, 0.95); backdrop-filter: blur(8px); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 10;">
-                    <div style="font-size: 48px;">🔒</div>
-                    <h4 style="font-size: 18px; font-weight: 700;">Unlock Rate Comparisons</h4>
-                    <p style="color: var(--text-secondary); text-align: center; max-width: 300px; font-size: 14px;">
-                        See how your rate compares to other creators in your niche
-                    </p>
-                    <button onclick="if(window.paywall) window.paywall.showPaywall()" style="padding: 12px 24px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; margin-top: 8px;">
-                        Upgrade to Starter
-                    </button>
-                </div>
-                
-                <!-- Blurred content behind -->
-                <div class="compare-item" style="filter: blur(4px); opacity: 0.3;">
-                    <div class="compare-label">Minimum</div>
-                    <div class="compare-value min">$•••</div>
-                </div>
-                <div class="compare-item" style="filter: blur(4px); opacity: 0.3;">
-                    <div class="compare-label">Average</div>
-                    <div class="compare-value avg">$•••</div>
-                </div>
-                <div class="compare-item" style="filter: blur(4px); opacity: 0.3;">
-                    <div class="compare-label">Maximum</div>
-                    <div class="compare-value max">$•••</div>
+            <div style="position: relative; min-height: 280px;">
+                <!-- Premium card container with gradient border -->
+                <div style="background: linear-gradient(135deg, rgba(0, 217, 255, 0.3), rgba(123, 97, 255, 0.3)); padding: 2px; border-radius: 20px; position: relative;">
+                    <div style="background: rgba(15, 20, 35, 0.95); border-radius: 18px; padding: 40px 20px; position: relative; overflow: hidden;">
+                        
+                        <!-- Teaser numbers on sides with glow -->
+                        <div style="position: absolute; left: 30px; top: 50%; transform: translateY(-50%); text-align: center;">
+                            <div style="font-size: 32px; font-weight: 800; color: rgba(0, 217, 255, 0.4); filter: blur(1.5px); text-shadow: 0 0 20px rgba(0, 217, 255, 0.6);">$3,652</div>
+                            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.3); margin-top: 4px;">Minimum</div>
+                        </div>
+                        
+                        <div style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%); text-align: center;">
+                            <div style="font-size: 32px; font-weight: 800; color: rgba(123, 97, 255, 0.4); filter: blur(1.5px); text-shadow: 0 0 20px rgba(123, 97, 255, 0.6);">$6,328</div>
+                            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.3); margin-top: 4px;">Maximum</div>
+                        </div>
+
+                        <!-- Connecting lines to lock -->
+                        <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;" xmlns="http://www.w3.org/2000/svg">
+                            <line x1="25%" y1="50%" x2="50%" y2="50%" stroke="rgba(0, 217, 255, 0.2)" stroke-width="2" stroke-dasharray="4,4"/>
+                            <line x1="75%" y1="50%" x2="50%" y2="50%" stroke="rgba(123, 97, 255, 0.2)" stroke-width="2" stroke-dasharray="4,4"/>
+                        </svg>
+
+                        <!-- Center content -->
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; position: relative; z-index: 10;">
+                            
+                            <!-- Premium 3D Lock with glow and pulse animation -->
+                            <div style="position: relative; animation: lockPulse 3s ease-in-out infinite;">
+                                <div style="font-size: 72px; background: linear-gradient(135deg, #00d9ff, #7b61ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 30px rgba(0, 217, 255, 0.5)); position: relative;">
+                                    🔒
+                                </div>
+                                <!-- Particle effect -->
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(0, 217, 255, 0.1), transparent); filter: blur(20px); animation: particles 4s linear infinite;"></div>
+                            </div>
+                            
+                            <!-- Title with gradient -->
+                            <h4 style="font-size: 26px; font-weight: 800; background: linear-gradient(135deg, #00d9ff, #7b61ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">
+                                Unlock Rate Comparisons
+                            </h4>
+                            
+                            <!-- Subtext with highlight -->
+                            <p style="color: rgba(255, 255, 255, 0.9); text-align: center; max-width: 340px; font-size: 15px; line-height: 1.5; margin: 0;">
+                                See how your rate compares to other creators in <span style="color: #00d9ff; font-weight: 600;">your niche</span>
+                            </p>
+                            
+                            <!-- Premium stat -->
+                            <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(0, 217, 255, 0.1); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 20px; margin-top: 4px;">
+                                <span style="font-size: 20px;">⚡</span>
+                                <span style="color: rgba(255, 255, 255, 0.9); font-size: 13px; font-weight: 600;">Pro users earn 32% more on average</span>
+                            </div>
+                            
+                            <!-- Premium full-width button with hover effect -->
+                            <button onclick="if(window.paywall) window.paywall.showPaywall()" style="
+                                width: 100%;
+                                max-width: 400px;
+                                padding: 16px 32px;
+                                background: linear-gradient(135deg, #00d9ff, #7b61ff);
+                                border: none;
+                                border-radius: 14px;
+                                color: white;
+                                font-size: 16px;
+                                font-weight: 800;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                box-shadow: 0 8px 30px rgba(0, 217, 255, 0.3);
+                                margin-top: 12px;
+                                position: relative;
+                                overflow: hidden;
+                            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 40px rgba(0, 217, 255, 0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 30px rgba(0, 217, 255, 0.3)'">
+                                <span style="position: relative; z-index: 2;">✨ Upgrade to Pro – Unlock Comparisons</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <p class="compare-note" style="opacity: 0.3;">
+            <p class="compare-note" style="position: relative; z-index: 1; margin-top: 16px;">
                 Based on creators with similar audience size in your niche
             </p>
         </div>
 
+        <!-- Add animations -->
+        <style>
+            @keyframes lockPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+            
+            @keyframes float {
+                0%, 100% { transform: translate(0, 0); }
+                50% { transform: translate(20px, 20px); }
+            }
+            
+            @keyframes particles {
+                0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0.3; }
+                50% { opacity: 0.6; }
+                100% { transform: translate(-50%, -50%) rotate(360deg); opacity: 0.3; }
+            }
+        </style>
+
         <!-- Explanation Cards -->
         <div class="explanation-grid">
-            <div class="explanation-card" onclick="toggleExpand(this)">
+            <div class="explanation-card">
                 <div class="explanation-header">
                     <h4>📊 How We Calculate</h4>
-                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Our AI analyzes your follower count, average viewership, engagement rate, and niche to calculate a fair market rate. We compare your metrics against thousands of successful sponsorship deals to ensure accuracy.
                 </div>
             </div>
 
-            <div class="explanation-card" onclick="toggleExpand(this)">
+            <div class="explanation-card">
                 <div class="explanation-header">
                     <h4>💰 Rate Factors</h4>
-                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Key factors include: audience size (30%), engagement rate (40%), content niche (15%), platform (10%), and content quality (5%). Higher engagement rates significantly boost your value to sponsors.
                 </div>
             </div>
 
-            <div class="explanation-card" onclick="toggleExpand(this)">
+            <div class="explanation-card">
                 <div class="explanation-header">
                     <h4>🎯 Negotiation Tips</h4>
-                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Use this rate as a starting point. If you have exclusive content, niche expertise, or high conversion rates, you can justify rates 20-30% higher. Always be prepared to show engagement metrics and past campaign results.
                 </div>
             </div>
 
-            <div class="explanation-card" onclick="toggleExpand(this)">
+            <div class="explanation-card">
                 <div class="explanation-header">
                     <h4>📈 Increase Your Rate</h4>
-                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Focus on increasing engagement rate (reply to comments, create interactive content), maintain consistent streaming schedule, diversify content to attract premium sponsors, and showcase successful past partnerships.
@@ -655,8 +721,6 @@
             // Show paywall popup (same as marketplace hearts)
             if (window.paywall) {
                 window.paywall.showPaywall();
-            } else {
-                alert('Please upgrade to save rates!');
             }
         }
 
@@ -665,8 +729,6 @@
             // Show paywall popup (same as marketplace hearts)
             if (window.paywall) {
                 window.paywall.showPaywall();
-            } else {
-                alert('Please upgrade to view rate history!');
             }
         }
 
