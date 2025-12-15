@@ -296,15 +296,24 @@
 
         .empty-state {
             text-align: center;
-            padding: 48px;
+            padding: 64px 48px;
             background: var(--bg-card);
             border-radius: 20px;
             border: 1px solid var(--border-color);
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .empty-state h3 {
             margin-top: 16px;
             color: var(--text-secondary);
+        }
+        
+        .brands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
         }
     </style>
 </head>
@@ -336,7 +345,7 @@
             <button class="filter-btn" onclick="filterBrands('fitness')">Fitness</button>
         </div>
 
-        <div id="brandsContainer" class="brands-grid">
+        <div id="brandsContainer">
             <div class="loading">Loading brands...</div>
         </div>
     </div>
@@ -395,8 +404,10 @@
 
     function displayBrands(brands) {
         const container = document.getElementById('brandsContainer');
+        container.className = 'brands-grid'; // Add grid class
         
         if (brands.length === 0) {
+            container.className = ''; // Remove grid for empty state
             container.innerHTML = `
                 <div class="empty-state">
                     <div style="font-size: 48px;">🔍</div>
