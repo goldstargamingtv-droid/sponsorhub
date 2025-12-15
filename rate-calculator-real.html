@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Rate Calculator - PromoSync</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="data-service.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Supabase & Auth -->
@@ -336,21 +333,9 @@
         /* Explanation Cards */
         .explanation-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
             margin-bottom: 32px;
-        }
-        
-        @media (max-width: 1200px) {
-            .explanation-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .explanation-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         .explanation-card {
@@ -358,7 +343,8 @@
             backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 20px;
+            padding: 24px;
+            cursor: pointer;
             transition: all 0.3s;
         }
 
@@ -368,23 +354,39 @@
         }
 
         .explanation-header {
-            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
 
         .explanation-header h4 {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
         }
 
         .expand-icon {
-            display: none;
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+
+        .explanation-card.expanded .expand-icon {
+            transform: rotate(180deg);
         }
 
         .explanation-content {
-            display: block;
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
             color: var(--text-secondary);
-            font-size: 13px;
-            line-height: 1.5;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .explanation-card.expanded .explanation-content {
+            display: block;
         }
 
         .pro-badge {
@@ -421,7 +423,7 @@
     <div class="container">
         <header>
             <div class="logo">PromoSync</div>
-            <a href="dashboard-real.html" class="back-btn">← Back to Dashboard</a>
+            <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
         </header>
 
         <div class="page-header">
@@ -507,64 +509,81 @@
         </div>
 
         <!-- Compare Rates Section -->
-        <div class="compare-section" data-gated="rateCalculator:compare">
+        <div class="compare-section">
             <h3 style="font-family: 'Syne', sans-serif; font-size: 24px; margin-bottom: 24px; text-align: center;">
                 Compare Your Rate
                 <span class="pro-badge">STARTER</span>
             </h3>
 
-            <div class="compare-grid">
-                <div class="compare-item">
+            <div class="compare-grid" style="position: relative;">
+                <!-- Locked overlay -->
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 14, 26, 0.95); backdrop-filter: blur(8px); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 10;">
+                    <div style="font-size: 48px;">🔒</div>
+                    <h4 style="font-size: 18px; font-weight: 700;">Unlock Rate Comparisons</h4>
+                    <p style="color: var(--text-secondary); text-align: center; max-width: 300px; font-size: 14px;">
+                        See how your rate compares to other creators in your niche
+                    </p>
+                    <button onclick="if(window.paywall) window.paywall.showPaywall()" style="padding: 12px 24px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; margin-top: 8px;">
+                        Upgrade to Starter
+                    </button>
+                </div>
+                
+                <!-- Blurred content behind -->
+                <div class="compare-item" style="filter: blur(4px); opacity: 0.3;">
                     <div class="compare-label">Minimum</div>
-                    <div class="compare-value min" id="minRate">$740</div>
+                    <div class="compare-value min">$•••</div>
                 </div>
-                <div class="compare-item">
+                <div class="compare-item" style="filter: blur(4px); opacity: 0.3;">
                     <div class="compare-label">Average</div>
-                    <div class="compare-value avg" id="avgRate">$926</div>
+                    <div class="compare-value avg">$•••</div>
                 </div>
-                <div class="compare-item">
+                <div class="compare-item" style="filter: blur(4px); opacity: 0.3;">
                     <div class="compare-label">Maximum</div>
-                    <div class="compare-value max" id="maxRate">$1,111</div>
+                    <div class="compare-value max">$•••</div>
                 </div>
             </div>
 
-            <p class="compare-note">
+            <p class="compare-note" style="opacity: 0.3;">
                 Based on creators with similar audience size in your niche
             </p>
         </div>
 
         <!-- Explanation Cards -->
         <div class="explanation-grid">
-            <div class="explanation-card">
+            <div class="explanation-card" onclick="toggleExpand(this)">
                 <div class="explanation-header">
                     <h4>📊 How We Calculate</h4>
+                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Our AI analyzes your follower count, average viewership, engagement rate, and niche to calculate a fair market rate. We compare your metrics against thousands of successful sponsorship deals to ensure accuracy.
                 </div>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" onclick="toggleExpand(this)">
                 <div class="explanation-header">
                     <h4>💰 Rate Factors</h4>
+                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Key factors include: audience size (30%), engagement rate (40%), content niche (15%), platform (10%), and content quality (5%). Higher engagement rates significantly boost your value to sponsors.
                 </div>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" onclick="toggleExpand(this)">
                 <div class="explanation-header">
                     <h4>🎯 Negotiation Tips</h4>
+                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Use this rate as a starting point. If you have exclusive content, niche expertise, or high conversion rates, you can justify rates 20-30% higher. Always be prepared to show engagement metrics and past campaign results.
                 </div>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" onclick="toggleExpand(this)">
                 <div class="explanation-header">
                     <h4>📈 Increase Your Rate</h4>
+                    <span class="expand-icon">▼</span>
                 </div>
                 <div class="explanation-content">
                     Focus on increasing engagement rate (reply to comments, create interactive content), maintain consistent streaming schedule, diversify content to attract premium sponsors, and showcase successful past partnerships.
@@ -633,53 +652,22 @@
 
         // Save rate
         function saveRate() {
-            if (!window.paywall || !window.paywall.canAccess('rateCalculator', 'save')) {
-                if (window.paywall) {
-                    window.paywall.showUpgradeModal('rateCalculator', 'save');
-                }
-                return;
+            // Show paywall popup (same as marketplace hearts)
+            if (window.paywall) {
+                window.paywall.showPaywall();
+            } else {
+                alert('Please upgrade to save rates!');
             }
-
-            const rate = document.getElementById('recommendedRate').textContent;
-            const savedRates = JSON.parse(localStorage.getItem('savedRates') || '[]');
-
-            savedRates.push({
-                rate: rate,
-                date: new Date().toISOString(),
-                followers: document.getElementById('followers').value,
-                viewers: document.getElementById('viewers').value,
-                engagement: document.getElementById('engagement').value,
-                niche: document.getElementById('niche').value,
-                platform: document.getElementById('platform').value
-            });
-
-            localStorage.setItem('savedRates', JSON.stringify(savedRates));
-            alert('✅ Rate saved successfully!');
         }
 
         // View history
         function viewHistory() {
-            if (!window.paywall || !window.paywall.canAccess('rateCalculator', 'history')) {
-                if (window.paywall) {
-                    window.paywall.showUpgradeModal('rateCalculator', 'history');
-                }
-                return;
+            // Show paywall popup (same as marketplace hearts)
+            if (window.paywall) {
+                window.paywall.showPaywall();
+            } else {
+                alert('Please upgrade to view rate history!');
             }
-
-            const savedRates = JSON.parse(localStorage.getItem('savedRates') || '[]');
-            
-            if (savedRates.length === 0) {
-                alert('No saved rates yet. Calculate and save a rate first!');
-                return;
-            }
-
-            let historyText = 'Your Rate History:\n\n';
-            savedRates.slice(-5).reverse().forEach((rate, index) => {
-                const date = new Date(rate.date).toLocaleDateString();
-                historyText += `${date}: ${rate.rate}\n`;
-            });
-
-            alert(historyText);
         }
 
         // Toggle expand
@@ -695,53 +683,10 @@
     <script>
         let currentCalculatedRate = 0;
 
-        function calculateRate() {
-            const followers = parseInt(document.getElementById('followers').value);
-            const viewers = parseInt(document.getElementById('avgViewers').value);
-            const engagement = parseFloat(document.getElementById('engagement').value);
-            const niche = parseFloat(document.getElementById('niche').value);
-            const platform = parseFloat(document.getElementById('platform').value);
-
-            // Updated calculation formula
-            const baseRate = (followers * 0.015) + (viewers * 0.35) + (engagement * 50);
-            currentCalculatedRate = Math.round(baseRate * niche * platform);
-
-            document.getElementById('recommendedRate').textContent = '$' + currentCalculatedRate.toLocaleString();
-        }
-
-        async function saveRate() {
-            if (!window.authManager || !window.authManager.isAuthenticated()) {
-                alert('Please sign in to save your rates!');
-                window.location.href = 'index.html';
-                return;
-            }
-
-            if (window.authManager.isDemoMode) {
-                alert('Demo mode - Sign up to save your rates!');
-                return;
-            }
-
-            const rateData = {
-                followers: parseInt(document.getElementById('followers').value),
-                avgViewers: parseInt(document.getElementById('avgViewers').value),
-                engagementRate: parseFloat(document.getElementById('engagement').value),
-                niche: document.getElementById('niche').options[document.getElementById('niche').selectedIndex].text,
-                platform: document.getElementById('platform').options[document.getElementById('platform').selectedIndex].text,
-                calculatedRate: currentCalculatedRate
-            };
-
-            try {
-                await window.dataService.saveRate(window.authManager.user.id, rateData);
-                alert('✅ Rate saved to your history!');
-            } catch (error) {
-                console.error('Error saving rate:', error);
-                alert('Error saving rate. Please try again.');
-            }
-        }
-
-        function viewHistory() {
-            alert('Rate history feature coming soon!');
-        }
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            calculateRate();
+        });
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
