@@ -4,101 +4,216 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Pitch Generator - PromoSync</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="data-service.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Supabase & Auth -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="data-service.js"></script>
-    
     <script src="paywall-system.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root {
             --bg-primary: #0a0e1a;
             --bg-secondary: #151b2e;
             --bg-card: rgba(25, 35, 58, 0.6);
             --accent-primary: #00d9ff;
             --accent-secondary: #7b61ff;
-            --success: #00ffa3;
             --text-primary: #ffffff;
             --text-secondary: #c9d1e0;
             --text-muted: #8b95ab;
             --border-color: rgba(255, 255, 255, 0.08);
+            --success: #00ffa3;
         }
-        body { font-family: 'DM Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); }
-        .bg-gradient { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 0; opacity: 0.15; background: radial-gradient(circle at 20% 50%, var(--accent-primary) 0%, transparent 50%), radial-gradient(circle at 80% 80%, var(--accent-secondary) 0%, transparent 50%); filter: blur(100px); }
-        .container { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .bg-gradient {
+            position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 0; opacity: 0.15;
+            background: radial-gradient(circle at 20% 50%, var(--accent-primary) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, var(--accent-secondary) 0%, transparent 50%);
+            filter: blur(100px);
+        }
+
+        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
         header { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; margin-bottom: 32px; }
-        .logo { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .back-btn { padding: 10px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 600; transition: all 0.3s; }
-        .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--accent-primary); transform: translateY(-2px); }
-        h1 { font-family: 'Syne', sans-serif; font-size: 36px; margin-bottom: 8px; }
-        .subtitle { color: var(--text-secondary); margin-bottom: 32px; }
-        .limit-banner { background: linear-gradient(135deg, rgba(0,217,255,0.1), rgba(123,97,255,0.1)); padding: 16px; border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--border-color); text-align: center; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .card { background: var(--bg-card); backdrop-filter: blur(10px); border: 1px solid var(--border-color); border-radius: 20px; padding: 28px; transition: all 0.3s; }
-        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0, 217, 255, 0.2); border-color: var(--accent-primary); }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-        input, select, textarea { width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; }
-        textarea { resize: vertical; min-height: 120px; }
-        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 16px; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3); }
-        .btn-secondary { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); color: var(--text-secondary); }
-        .pitch-output { display: none; margin-top: 24px; }
-        .pitch-text { background: rgba(255, 255, 255, 0.03); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); white-space: pre-wrap; line-height: 1.8; }
-        .actions { display: flex; gap: 12px; margin-top: 16px; }
-        .template-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-        .template-option { padding: 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; text-align: center; transition: all 0.3s; }
-        .template-option:hover { border-color: var(--accent-primary); background: rgba(255, 255, 255, 0.06); }
-        .template-option.active { border-color: var(--accent-primary); background: rgba(0, 217, 255, 0.1); }
-        .pro-badge { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; margin-left: 6px; }
-        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } .template-grid { grid-template-columns: 1fr; } }
+        
+        .logo {
+            font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .back-btn {
+            padding: 10px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color);
+            border-radius: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 600; transition: all 0.3s;
+        }
+
+        h1 { font-family: 'Syne', sans-serif; font-size: 42px; margin-bottom: 8px; text-align: center; }
+        .subtitle { text-align: center; color: var(--text-secondary); font-size: 18px; margin-bottom: 32px; }
+
+        .usage-banner {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(123, 97, 255, 0.1));
+            border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 16px; padding: 16px 24px; margin-bottom: 32px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .usage-count { color: var(--accent-primary); font-weight: 800; }
+        .upgrade-link { color: var(--accent-primary); text-decoration: underline; cursor: pointer; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        @media (max-width: 968px) { .grid { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--bg-card); backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color); border-radius: 20px; padding: 32px;
+        }
+
+        .card h2 { font-family: 'Syne', sans-serif; font-size: 24px; margin-bottom: 24px; }
+
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary); }
+
+        .pro-badge {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; color: white;
+        }
+
+        input, select, textarea {
+            width: 100%; padding: 12px 16px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-primary);
+            font-size: 14px; font-family: 'DM Sans', sans-serif;
+        }
+
+        textarea { min-height: 100px; resize: vertical; }
+
+        .template-pills { display: flex; gap: 12px; flex-wrap: wrap; }
+        
+        .template-pill {
+            padding: 12px 20px; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--border-color);
+            border-radius: 12px; cursor: pointer; transition: all 0.3s; font-weight: 600;
+        }
+
+        .template-pill.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-color: transparent; color: white;
+        }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.03); padding: 16px;
+            border-radius: 12px; text-align: center;
+        }
+
+        .stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+        .stat-value { font-size: 24px; font-weight: 800; color: var(--accent-primary); }
+
+        .twitch-badge {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+            background: rgba(145, 70, 255, 0.2); border: 1px solid rgba(145, 70, 255, 0.4);
+            border-radius: 8px; font-size: 12px; font-weight: 600;
+        }
+
+        .preview-card {
+            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 24px; min-height: 400px;
+        }
+
+        .preview-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);
+        }
+
+        .copy-btn, .email-btn {
+            padding: 8px 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none; border-radius: 8px; color: white; font-weight: 600;
+            cursor: pointer; transition: all 0.3s; font-size: 13px;
+        }
+
+        .pitch-content { color: var(--text-secondary); line-height: 1.8; }
+        .pitch-subject { font-weight: 700; color: var(--text-primary); margin-bottom: 16px; font-size: 16px; }
+        .pitch-body { margin-bottom: 16px; }
+        .pitch-body strong { color: var(--accent-primary); }
+
+        .placeholder {
+            text-align: center; color: var(--text-muted); padding: 80px 20px; font-size: 16px;
+        }
+
+        .placeholder-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
+
+        .generate-btn {
+            width: 100%; padding: 18px 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none; border-radius: 16px; color: white; font-size: 18px; font-weight: 800;
+            cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 30px rgba(0, 217, 255, 0.3);
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0, 217, 255, 0.5);
+        }
+
+        .generate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3); border-top: 3px solid white;
+            border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .toast {
+            position: fixed; top: 20px; right: 20px; background: var(--success);
+            color: var(--bg-primary); padding: 16px 24px; border-radius: 12px;
+            font-weight: 700; z-index: 10000; animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
     <div class="bg-gradient"></div>
+    
     <div class="container">
         <header>
             <div class="logo">PromoSync</div>
-            <a href="dashboard-real.html" class="back-btn">← Back</a>
+            <a href="dashboard-real.html" class="back-btn">← Back to Dashboard</a>
         </header>
 
-        <h1>🤖 AI Pitch Generator</h1>
-        <p class="subtitle">Create professional, personalized pitch emails in seconds</p>
+        <h1><span style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Pitch Generator</span> ✨</h1>
+        <p class="subtitle">Create perfect sponsorship pitches in seconds</p>
 
-        <div class="limit-banner" id="pitchLimitBanner">
-            <span id="pitchLimitText">Loading...</span>
+        <div class="usage-banner">
+            <div style="font-weight: 600;">
+                Generated <span class="usage-count" id="pitchCount">0</span> of <span class="usage-count" id="pitchLimit">1</span> pitches this month
+            </div>
+            <a class="upgrade-link" onclick="if(window.paywall) window.paywall.showPaywall()">Upgrade for more →</a>
         </div>
 
         <div class="grid">
             <div class="card">
-                <h3 style="margin-bottom: 20px;">Pitch Details</h3>
-
+                <h2>📝 Pitch Details</h2>
+                
                 <div class="form-group">
-                    <label>Brand Name</label>
-                    <select id="brandSelect">
-                        <option value="">-- Select Brand --</option>
-                        <option value="RazerGear">RazerGear (Gaming)</option>
-                        <option value="TechCore VPN">TechCore VPN (Security)</option>
-                        <option value="EnergyMax">EnergyMax (Energy Drinks)</option>
-                        <option value="CloudHost Pro">CloudHost Pro (Web Hosting)</option>
-                        <option value="SoundWave Audio">SoundWave Audio (Gaming Audio)</option>
-                        <option value="custom">Custom Brand...</option>
-                    </select>
-                </div>
-
-                <div class="form-group" id="customBrandGroup" style="display: none;">
-                    <label>Custom Brand Name</label>
-                    <input type="text" id="customBrand" placeholder="Enter brand name">
+                    <label class="form-label">Brand Name</label>
+                    <input type="text" id="brandName" placeholder="Enter brand name...">
                 </div>
 
                 <div class="form-group">
-                    <label>Your Niche</label>
+                    <label class="form-label">Your Niche</label>
                     <select id="niche">
                         <option value="gaming">Gaming</option>
                         <option value="tech">Tech</option>
@@ -108,227 +223,156 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Pitch Template</label>
-                    <div class="template-grid">
-                        <div class="template-option active" onclick="selectTemplate('professional')" id="temp-professional">
-                            Professional
-                        </div>
-                        <div class="template-option" onclick="selectTemplate('casual')" id="temp-casual">
-                            Casual
-                        </div>
-                        <div class="template-option" onclick="selectTemplate('creative')" id="temp-creative" data-gated="pitchGenerator:premiumTemplates">
-                            Creative <span class="pro-badge">PRO</span>
-                        </div>
+                    <label class="form-label">Pitch Template</label>
+                    <div class="template-pills">
+                        <div class="template-pill active" data-template="professional" onclick="selectTemplate('professional')">Professional</div>
+                        <div class="template-pill" data-template="casual" onclick="selectTemplate('casual')">Casual <span class="pro-badge">STARTER</span></div>
+                        <div class="template-pill" data-template="creative" onclick="selectTemplate('creative')">Creative <span class="pro-badge">PRO</span></div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Additional Notes (Optional)</label>
-                    <textarea id="additionalNotes" placeholder="Any specific points you want to highlight..."></textarea>
+                    <label class="form-label">Additional Notes (Optional)</label>
+                    <textarea id="additionalNotes" placeholder="Add specific points..."></textarea>
                 </div>
-
-                <button class="btn" onclick="generatePitch()">✨ Generate Pitch</button>
             </div>
 
-            <div class="card">
-                <h3 style="margin-bottom: 20px;">Your Stats (Auto-filled)</h3>
+            <div>
+                <div class="card" style="margin-bottom: 24px;">
+                    <h2>📊 Your Stats (Auto-filled)</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Followers</div>
+                            <div class="stat-value" id="statFollowers">50K</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Avg Viewers</div>
+                            <div class="stat-value" id="statViewers">2.5K</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Engagement</div>
+                            <div class="stat-value" id="statEngagement">5.0%</div>
+                        </div>
+                    </div>
 
-                <div class="form-group">
-                    <label>Followers</label>
-                    <input type="text" id="followers" value="50,000" readonly style="opacity: 0.7;">
+                    <div style="text-align: center;">
+                        <span class="twitch-badge"><span style="font-size: 16px;">📺</span> Stats from Twitch</span>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Avg Viewers</label>
-                    <input type="text" id="viewers" value="2,500" readonly style="opacity: 0.7;">
-                </div>
-
-                <div class="form-group">
-                    <label>Engagement Rate</label>
-                    <input type="text" id="engagement" value="5.2%" readonly style="opacity: 0.7;">
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="attachKit" data-gated="pitchGenerator:autoAttach" style="width: auto; margin-right: 8px;">
-                        Auto-attach Media Kit <span class="pro-badge">PRO</span>
-                    </label>
-                </div>
-
-                <div class="pitch-output" id="pitchOutput">
-                    <h4 style="margin-bottom: 16px;">Generated Pitch</h4>
-                    <div class="pitch-text" id="pitchText"></div>
-                    <div class="actions">
-                        <button class="btn" onclick="copyPitch()">📋 Copy Pitch</button>
-                        <button class="btn btn-secondary" onclick="downloadPitch()">⬇️ Download</button>
+                <div class="card">
+                    <h2>✉️ Generated Pitch Preview</h2>
+                    
+                    <div class="preview-card">
+                        <div class="placeholder" id="placeholder">
+                            <div class="placeholder-icon">📧</div>
+                            <div>Your pitch will appear here...</div>
+                        </div>
+                        
+                        <div id="pitchPreview" style="display: none;">
+                            <div class="preview-header">
+                                <div style="font-weight: 700;">Email Preview</div>
+                                <div>
+                                    <button class="copy-btn" onclick="copyPitch()">📋 Copy</button>
+                                    <button class="email-btn" onclick="sendEmail()">📧 Send <span class="pro-badge">PRO</span></button>
+                                </div>
+                            </div>
+                            <div class="pitch-content" id="pitchContent"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <button class="generate-btn" id="generateBtn" onclick="generatePitch()">
+            <span id="btnText">✨ Generate Pitch</span>
+        </button>
     </div>
 
     <script>
-        let currentTemplate = 'professional';
-
-        function updatePitchLimit() {
-            if (!window.paywall) return;
-            const limit = window.paywall.checkLimit('pitches');
-            const banner = document.getElementById('pitchLimitText');
-            
-            if (limit.limit === Infinity) {
-                banner.textContent = '✨ Unlimited AI pitches on Pro plan';
-            } else {
-                banner.textContent = `🤖 Generated ${limit.used} of ${limit.limit} AI pitches this month`;
-                if (!limit.allowed) {
-                    banner.innerHTML += ' - <a href="#" onclick="window.paywall.showUpgradeModal(\'pitchGenerator\'); return false;" style="color: var(--accent-primary); text-decoration: underline;">Upgrade for more</a>';
-                }
-            }
-        }
-
-        document.getElementById('brandSelect').addEventListener('change', function() {
-            const custom = document.getElementById('customBrandGroup');
-            custom.style.display = this.value === 'custom' ? 'block' : 'none';
-        });
+        let selectedTemplate = 'professional';
+        let currentPitch = '';
+        let pitchCount = 0;
+        let pitchLimit = 1;
 
         function selectTemplate(template) {
-            if (template === 'creative' && (!window.paywall || !window.paywall.canAccess('pitchGenerator', 'premiumTemplates'))) {
-                if (window.paywall) window.paywall.showUpgradeModal('pitchGenerator', 'premiumTemplates');
-                return;
-            }
-            
-            currentTemplate = template;
-            document.querySelectorAll('.template-option').forEach(t => t.classList.remove('active'));
-            document.getElementById('temp-' + template).classList.add('active');
+            selectedTemplate = template;
+            document.querySelectorAll('.template-pill').forEach(p => p.classList.remove('active'));
+            document.querySelector(`[data-template="${template}"]`).classList.add('active');
         }
 
-        function generatePitch() {
-            if (!window.paywall) return;
-            
-            const limit = window.paywall.checkLimit('pitches');
-            if (!limit.allowed) {
-                window.paywall.showLimitWarning('pitches');
-                return;
-            }
+        async function generatePitch() {
+            const brandName = document.getElementById('brandName').value.trim();
+            if (!brandName) { alert('Please enter a brand name'); return; }
+            if (pitchCount >= pitchLimit) { if (window.paywall) window.paywall.showPaywall(); return; }
 
-            const brandSelect = document.getElementById('brandSelect').value;
-            const brand = brandSelect === 'custom' ? document.getElementById('customBrand').value : brandSelect;
-            const niche = document.getElementById('niche').value;
-            const notes = document.getElementById('additionalNotes').value;
+            const btn = document.getElementById('generateBtn');
+            const btnText = document.getElementById('btnText');
+            btn.disabled = true;
+            btnText.innerHTML = '<div class="spinner"></div> Generating...';
 
-            if (!brand) {
-                alert('Please select a brand');
-                return;
-            }
+            try {
+                await new Promise(r => setTimeout(r, 2000));
+                const pitch = `Subject: Partnership Opportunity with ${brandName}
 
-            let pitch = '';
+Dear ${brandName} Team,
 
-            if (currentTemplate === 'professional') {
-                pitch = `Subject: Partnership Opportunity with ${brand}
+I'm reaching out to explore a partnership between ${brandName} and my gaming community. With <strong>50,000 followers</strong> and <strong>2,500 average viewers</strong>, I've built an engaged audience that aligns with your brand.
 
-Dear ${brand} Team,
+<strong>Why Partner With Me?</strong>
+My community has a <strong>5.0% engagement rate</strong>, well above industry standards. My audience actively seeks recommendations from trusted creators.
 
-I hope this email finds you well. My name is [Your Name], and I'm a ${niche} content creator with a dedicated following of 50,000 and an average viewership of 2,500 per stream.
+<strong>Collaboration Ideas:</strong>
+• Sponsored stream segments
+• Product reviews & demonstrations  
+• Custom discount codes
+• Social media promotion
 
-I've been following ${brand} for some time and believe there's a strong alignment between your brand values and my audience demographics. With a 5.2% engagement rate, my community is highly active and responsive to authentic brand partnerships.
-
-I'd love to discuss how we could collaborate to create compelling content that showcases your products to my engaged audience. I specialize in ${niche} content and have successfully partnered with similar brands in the past.
-
-${notes ? '\n' + notes + '\n' : ''}
-I've attached my media kit for your review, which includes detailed analytics, past campaign results, and partnership options.
-
-I'm excited about the possibility of working together and would be happy to schedule a call to discuss this opportunity further.
+I'd love to discuss creating authentic content that drives results for ${brandName}.
 
 Best regards,
 [Your Name]`;
-            } else if (currentTemplate === 'casual') {
-                pitch = `Subject: Let's Work Together! 🚀
 
-Hey ${brand}!
-
-I'm [Your Name], a ${niche} creator with 50K followers who absolutely love what you do!
-
-My community (2.5K avg viewers per stream, 5.2% engagement) is always asking about gear/products in my niche, and I think ${brand} would be a perfect fit.
-
-${notes ? notes + '\n\n' : ''}I'd love to chat about a partnership! I've worked with similar brands before and always bring authentic, engaging content that converts.
-
-Media kit attached - let me know if you want to hop on a quick call!
-
-Cheers,
-[Your Name]`;
-            } else if (currentTemplate === 'creative') {
-                pitch = `Subject: 🎯 ${brand} x [Your Name] - A Match Made in ${niche.charAt(0).toUpperCase() + niche.slice(1)} Heaven
-
-Hey there, ${brand} Squad!
-
-Picture this: 50,000 passionate ${niche} fans. 2,500 live viewers hanging on every word. 5.2% engagement that most brands dream about.
-
-Now picture them discovering ${brand} through authentic, creative content that doesn't feel like an ad.
-
-That's what I bring to the table.
-
-${notes ? '\n💡 ' + notes + '\n' : ''}
-I don't just promote products - I tell stories. I create experiences. I build communities.
-
-And I think ${brand} deserves that kind of partnership.
-
-Ready to create something amazing together?
-
-Let's talk! 🚀
-
-[Your Name]
-Media Kit: [attached]`;
+                displayPitch(pitch);
+                pitchCount++;
+                document.getElementById('pitchCount').textContent = pitchCount;
+                showToast('✨ Pitch ready!');
+                if (typeof confetti !== 'undefined') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } finally {
+                btn.disabled = false;
+                btnText.innerHTML = '✨ Generate Pitch';
             }
-
-            document.getElementById('pitchText').textContent = pitch;
-            document.getElementById('pitchOutput').style.display = 'block';
-
-            window.paywall.incrementUsage('pitches');
-            updatePitchLimit();
-            
-            // Auto-save pitch to database
-            savePitchToDatabase(brand, pitch);
         }
-        
-        async function savePitchToDatabase(brandName, pitchText) {
-            if (!window.authManager || !window.authManager.isAuthenticated() || window.authManager.isDemoMode) {
-                return; // Silent fail for demo/not logged in
-            }
 
-            try {
-                await window.dataService.savePitch(window.authManager.user.id, {
-                    brandName: brandName,
-                    template: currentTemplate,
-                    pitchText: pitchText
-                });
-                console.log('✅ Pitch auto-saved');
-            } catch (error) {
-                console.error('Error saving pitch:', error);
-            }
+        function displayPitch(pitch) {
+            currentPitch = pitch;
+            const html = pitch.split('\n').filter(l => l.trim()).map(line => {
+                if (line.startsWith('Subject:')) return `<div class="pitch-subject">${line}</div>`;
+                return `<p class="pitch-body">${line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</p>`;
+            }).join('');
+            
+            document.getElementById('pitchContent').innerHTML = html;
+            document.getElementById('placeholder').style.display = 'none';
+            document.getElementById('pitchPreview').style.display = 'block';
         }
 
         function copyPitch() {
-            const pitch = document.getElementById('pitchText').textContent;
-            navigator.clipboard.writeText(pitch);
-            
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '✅ Copied!';
-            setTimeout(() => {
-                btn.textContent = originalText;
-            }, 2000);
+            navigator.clipboard.writeText(currentPitch);
+            showToast('📋 Copied!');
         }
 
-        function downloadPitch() {
-            const pitch = document.getElementById('pitchText').textContent;
-            const blob = new Blob([pitch], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'pitch.txt';
-            a.click();
+        function sendEmail() {
+            if (window.paywall) window.paywall.showPaywall();
         }
 
-        window.addEventListener('DOMContentLoaded', updatePitchLimit);
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
     </script>
 </body>
 </html>
