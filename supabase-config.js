@@ -1,6 +1,6 @@
 // Supabase Configuration
-const SUPABASE_URL = 'https://dvbyxtkghbsjiglxjnvt.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2Ynl4dGtnaGJzamlnbHhqbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MTMzNjUsImV4cCI6MjA4MTE4OTM2NX0.7Ari03dGk3fQLUIauZZnl21pDrxz7-ImPYR_idaAoyM';
+const SUPABASE_URL = 'https://dvbyxtkghbsjiglxjnvt.supabase.co'; // Replace with your actual Supabase URL
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2Ynl4dGtnaGJzamlnbHhqbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MTMzNjUsImV4cCI6MjA4MTE4OTM2NX0.7Ari03dGk3fQLUIauZZnl21pDrxz7-ImPYR_idaAoyM'; // Replace with your actual anon key
 
 // Initialize Supabase client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -33,7 +33,7 @@ class AuthManager {
             if (event === 'SIGNED_IN') {
                 this.user = session.user;
                 this.loadProfile().then(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = 'dashboard-real.html';
                 });
             } else if (event === 'SIGNED_OUT') {
                 this.user = null;
@@ -134,7 +134,7 @@ class AuthManager {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'twitch',
             options: {
-                redirectTo: window.location.origin + '/dashboard-real.html'
+                redirectTo: window.location.origin + '/sponsorhub/dashboard-real.html'
             }
         });
 
