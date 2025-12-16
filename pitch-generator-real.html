@@ -495,7 +495,7 @@ Creator | ${niche} Expert | Community Builder`;
                     .from('users')
                     .select('id, email, name, platform, subscription_tier, followers, avg_viewers, engagement_rate')
                     .eq('id', authUser.id)
-                    .single();
+                    .maybeSingle();
                 
                 if (error) {
                     console.error('Error loading user:', error);
