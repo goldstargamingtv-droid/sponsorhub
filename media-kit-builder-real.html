@@ -1216,11 +1216,9 @@
         function showPaywall(tier) {
             tier = tier || 'pro';
             
-            // Check if paywall-system.js is loaded and has the showPaywallModal function
-            if (typeof window.PaywallSystem !== 'undefined' && typeof window.PaywallSystem.show === 'function') {
-                window.PaywallSystem.show(tier);
-            } else if (typeof window.showPaywallModal === 'function') {
-                window.showPaywallModal(tier);
+            // Check if paywall-system.js is loaded
+            if (typeof window.paywall !== 'undefined' && typeof window.paywall.showPaywall === 'function') {
+                window.paywall.showPaywall(tier);
             } else {
                 // Fallback alert if paywall system isn't loaded
                 const tierName = tier === 'starter' ? 'Starter ($4.99/mo)' : 'Pro ($9.99/mo)';
