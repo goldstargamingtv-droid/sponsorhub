@@ -1197,3 +1197,12 @@
                 const features = tier === 'starter' 
                     ? '✨ Live Preview\n📄 5 Media Kits/month\n🎨 Professional Templates'
                     : '✨ Everything in Starter\n🎨 Custom Colors & Fonts\n📷 Logo Upload\n📊 Unlimited Kits\n🔗 Shareable Links';
+                        alert(`Upgrade to ${tierName}\n\n${features}`);
+            }
+        }
+        
+        // Load user data on page load
+        window.addEventListener('DOMContentLoaded', loadUserData);
+    </script>
+</body>
+</html>
