@@ -451,18 +451,27 @@ Creator | ${niche} Expert | Community Builder`;
         
         async function loadUserStats() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) return;
+                // First try from localStorage
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user.followers) {
+                    document.getElementById('statFollowers').textContent = formatNumber(user.followers);
+                    document.getElementById('statViewers').textContent = formatNumber(user.avg_viewers);
+                    document.getElementById('statEngagement').textContent = user.engagement_rate + '%';
+                    return;
+                }
+                
+                // Fallback to database query
+                const { data: { user: authUser } } = await supabase.auth.getUser();
+                if (!authUser) return;
                 
                 // Get user metrics from database
                 const { data: metrics } = await supabase
                     .from('user_metrics')
                     .select('*')
-                    .eq('user_id', user.id)
+                    .eq('user_id', authUser.id)
                     .single();
                 
                 if (metrics) {
-                    // Update stat displays
                     const followers = metrics.total_followers || metrics.twitch_followers || metrics.youtube_subscribers || 0;
                     const viewers = metrics.avg_viewers || metrics.twitch_avg_viewers || Math.round(followers * 0.05) || 0;
                     const engagement = metrics.engagement_rate || (viewers / followers * 100).toFixed(1) || '5.0';
@@ -498,21 +507,31 @@ Creator | ${niche} Expert | Community Builder`;
                 if (!authUser) return;
                 
                 // Get user profile from database
-                const { data: profile } = await supabase
+                const { data: profile, error } = await supabase
                     .from('users')
-                    .select('*')
+                    .select('id, email, name, platform, subscription_tier, followers, avg_viewers, engagement_rate')
                     .eq('id', authUser.id)
                     .single();
+                
+                if (error) {
+                    console.error('Error loading user:', error);
+                    return;
+                }
                 
                 if (profile) {
                     // Store in localStorage
                     localStorage.setItem('user', JSON.stringify({
-                        id: authUser.id,
-                        email: authUser.email,
-                        username: profile.username || profile.display_name,
-                        platform: profile.twitch_username ? 'twitch' : 'youtube',
-                        subscription_tier: profile.subscription_tier || 'free'
+                        id: profile.id,
+                        email: profile.email,
+                        username: profile.name,
+                        platform: profile.platform || 'twitch',
+                        subscription_tier: profile.subscription_tier || 'free',
+                        followers: profile.followers,
+                        avg_viewers: profile.avg_viewers,
+                        engagement_rate: profile.engagement_rate
                     }));
+                    
+                    console.log('User loaded:', profile.platform);
                 }
             } catch (error) {
                 console.log('Error loading user data:', error);
