@@ -239,20 +239,20 @@
 
             <div>
                 <div class="card" style="margin-bottom: 24px;">
-                    <h2>📊 Your Stats (Auto-filled)</h2>
+                    <h2>📊 Your Stats</h2>
                     
                     <div class="stats-grid">
                         <div class="stat-item">
                             <div class="stat-label">Followers</div>
-                            <div class="stat-value" id="statFollowers">50K</div>
+                            <input type="text" id="statFollowers" class="form-input" placeholder="50000" style="text-align: center; font-size: 18px; font-weight: 700;">
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Avg Viewers</div>
-                            <div class="stat-value" id="statViewers">2.5K</div>
+                            <input type="text" id="statViewers" class="form-input" placeholder="2500" style="text-align: center; font-size: 18px; font-weight: 700;">
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Engagement</div>
-                            <div class="stat-value" id="statEngagement">5.0%</div>
+                            <input type="text" id="statEngagement" class="form-input" placeholder="5.0%" style="text-align: center; font-size: 18px; font-weight: 700;">
                         </div>
                     </div>
 
@@ -454,32 +454,16 @@ Creator | ${niche} Expert | Community Builder`;
                 // First try from localStorage
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 if (user.followers) {
-                    document.getElementById('statFollowers').textContent = formatNumber(user.followers);
-                    document.getElementById('statViewers').textContent = formatNumber(user.avg_viewers);
-                    document.getElementById('statEngagement').textContent = user.engagement_rate + '%';
+                    document.getElementById('statFollowers').value = user.followers;
+                    document.getElementById('statViewers').value = user.avg_viewers;
+                    document.getElementById('statEngagement').value = user.engagement_rate + '%';
                     return;
                 }
                 
-                // Fallback to database query
-                const { data: { user: authUser } } = await supabase.auth.getUser();
-                if (!authUser) return;
-                
-                // Get user metrics from database
-                const { data: metrics } = await supabase
-                    .from('user_metrics')
-                    .select('*')
-                    .eq('user_id', authUser.id)
-                    .single();
-                
-                if (metrics) {
-                    const followers = metrics.total_followers || metrics.twitch_followers || metrics.youtube_subscribers || 0;
-                    const viewers = metrics.avg_viewers || metrics.twitch_avg_viewers || Math.round(followers * 0.05) || 0;
-                    const engagement = metrics.engagement_rate || (viewers / followers * 100).toFixed(1) || '5.0';
-                    
-                    document.getElementById('statFollowers').textContent = formatNumber(followers);
-                    document.getElementById('statViewers').textContent = formatNumber(viewers);
-                    document.getElementById('statEngagement').textContent = engagement + '%';
-                }
+                // Set placeholders if no data
+                document.getElementById('statFollowers').placeholder = '50000';
+                document.getElementById('statViewers').placeholder = '2500';
+                document.getElementById('statEngagement').placeholder = '5.0%';
             } catch (error) {
                 console.log('Using default stats');
             }
@@ -551,9 +535,9 @@ Creator | ${niche} Expert | Community Builder`;
             try {
                 const niche = document.getElementById('niche').value;
                 const additionalNotes = document.getElementById('additionalNotes').value;
-                const followers = document.getElementById('statFollowers').textContent;
-                const viewers = document.getElementById('statViewers').textContent;
-                const engagement = document.getElementById('statEngagement').textContent;
+                const followers = document.getElementById('statFollowers').value || '50K';
+                const viewers = document.getElementById('statViewers').value || '2.5K';
+                const engagement = document.getElementById('statEngagement').value || '5.0%';
                 
                 // Build prompt based on template
                 let stylePrompt = '';
