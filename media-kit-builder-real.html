@@ -4,16 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Kit Builder - PromoSync</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="data-service.js"></script>
     
     <!-- Supabase & Auth -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="data-service.js"></script>
-    
     <script src="paywall-system.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- html2canvas for PDF generation -->
@@ -1154,25 +1151,29 @@
 
                 const kitData = {
                     user_id: user.id,
-                    creator_name: document.getElementById('creatorName').value,
-                    tagline: document.getElementById('tagline').value,
-                    bio: document.getElementById('bio').value,
-                    followers: document.getElementById('followers').value,
-                    avg_viewers: document.getElementById('avgViewers').value,
-                    engagement_rate: document.getElementById('engagement').value,
-                    streams_per_month: document.getElementById('streams').value,
-                    email: document.getElementById('email').value,
-                    platforms: document.getElementById('platforms').value,
-                    template: currentTemplate
+                    template_name: currentTemplate,
+                    custom_data: {
+                        creator_name: document.getElementById('creatorName').value,
+                        tagline: document.getElementById('tagline').value,
+                        bio: document.getElementById('bio').value,
+                        email: document.getElementById('email').value,
+                        platforms: document.getElementById('platforms').value,
+                        followers: document.getElementById('followers').value,
+                        avg_viewers: document.getElementById('avgViewers').value,
+                        engagement_rate: document.getElementById('engagement').value,
+                        streams_per_month: document.getElementById('streams').value
+                    }
                 };
 
                 // Save to Supabase
-                const { data, error } = await supabase
+                const { error } = await supabase
                     .from('media_kits')
-                    .upsert(kitData)
-                    .select();
+                    .insert(kitData);
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Supabase error:', error);
+                    throw error;
+                }
 
                 alert('✅ Media kit saved successfully!\n\nYou can now download it as PDF or share with brands.');
                 
