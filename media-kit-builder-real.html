@@ -1013,20 +1013,40 @@
                     if (previewUnlocked) previewUnlocked.style.display = 'none';
                 }
                 
-                if (user.username) {
-                    document.getElementById('creatorName').value = user.full_name || user.username;
-                    document.getElementById('email').value = user.email || '';
-                    document.getElementById('tagline').value = user.tagline || 'Gaming Creator & Streamer';
-                    document.getElementById('bio').value = user.bio || '';
-                    document.getElementById('followers').value = user.followers || '47800';
-                    document.getElementById('avgViewers').value = user.avg_viewers || '2500';
-                    document.getElementById('engagement').value = user.engagement_rate || '12.8';
-                    document.getElementById('platforms').value = 'Twitch, YouTube, TikTok';
+                // Load saved media kit from database
+                const { data: { user: authUser } } = await supabase.auth.getUser();
+                if (authUser) {
+                    const { data: savedKit, error } = await supabase
+                        .from('media_kits')
+                        .select('*')
+                        .eq('user_id', authUser.id)
+                        .single();
                     
-                    updatePreview();
+                    if (savedKit && savedKit.custom_data) {
+                        // Populate form with saved data
+                        const data = savedKit.custom_data;
+                        if (data.creator_name) document.getElementById('creatorName').value = data.creator_name;
+                        if (data.tagline) document.getElementById('tagline').value = data.tagline;
+                        if (data.bio) document.getElementById('bio').value = data.bio;
+                        if (data.email) document.getElementById('email').value = data.email;
+                        if (data.platforms) document.getElementById('platforms').value = data.platforms;
+                        if (data.followers) document.getElementById('followers').value = data.followers;
+                        if (data.avg_viewers) document.getElementById('avgViewers').value = data.avg_viewers;
+                        if (data.engagement_rate) document.getElementById('engagement').value = data.engagement_rate;
+                        if (data.streams_per_month) document.getElementById('streams').value = data.streams_per_month;
+                        
+                        // Set template
+                        if (savedKit.template_name) {
+                            switchTemplate(savedKit.template_name);
+                        }
+                        
+                        // Update preview
+                        updatePreview();
+                    }
                 }
+                
             } catch (error) {
-                console.log('No user data found, using defaults');
+                console.log('Error loading saved kit:', error);
             }
         }
 
