@@ -1115,13 +1115,29 @@
                     elementToCapture = unlockedPreview;
                 }
 
-                const canvas = await html2canvas(elementToCapture, {
-                    scale: 2,
-                    backgroundColor: '#0a0e1a',
+                // Clone the element and make it white background for PDF
+                const clone = elementToCapture.cloneNode(true);
+                clone.style.backgroundColor = '#ffffff';
+                clone.style.color = '#000000';
+                clone.style.padding = '40px';
+                
+                // Append to body temporarily
+                document.body.appendChild(clone);
+                clone.style.position = 'absolute';
+                clone.style.left = '-9999px';
+
+                const canvas = await html2canvas(clone, {
+                    scale: 3,
+                    backgroundColor: '#ffffff',
                     useCORS: true,
-                    allowTaint: true,
-                    logging: false
+                    allowTaint: false,
+                    logging: false,
+                    width: 800,
+                    windowWidth: 800
                 });
+
+                // Remove clone
+                document.body.removeChild(clone);
 
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jspdf.jsPDF({
@@ -1132,6 +1148,10 @@
 
                 const imgWidth = 210;
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                // Add white background
+                pdf.setFillColor(255, 255, 255);
+                pdf.rect(0, 0, 210, 297, 'F');
 
                 pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
                 
@@ -1139,8 +1159,8 @@
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 const userTier = user.subscription_tier || 'free';
                 if (userTier === 'free') {
-                    pdf.setFontSize(40);
-                    pdf.setTextColor(200, 200, 200);
+                    pdf.setFontSize(60);
+                    pdf.setTextColor(220, 220, 220);
                     pdf.setFont(undefined, 'bold');
                     pdf.text('PromoSync', 105, 148, { align: 'center', angle: 45 });
                 }
