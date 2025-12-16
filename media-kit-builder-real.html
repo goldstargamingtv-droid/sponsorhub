@@ -844,7 +844,7 @@
                                 <div class="contact-info">
                                     <div class="contact-item">
                                         <span class="contact-icon">📧</span>
-                                        <span class="contact-text">your@email.com</span>
+                                        <span class="contact-text"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0c7563797e4c69616d6560226f6361">[email&#160;protected]</a></span>
                                     </div>
                                     <div class="contact-item">
                                         <span class="contact-icon">📊</span>
@@ -991,7 +991,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         const API_URL = 'https://sponsorhub-backend.onrender.com/api';
         let currentTemplate = 'professional';
 
@@ -1085,10 +1085,25 @@
             loading.classList.add('active');
 
             try {
-                const element = document.getElementById('mediaKitPreview');
-                const canvas = await html2canvas(element, {
+                // Determine which preview to capture (locked or unlocked)
+                const lockedPreview = document.querySelector('.pro-feature-lock[onclick*="starter"]');
+                const unlockedPreview = document.getElementById('mediaKitPreview');
+                
+                let elementToCapture;
+                if (lockedPreview && lockedPreview.style.display !== 'none') {
+                    // Free user - capture the locked preview (without the overlay)
+                    elementToCapture = document.getElementById('mediaKitPreviewLocked');
+                } else {
+                    // Paid user - capture unlocked preview
+                    elementToCapture = unlockedPreview;
+                }
+
+                const canvas = await html2canvas(elementToCapture, {
                     scale: 2,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#0a0e1a',
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false
                 });
 
                 const imgData = canvas.toDataURL('image/png');
@@ -1102,6 +1117,17 @@
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
                 pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                
+                // Add watermark for free users
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const userTier = user.subscription_tier || 'free';
+                if (userTier === 'free') {
+                    pdf.setFontSize(40);
+                    pdf.setTextColor(200, 200, 200);
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text('PromoSync', 105, 148, { align: 'center', angle: 45 });
+                }
+                
                 pdf.save(`${document.getElementById('creatorName').value || 'MediaKit'}_PromoSync.pdf`);
             } catch (error) {
                 console.error('PDF generation error:', error);
@@ -1171,12 +1197,3 @@
                 const features = tier === 'starter' 
                     ? '✨ Live Preview\n📄 5 Media Kits/month\n🎨 Professional Templates'
                     : '✨ Everything in Starter\n🎨 Custom Colors & Fonts\n📷 Logo Upload\n📊 Unlimited Kits\n🔗 Shareable Links';
-                alert(`Upgrade to ${tierName}\n\n${features}`);
-            }
-        }
-        
-        // Load user data on page load
-        window.addEventListener('DOMContentLoaded', loadUserData);
-    </script>
-</body>
-</html>
