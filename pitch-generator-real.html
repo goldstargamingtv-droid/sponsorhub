@@ -349,7 +349,7 @@
                 previewLocked.style.display = 'none';
                 previewUnlocked.style.display = 'block';
             } else {
-                previewLocked.style.display = 'flex';
+                previewLocked.style.display = 'block';
                 previewUnlocked.style.display = 'none';
             }
             
@@ -438,9 +438,6 @@ Best regards,
                 a.click();
                 URL.revokeObjectURL(url);
             }
-        }
-            document.getElementById('placeholder').style.display = 'none';
-            document.getElementById('pitchPreview').style.display = 'block';
         }
 
         function copyPitch() {
