@@ -444,6 +444,42 @@ Creator | ${niche} Expert | Community Builder`;
                 statsBadge.innerHTML = '<span style="font-size: 16px;">📺</span> Stats from Twitch';
                 statsBadge.style.background = 'linear-gradient(135deg, #9146ff, #6441a5)';
             }
+            
+            // Load real stats from user data
+            loadUserStats();
+        }
+        
+        async function loadUserStats() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+                
+                // Get user metrics from database
+                const { data: metrics } = await supabase
+                    .from('user_metrics')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+                
+                if (metrics) {
+                    // Update stat displays
+                    const followers = metrics.total_followers || metrics.twitch_followers || metrics.youtube_subscribers || 0;
+                    const viewers = metrics.avg_viewers || metrics.twitch_avg_viewers || Math.round(followers * 0.05) || 0;
+                    const engagement = metrics.engagement_rate || (viewers / followers * 100).toFixed(1) || '5.0';
+                    
+                    document.getElementById('statFollowers').textContent = formatNumber(followers);
+                    document.getElementById('statViewers').textContent = formatNumber(viewers);
+                    document.getElementById('statEngagement').textContent = engagement + '%';
+                }
+            } catch (error) {
+                console.log('Using default stats');
+            }
+        }
+        
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
         }
         
         // Call on page load
