@@ -90,8 +90,8 @@
         /* Main Layout */
         .main-grid {
             display: grid;
-            grid-template-columns: 450px 1fr;
-            gap: 32px;
+            grid-template-columns: 400px 1fr 350px;
+            gap: 24px;
             min-height: calc(100vh - 200px);
         }
 
@@ -114,8 +114,27 @@
             padding: 24px;
         }
 
+        /* Export Panel */
+        .export-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+        }
+
         .form-group {
             margin-bottom: 16px;
+        }
+
+        /* Export Panel */
+        .export-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            height: fit-content;
         }
 
         .form-label {
@@ -754,69 +773,7 @@
                         <input type="text" class="form-input" id="platforms" placeholder="Twitch, YouTube, TikTok" oninput="updatePreview()">
                     </div>
 
-                    <!-- Pro Customization -->
-                    <div class="form-group" style="margin-top: 32px;">
-                        <label class="form-label">🎨 Pro Customization 
-                            <span class="tier-badge tier-pro">PRO ONLY</span>
-                        </label>
-                        
-                        <div class="pro-feature-lock" onclick="showPaywall('pro')">
-                            <div style="filter: blur(2px); pointer-events: none; opacity: 0.5;">
-                                <div class="form-group">
-                                    <label>Brand Color</label>
-                                    <input type="color" class="color-picker" value="#00d9ff">
-                                </div>
-                                
-                                <div class="form-group" style="margin-top: 16px;">
-                                    <label>Font Style</label>
-                                    <select class="form-input">
-                                        <option>DM Sans (Modern)</option>
-                                        <option>Syne (Bold)</option>
-                                        <option>Inter (Clean)</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="form-group" style="margin-top: 16px;">
-                                    <label>Logo Upload</label>
-                                    <input type="file" class="form-input" accept="image/*">
-                                </div>
-                            </div>
-                            <div class="unlock-overlay">
-                                <span style="font-size: 32px;">🔒</span>
-                                <p style="font-weight: 700; margin: 12px 0;">Custom Branding</p>
-                                <button class="btn btn-primary" style="margin-top: 8px;" onclick="event.stopPropagation(); showPaywall('pro')">Upgrade to Pro</button>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Export Options -->
-                    <div class="form-group" style="margin-top: 24px;">
-                        <label class="form-label">📥 Export Options</label>
-                        
-                        <div class="export-tier" style="opacity: 0.5; cursor: not-allowed;">
-                            <div>
-                                <div style="font-weight: 600;">Free - Watermarked PDF</div>
-                                <div style="font-size: 12px; color: var(--text-muted);">Includes PromoSync branding</div>
-                            </div>
-                            <span class="tier-badge tier-free">FREE</span>
-                        </div>
-                        
-                        <div class="export-tier" style="cursor: pointer; transition: all 0.3s;" onclick="showPaywall('starter')" onmouseover="this.style.boxShadow='0 0 20px rgba(0, 217, 255, 0.4)'" onmouseout="this.style.boxShadow='none'">
-                            <div>
-                                <div style="font-weight: 600;">Starter - Clean PDF</div>
-                                <div style="font-size: 12px; color: var(--text-muted);">No watermark, professional quality</div>
-                            </div>
-                            <span class="tier-badge tier-starter">STARTER</span>
-                        </div>
-                        
-                        <div class="export-tier" style="border-color: rgba(255, 215, 0, 0.3); cursor: pointer; transition: all 0.3s;" onclick="showPaywall('pro')" onmouseover="this.style.boxShadow='0 0 20px rgba(255, 215, 0, 0.4)'" onmouseout="this.style.boxShadow='none'">
-                            <div>
-                                <div style="font-weight: 600;">Pro - PDF + PNG + Link</div>
-                                <div style="font-size: 12px; color: var(--text-muted);">All formats + shareable link + view counter</div>
-                            </div>
-                            <span class="tier-badge tier-pro">PRO</span>
-                        </div>
-                    </div>
 
                     <div class="action-buttons" style="margin-top: 24px;">
                         <button type="button" class="btn btn-primary" onclick="downloadPDF()">
@@ -962,6 +919,74 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Right Panel: Pro Customization + Export Options -->
+            <div>
+                <!-- Pro Customization Panel -->
+                <div class="export-panel" style="margin-bottom: 24px;">
+                    <h3 style="font-family: 'Syne', sans-serif; font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        🎨 Pro Customization 
+                        <span class="tier-badge tier-pro" style="font-size: 10px;">PRO</span>
+                    </h3>
+                
+                <div class="pro-feature-lock" onclick="showPaywall('pro')">
+                    <div style="filter: blur(2px); pointer-events: none; opacity: 0.5;">
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Brand Color</label>
+                            <input type="color" class="color-picker" value="#00d9ff">
+                        </div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Font Style</label>
+                            <select class="form-input">
+                                <option>DM Sans (Modern)</option>
+                                <option>Syne (Bold)</option>
+                                <option>Inter (Clean)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Logo Upload</label>
+                            <input type="file" class="form-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="unlock-overlay">
+                        <span style="font-size: 32px;">🔒</span>
+                        <p style="font-weight: 700; margin: 12px 0;">Custom Branding</p>
+                        <button class="btn btn-primary" style="margin-top: 8px;" onclick="event.stopPropagation(); showPaywall('pro')">Upgrade to Pro</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Options Panel -->
+            <div class="export-panel">
+                <h3 style="font-family: 'Syne', sans-serif; font-size: 20px; margin-bottom: 20px;">📥 Export Options</h3>
+                
+                <div class="export-tier" style="opacity: 0.5; cursor: not-allowed;">
+                    <div>
+                        <div style="font-weight: 600;">Free - Watermarked PDF</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">Includes PromoSync branding</div>
+                    </div>
+                    <span class="tier-badge tier-free">FREE</span>
+                </div>
+                
+                <div class="export-tier" style="cursor: pointer; transition: all 0.3s;" onclick="showPaywall('starter')" onmouseover="this.style.boxShadow='0 0 20px rgba(0, 217, 255, 0.4)'" onmouseout="this.style.boxShadow='none'">
+                    <div>
+                        <div style="font-weight: 600;">Starter - Clean PDF</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">No watermark, professional quality</div>
+                    </div>
+                    <span class="tier-badge tier-starter">STARTER</span>
+                </div>
+                
+                <div class="export-tier" style="border-color: rgba(255, 215, 0, 0.3); cursor: pointer; transition: all 0.3s;" onclick="showPaywall('pro')" onmouseover="this.style.boxShadow='0 0 20px rgba(255, 215, 0, 0.4)'" onmouseout="this.style.boxShadow='none'">
+                    <div>
+                        <div style="font-weight: 600;">Pro - PDF + PNG + Link</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">All formats + shareable link + view counter</div>
+                    </div>
+                    <span class="tier-badge tier-pro">PRO</span>
+                </div>
+            </div>
             </div>
         </div>
     </div>
