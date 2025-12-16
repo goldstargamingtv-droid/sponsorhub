@@ -18,6 +18,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); text-shadow: 0 0 20px rgba(168, 85, 247, 0.8); }
+            50% { opacity: 0.7; transform: scale(1.1); text-shadow: 0 0 40px rgba(168, 85, 247, 1), 0 0 60px rgba(236, 72, 153, 0.8); }
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(168, 85, 247, 0.6); }
+        }
+        
+        @keyframes rotatingGlow {
+            0% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(0, 217, 255, 0.3); }
+            33% { box-shadow: 0 0 20px rgba(0, 217, 255, 0.5), 0 0 40px rgba(123, 97, 255, 0.3); }
+            66% { box-shadow: 0 0 20px rgba(123, 97, 255, 0.5), 0 0 40px rgba(236, 72, 153, 0.3); }
+            100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(0, 217, 255, 0.3); }
+        }
+
+        .unlock-overlay span {
+            animation: pulse 1.5s ease-in-out infinite;
+            display: inline-block;
+        }
+        
+        .pro-feature-lock:hover .unlock-overlay + div {
+            filter: blur(1px) !important;
+            transition: filter 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -684,8 +711,8 @@
         }
 
         /* Pro Feature Styles */
-        .pro-feature-lock { position: relative; cursor: pointer; border: 2px dashed rgba(255, 215, 0, 0.3); border-radius: 16px; padding: 20px; margin-top: 16px; }
-        .unlock-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(10, 14, 26, 0.95); padding: 24px; border-radius: 16px; z-index: 10; }
+        .pro-feature-lock { position: relative; cursor: pointer; border: 2px dashed rgba(168, 85, 247, 0.3); border-radius: 16px; padding: 20px; margin-top: 16px; }
+        .unlock-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(10, 14, 26, 0.95); padding: 24px 20px; border-radius: 12px; z-index: 10; max-width: 90%; }
         .color-picker { width: 100%; height: 50px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; }
         .export-tier { padding: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; cursor: pointer; }
         .export-tier:hover { background: rgba(255, 255, 255, 0.05); box-shadow: 0 0 15px rgba(0, 217, 255, 0.2); }
@@ -693,7 +720,7 @@
         .tier-badge { padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .tier-free { background: rgba(255, 255, 255, 0.1); }
         .tier-starter { background: linear-gradient(135deg, #00d9ff, #7b61ff); }
-        .tier-pro { background: linear-gradient(135deg, #FFD700, #FFA500); }
+        .tier-pro { background: linear-gradient(135deg, #a855f7, #ec4899); }
     </style>
 </head>
 <body>
@@ -929,12 +956,23 @@
                         <span class="tier-badge tier-pro" style="font-size: 10px;">PRO</span>
                     </h3>
                 
-                <div class="pro-feature-lock" onclick="showPaywall('pro')">
-                    <div style="filter: blur(2px); pointer-events: none; opacity: 0.5;">
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Brand Color</label>
-                            <input type="color" class="color-picker" id="brandColor" value="#00d9ff" onchange="updateBrandColor(this.value)">
-                        </div>
+                    <div class="pro-feature-lock" onclick="showPaywall('pro')" style="min-height: 280px; position: relative;">
+                        <div style="filter: blur(2px); pointer-events: none; opacity: 0.5; width: 100%;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Brand Color</label>
+                                <input type="color" class="color-picker" id="brandColor" value="#00d9ff" onchange="updateBrandColor(this.value)">
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Preset Colors</label>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #00d9ff; cursor: pointer;"></div>
+                                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #a855f7; cursor: pointer;"></div>
+                                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #ec4899; cursor: pointer;"></div>
+                                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #f59e0b; cursor: pointer;"></div>
+                                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #10b981; cursor: pointer;"></div>
+                                </div>
+                            </div>
                         
                         <div style="margin-bottom: 16px;">
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Font Style</label>
@@ -951,9 +989,14 @@
                         </div>
                     </div>
                     <div class="unlock-overlay">
-                        <span style="font-size: 32px;">🔒</span>
-                        <p style="font-weight: 700; margin: 12px 0;">Custom Branding</p>
-                        <button class="btn btn-primary" style="margin-top: 8px;" onclick="event.stopPropagation(); showPaywall('pro')">Upgrade to Pro</button>
+                        <span style="font-size: 40px;">🔒</span>
+                        <p style="font-weight: 700; margin: 12px 0 6px 0; font-size: 16px;">Custom Branding</p>
+                        <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 12px; line-height: 1.6;">
+                            🎨 Custom Colors<br>
+                            ✏️ Font Styles<br>
+                            📷 Logo Upload
+                        </p>
+                        <button class="btn btn-primary" style="margin-top: 4px; padding: 10px 24px; font-size: 14px;" onclick="event.stopPropagation(); showPaywall('pro')">Upgrade to Pro</button>
                     </div>
                 </div>
             </div>
@@ -963,31 +1006,44 @@
                 <h3 style="font-family: 'Syne', sans-serif; font-size: 20px; margin-bottom: 20px;">📥 Export Options</h3>
                 
                 <div class="export-tier selected" data-tier="free" onclick="selectExportTier('free')">
-                    <div>
-                        <div style="font-weight: 600;">Free - Watermarked PDF</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">Includes PromoSync branding</div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 24px;">📄</span>
+                        <div>
+                            <div style="font-weight: 600;">Free - Watermarked PDF</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Includes PromoSync branding</div>
+                        </div>
                     </div>
                     <span class="tier-badge tier-free">FREE</span>
                 </div>
                 
                 <div class="export-tier" data-tier="starter" onclick="selectExportTier('starter')">
-                    <div>
-                        <div style="font-weight: 600;">Starter - Clean PDF</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">No watermark, professional quality</div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 24px;">✓</span>
+                        <div>
+                            <div style="font-weight: 600;">Starter - Clean PDF</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">No watermark, professional quality</div>
+                        </div>
                     </div>
                     <span class="tier-badge tier-starter">STARTER</span>
                 </div>
                 
-                <div class="export-tier" data-tier="pro" onclick="selectExportTier('pro')">
-                    <div>
-                        <div style="font-weight: 600;">Pro - PDF + PNG + Link</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">All formats + shareable link + view counter</div>
+                <div class="export-tier" data-tier="pro" onclick="selectExportTier('pro')" style="border: 2px solid rgba(168, 85, 247, 0.5); animation: rotatingGlow 3s ease-in-out infinite; position: relative;">
+                    <span style="position: absolute; top: -10px; right: 10px; background: linear-gradient(135deg, #a855f7, #ec4899); padding: 4px 12px; border-radius: 12px; font-size: 10px; font-weight: 800; color: #fff; animation: glow 2s ease-in-out infinite;">MOST POPULAR</span>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 24px;">🔗</span>
+                        <div>
+                            <div style="font-weight: 600;">Pro - PDF + PNG + Link</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">All formats + shareable link + view counter</div>
+                        </div>
                     </div>
                     <span class="tier-badge tier-pro">PRO</span>
                 </div>
                 
                 <p style="font-size: 12px; color: var(--text-muted); margin-top: 12px; text-align: center;">
                     💡 Your export format is automatically selected based on your subscription level. Click to change.
+                </p>
+                <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px; text-align: center; font-style: italic;">
+                    ⭐ Pro kits get 3x more brand views on average
                 </p>
             </div>
             </div>
