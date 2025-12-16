@@ -687,7 +687,8 @@
         .pro-feature-lock { position: relative; cursor: pointer; border: 2px dashed rgba(255, 215, 0, 0.3); border-radius: 16px; padding: 20px; margin-top: 16px; }
         .unlock-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(10, 14, 26, 0.95); padding: 24px; border-radius: 16px; z-index: 10; }
         .color-picker { width: 100%; height: 50px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; }
-        .export-tier { padding: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .export-tier { padding: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
+        .export-tier.selected { background: rgba(0, 217, 255, 0.1); border: 2px solid var(--accent-primary) !important; }
         .tier-badge { padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .tier-free { background: rgba(255, 255, 255, 0.1); }
         .tier-starter { background: linear-gradient(135deg, #00d9ff, #7b61ff); }
@@ -931,21 +932,21 @@
                     <div style="filter: blur(2px); pointer-events: none; opacity: 0.5;">
                         <div style="margin-bottom: 16px;">
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Brand Color</label>
-                            <input type="color" class="color-picker" value="#00d9ff">
+                            <input type="color" class="color-picker" id="brandColor" value="#00d9ff" onchange="updateBrandColor(this.value)">
                         </div>
                         
                         <div style="margin-bottom: 16px;">
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Font Style</label>
-                            <select class="form-input">
-                                <option>DM Sans (Modern)</option>
-                                <option>Syne (Bold)</option>
-                                <option>Inter (Clean)</option>
+                            <select class="form-input" id="fontStyle" onchange="updateFont(this.value)">
+                                <option value="'DM Sans', sans-serif">DM Sans (Modern)</option>
+                                <option value="'Syne', sans-serif">Syne (Bold)</option>
+                                <option value="'Inter', sans-serif">Inter (Clean)</option>
                             </select>
                         </div>
                         
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Logo Upload</label>
-                            <input type="file" class="form-input" accept="image/*">
+                            <input type="file" class="form-input" id="logoUpload" accept="image/*" onchange="updateLogo(this)">
                         </div>
                     </div>
                     <div class="unlock-overlay">
@@ -960,7 +961,7 @@
             <div class="export-panel">
                 <h3 style="font-family: 'Syne', sans-serif; font-size: 20px; margin-bottom: 20px;">📥 Export Options</h3>
                 
-                <div class="export-tier" style="opacity: 0.5; cursor: not-allowed;">
+                <div class="export-tier selected" data-tier="free" style="opacity: 1; cursor: pointer;" onclick="selectExportTier('free')">
                     <div>
                         <div style="font-weight: 600;">Free - Watermarked PDF</div>
                         <div style="font-size: 12px; color: var(--text-muted);">Includes PromoSync branding</div>
@@ -968,7 +969,7 @@
                     <span class="tier-badge tier-free">FREE</span>
                 </div>
                 
-                <div class="export-tier" style="cursor: pointer; transition: all 0.3s;" onclick="showPaywall('starter')" onmouseover="this.style.boxShadow='0 0 20px rgba(0, 217, 255, 0.4)'" onmouseout="this.style.boxShadow='none'">
+                <div class="export-tier" data-tier="starter" style="cursor: pointer; transition: all 0.3s;" onclick="selectExportTier('starter')" onmouseover="this.style.boxShadow='0 0 20px rgba(0, 217, 255, 0.4)'" onmouseout="this.style.boxShadow='none'">
                     <div>
                         <div style="font-weight: 600;">Starter - Clean PDF</div>
                         <div style="font-size: 12px; color: var(--text-muted);">No watermark, professional quality</div>
@@ -976,7 +977,7 @@
                     <span class="tier-badge tier-starter">STARTER</span>
                 </div>
                 
-                <div class="export-tier" style="border-color: rgba(255, 215, 0, 0.3); cursor: pointer; transition: all 0.3s;" onclick="showPaywall('pro')" onmouseover="this.style.boxShadow='0 0 20px rgba(255, 215, 0, 0.4)'" onmouseout="this.style.boxShadow='none'">
+                <div class="export-tier" data-tier="pro" style="border-color: rgba(255, 215, 0, 0.3); cursor: pointer; transition: all 0.3s;" onclick="selectExportTier('pro')" onmouseover="this.style.boxShadow='0 0 20px rgba(255, 215, 0, 0.4)'" onmouseout="this.style.boxShadow='none'">
                     <div>
                         <div style="font-weight: 600;">Pro - PDF + PNG + Link</div>
                         <div style="font-size: 12px; color: var(--text-muted);">All formats + shareable link + view counter</div>
@@ -1162,7 +1163,9 @@
                 
                 const canvas = await html2canvas(element, {
                     scale: 2,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    height: element.scrollHeight,
+                    windowHeight: element.scrollHeight
                 });
 
                 const imgData = canvas.toDataURL('image/png');
@@ -1268,6 +1271,62 @@
                     : '✨ Everything in Starter\n🎨 Custom Colors & Fonts\n📷 Logo Upload\n📊 Unlimited Kits\n🔗 Shareable Links';
                 alert(`Upgrade to ${tierName}\n\n${features}`);
             }
+        }
+        
+        // Pro customization functions
+        function updateBrandColor(color) {
+            const preview = document.getElementById('mediaKitPreview');
+            if (preview) {
+                preview.style.setProperty('--accent-primary', color);
+                const accents = preview.querySelectorAll('.platform-badge, .category-tag');
+                accents.forEach(el => el.style.borderColor = color);
+            }
+        }
+
+        function updateFont(fontFamily) {
+            const preview = document.getElementById('mediaKitPreview');
+            if (preview) {
+                preview.style.fontFamily = fontFamily;
+            }
+        }
+
+        function updateLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatar = document.querySelector('#mediaKitPreview .kit-avatar');
+                    if (avatar) {
+                        avatar.style.backgroundImage = `url(${e.target.result})`;
+                        avatar.style.backgroundSize = 'cover';
+                        avatar.textContent = '';
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        // Export tier selection
+        let selectedExportTier = 'free';
+
+        function selectExportTier(tier) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const userTier = user.subscription_tier || 'free';
+            
+            // Check if tier is available
+            if (tier === 'starter' && userTier === 'free') {
+                showPaywall('starter');
+                return;
+            }
+            if (tier === 'pro' && (userTier === 'free' || userTier === 'starter')) {
+                showPaywall('pro');
+                return;
+            }
+            
+            // Update selection
+            selectedExportTier = tier;
+            document.querySelectorAll('.export-tier').forEach(el => el.classList.remove('selected'));
+            const selected = document.querySelector(`[data-tier="${tier}"]`);
+            if (selected) selected.classList.add('selected');
         }
         
         // Load user data on page load
