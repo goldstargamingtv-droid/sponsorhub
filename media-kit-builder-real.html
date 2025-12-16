@@ -1013,6 +1013,47 @@
                     if (previewUnlocked) previewUnlocked.style.display = 'none';
                 }
                 
+                // Unlock Pro Customization for Pro users
+                const proCustomLock = document.querySelector('.pro-feature-lock[onclick*="pro"]');
+                if (userTier === 'pro' && proCustomLock) {
+                    // Hide the lock overlay and enable the inputs
+                    const overlay = proCustomLock.querySelector('.unlock-overlay');
+                    const blurredContent = proCustomLock.querySelector('[style*="blur"]');
+                    
+                    if (overlay) overlay.style.display = 'none';
+                    if (blurredContent) {
+                        blurredContent.style.filter = 'none';
+                        blurredContent.style.opacity = '1';
+                        blurredContent.style.pointerEvents = 'auto';
+                    }
+                    proCustomLock.style.cursor = 'default';
+                    proCustomLock.onclick = null;
+                }
+                
+                // Update export tier availability
+                const exportTiers = document.querySelectorAll('.export-tier');
+                if (exportTiers.length >= 3) {
+                    // Free tier (always locked)
+                    exportTiers[0].style.opacity = '0.5';
+                    exportTiers[0].style.cursor = 'not-allowed';
+                    
+                    // Starter tier
+                    if (userTier === 'starter' || userTier === 'pro') {
+                        exportTiers[1].style.opacity = '1';
+                        exportTiers[1].style.cursor = 'default';
+                        exportTiers[1].onclick = null;
+                        exportTiers[1].style.border = '2px solid var(--accent-primary)';
+                    }
+                    
+                    // Pro tier
+                    if (userTier === 'pro') {
+                        exportTiers[2].style.opacity = '1';
+                        exportTiers[2].style.cursor = 'default';
+                        exportTiers[2].onclick = null;
+                        exportTiers[2].style.border = '2px solid #FFD700';
+                    }
+                }
+                
                 // Load saved media kit from database
                 const { data: { user: authUser } } = await supabase.auth.getUser();
                 if (authUser) {
