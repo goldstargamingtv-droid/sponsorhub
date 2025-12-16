@@ -13,16 +13,33 @@ async function loadPage(pageName) {
         const response = await fetch(`${pageName}-real.html`);
         const html = await response.text();
         
-        // Extract just the main content (everything inside the container div)
+        // Extract content and styles
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
+        
+        // Get styles from the page
+        const styles = doc.querySelectorAll('style');
+        let pageStyles = '';
+        styles.forEach(style => {
+            pageStyles += style.innerHTML;
+        });
+        
+        // Get main content
         const content = doc.querySelector('.container').innerHTML;
         
-        // Remove header/nav from loaded content (we already have it)
+        // Remove header/nav from loaded content
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = content;
         const header = tempDiv.querySelector('header');
         if (header) header.remove();
+        
+        // Insert styles if not already added
+        if (!document.getElementById(`style-${pageName}`)) {
+            const styleTag = document.createElement('style');
+            styleTag.id = `style-${pageName}`;
+            styleTag.innerHTML = pageStyles;
+            document.head.appendChild(styleTag);
+        }
         
         // Insert content
         contentArea.innerHTML = tempDiv.innerHTML;
