@@ -985,6 +985,10 @@
                     </div>
                     <span class="tier-badge tier-pro">PRO</span>
                 </div>
+                
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 12px; text-align: center;">
+                    💡 Your export format is automatically selected based on your subscription level. Click to change.
+                </p>
             </div>
             </div>
         </div>
@@ -1105,6 +1109,9 @@
                         updatePreview();
                     }
                 }
+                
+                // Auto-select export tier
+                autoSelectExportTier();
                 
             } catch (error) {
                 console.log('Error loading saved kit:', error);
@@ -1348,6 +1355,7 @@
         let selectedExportTier = 'free';
 
         function selectExportTier(tier) {
+            console.log('Selecting tier:', tier);
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             const userTier = user.subscription_tier || 'free';
             
@@ -1365,7 +1373,24 @@
             selectedExportTier = tier;
             document.querySelectorAll('.export-tier').forEach(el => el.classList.remove('selected'));
             const selected = document.querySelector(`[data-tier="${tier}"]`);
-            if (selected) selected.classList.add('selected');
+            if (selected) {
+                selected.classList.add('selected');
+                console.log('Selected tier:', tier);
+            }
+        }
+        
+        // Auto-select best available tier on load
+        function autoSelectExportTier() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const userTier = user.subscription_tier || 'free';
+            
+            if (userTier === 'pro') {
+                selectExportTier('pro');
+            } else if (userTier === 'starter') {
+                selectExportTier('starter');
+            } else {
+                selectExportTier('free');
+            }
         }
         
         // Load user data on page load
