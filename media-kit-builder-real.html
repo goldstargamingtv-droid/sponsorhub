@@ -1039,24 +1039,24 @@
                 // Update export tier availability
                 const exportTiers = document.querySelectorAll('.export-tier');
                 if (exportTiers.length >= 3) {
-                    // Free tier (always locked)
-                    exportTiers[0].style.opacity = '0.5';
-                    exportTiers[0].style.cursor = 'not-allowed';
+                    // Remove any inline styles that block clicking
+                    exportTiers.forEach(tier => {
+                        tier.style.opacity = '';
+                        tier.style.cursor = '';
+                        tier.onclick = null;
+                    });
                     
-                    // Starter tier
+                    // Re-add onclick handlers
+                    if (exportTiers[0]) exportTiers[0].onclick = () => selectExportTier('free');
+                    if (exportTiers[1]) exportTiers[1].onclick = () => selectExportTier('starter');
+                    if (exportTiers[2]) exportTiers[2].onclick = () => selectExportTier('pro');
+                    
+                    // Add visual indicators for available tiers
                     if (userTier === 'starter' || userTier === 'pro') {
-                        exportTiers[1].style.opacity = '1';
-                        exportTiers[1].style.cursor = 'default';
-                        exportTiers[1].onclick = null;
-                        exportTiers[1].style.border = '2px solid var(--accent-primary)';
+                        exportTiers[1].style.borderColor = 'rgba(0, 217, 255, 0.5)';
                     }
-                    
-                    // Pro tier
                     if (userTier === 'pro') {
-                        exportTiers[2].style.opacity = '1';
-                        exportTiers[2].style.cursor = 'default';
-                        exportTiers[2].onclick = null;
-                        exportTiers[2].style.border = '2px solid #FFD700';
+                        exportTiers[2].style.borderColor = 'rgba(255, 215, 0, 0.5)';
                     }
                 }
                 
