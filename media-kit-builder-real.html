@@ -1251,8 +1251,13 @@
                     setTimeout(() => {
                         const kitId = Math.random().toString(36).substr(2, 9);
                         const shareUrl = `${window.location.origin}/share/${kitId}`;
-                        alert(`✨ Shareable link created!\n\n${shareUrl}\n\nLink copied to clipboard!`);
-                        navigator.clipboard.writeText(shareUrl);
+                        
+                        // Try to copy to clipboard
+                        navigator.clipboard.writeText(shareUrl).then(() => {
+                            alert(`✨ Shareable link created!\n\n${shareUrl}\n\n✓ Copied to clipboard!`);
+                        }).catch(() => {
+                            alert(`✨ Shareable link created!\n\n${shareUrl}\n\n(Copy this link manually)`);
+                        });
                     }, 1000);
                 }
                 
