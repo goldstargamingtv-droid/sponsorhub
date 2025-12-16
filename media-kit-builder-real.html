@@ -1143,39 +1143,36 @@
             loading.classList.add('active');
 
             try {
-                if (!window.authManager || !window.authManager.isAuthenticated()) {
+                // Check if user is authenticated via Supabase
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
                     alert('Please sign in to save media kits!');
-                    window.location.href = 'index.html';
-                    return;
-                }
-
-                if (window.authManager.isDemoMode) {
-                    alert('Demo mode - Sign up to save your media kits!');
                     loading.classList.remove('active');
                     return;
                 }
 
                 const kitData = {
-                    name: document.getElementById('creatorName').value + "'s Media Kit",
+                    user_id: user.id,
                     creator_name: document.getElementById('creatorName').value,
                     tagline: document.getElementById('tagline').value,
                     bio: document.getElementById('bio').value,
-                    stats: {
-                        followers: document.getElementById('followers').value,
-                        avg_viewers: document.getElementById('avgViewers').value,
-                        engagement: document.getElementById('engagement').value,
-                        streams_per_month: document.getElementById('streams').value
-                    },
-                    contact: {
-                        email: document.getElementById('email').value,
-                        platforms: document.getElementById('platforms').value
-                    },
-                    template: currentTemplate,
-                    created_at: new Date().toISOString()
+                    followers: document.getElementById('followers').value,
+                    avg_viewers: document.getElementById('avgViewers').value,
+                    engagement_rate: document.getElementById('engagement').value,
+                    streams_per_month: document.getElementById('streams').value,
+                    email: document.getElementById('email').value,
+                    platforms: document.getElementById('platforms').value,
+                    template: currentTemplate
                 };
 
-                await window.dataService.saveMediaKit(window.authManager.user.id, kitData);
-                localStorage.setItem('currentMediaKit', JSON.stringify(kitData));
+                // Save to Supabase
+                const { data, error } = await supabase
+                    .from('media_kits')
+                    .upsert(kitData)
+                    .select();
+
+                if (error) throw error;
 
                 alert('✅ Media kit saved successfully!\n\nYou can now download it as PDF or share with brands.');
                 
@@ -1183,7 +1180,7 @@
                 console.error('Save error:', error);
                 alert('Error saving media kit. Please try again.');
             } finally {
-                           loading.classList.remove('active');
+                loading.classList.remove('active');
             }
         }
         
