@@ -1195,27 +1195,67 @@
                 });
 
                 const imgData = canvas.toDataURL('image/png');
-                const pdf = new jspdf.jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-
-                const imgWidth = 210;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                const creatorName = document.getElementById('creatorName').value || 'MediaKit';
                 
-                // Add watermark for free users
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                const userTier = user.subscription_tier || 'free';
-                if (userTier === 'free') {
+                // Handle based on selected export tier
+                if (selectedExportTier === 'free') {
+                    // Free: Watermarked PDF
+                    const pdf = new jspdf.jsPDF({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    const imgWidth = 210;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
                     pdf.setFontSize(50);
                     pdf.setTextColor(230, 230, 230);
                     pdf.text('PromoSync', 105, 148, { align: 'center', angle: 45 });
+                    pdf.save(`${creatorName}_PromoSync.pdf`);
+                    
+                } else if (selectedExportTier === 'starter') {
+                    // Starter: Clean PDF
+                    const pdf = new jspdf.jsPDF({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    const imgWidth = 210;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                    pdf.save(`${creatorName}_MediaKit.pdf`);
+                    
+                } else if (selectedExportTier === 'pro') {
+                    // Pro: PDF + PNG + Link
+                    
+                    // 1. Download PDF
+                    const pdf = new jspdf.jsPDF({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    const imgWidth = 210;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                    pdf.save(`${creatorName}_MediaKit.pdf`);
+                    
+                    // 2. Download PNG
+                    setTimeout(() => {
+                        const link = document.createElement('a');
+                        link.download = `${creatorName}_MediaKit.png`;
+                        link.href = imgData;
+                        link.click();
+                    }, 500);
+                    
+                    // 3. Generate shareable link (mock for now)
+                    setTimeout(() => {
+                        const kitId = Math.random().toString(36).substr(2, 9);
+                        const shareUrl = `${window.location.origin}/share/${kitId}`;
+                        alert(`✨ Shareable link created!\n\n${shareUrl}\n\nLink copied to clipboard!`);
+                        navigator.clipboard.writeText(shareUrl);
+                    }, 1000);
                 }
                 
-                pdf.save(`${document.getElementById('creatorName').value || 'MediaKit'}_PromoSync.pdf`);
             } catch (error) {
                 console.error('PDF generation error:', error);
                 alert('Error generating PDF. Please try again.');
