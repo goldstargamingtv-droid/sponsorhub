@@ -316,6 +316,22 @@
         let currentPitch = '';
         let pitchCount = 0;
         let pitchLimit = 1;
+        
+        // Update limit based on tier on page load
+        function updatePitchLimit() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const userTier = user.subscription_tier || 'free';
+            
+            if (userTier === 'free') {
+                pitchLimit = 1;
+            } else if (userTier === 'starter') {
+                pitchLimit = 5;
+            } else if (userTier === 'pro') {
+                pitchLimit = 999; // Unlimited
+            }
+            
+            document.getElementById('pitchLimit').textContent = userTier === 'pro' ? '∞' : pitchLimit;
+        }
 
         function selectTemplate(template) {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -433,6 +449,7 @@ Creator | ${niche} Expert | Community Builder`;
         // Call on page load
         window.addEventListener('DOMContentLoaded', () => {
             initializeTiers();
+            updatePitchLimit();
             loadPitchCount();
         });
 
@@ -595,15 +612,25 @@ Format as a complete email ready to send.`;
                 return;
             }
             
-            // For Pro users, open mailto with the pitch
+            // Prompt for email address
+            const email = prompt('Enter the recipient email address:');
+            if (!email) return;
+            
+            // Validate email
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            // Create mailto link
             const brandName = document.getElementById('brandName').value;
             const subject = `Partnership Opportunity with ${user.username || 'Creator'}`;
             const body = currentPitch.replace(/<\/?strong>/g, '').replace(/<br>/g, '\n');
             
-            const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.location.href = mailtoLink;
+            const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailtoLink, '_blank');
             
-            showToast('📧 Email client opened!');
+            showToast('📧 Opening email client...');
         }
 
         function showToast(msg) {
