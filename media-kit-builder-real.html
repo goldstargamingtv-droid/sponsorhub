@@ -89,22 +89,39 @@
 
         /* Main Layout */
         .main-grid {
-            display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 32px;
-            min-height: calc(100vh - 200px);
+            display: block;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         /* Editor Panel */
         .editor-panel {
             background: var(--bg-card);
+            margin-bottom: 32px;
             backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 32px;
-            height: fit-content;
-            position: sticky;
-            top: 20px;
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        /* Preview Panel */
+        .preview-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 13px;
         }
 
         .panel-title {
@@ -167,7 +184,7 @@
 
         /* Form Fields */
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
 
         .form-label {
@@ -649,6 +666,16 @@
         .template-bold .contact-text {
             color: #a8b2d1;
         }
+
+        /* Pro Feature Styles */
+        .pro-feature-lock { position: relative; cursor: pointer; border: 2px dashed rgba(255, 215, 0, 0.3); border-radius: 16px; padding: 20px; margin-top: 16px; }
+        .unlock-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(10, 14, 26, 0.95); padding: 24px; border-radius: 16px; z-index: 10; }
+        .color-picker { width: 100%; height: 50px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; }
+        .export-tier { padding: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .tier-badge { padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .tier-free { background: rgba(255, 255, 255, 0.1); }
+        .tier-starter { background: linear-gradient(135deg, #00d9ff, #7b61ff); }
+        .tier-pro { background: linear-gradient(135deg, #FFD700, #FFA500); }
     </style>
 </head>
 <body>
@@ -727,12 +754,76 @@
                         <input type="text" class="form-input" id="platforms" placeholder="Twitch, YouTube, TikTok" oninput="updatePreview()">
                     </div>
 
-                    <div class="action-buttons">
+                    <!-- Pro Customization -->
+                    <div class="form-group" style="margin-top: 32px;">
+                        <label class="form-label">🎨 Pro Customization 
+                            <span class="tier-badge tier-pro">PRO ONLY</span>
+                        </label>
+                        
+                        <div class="pro-feature-lock" onclick="showPaywall('pro')">
+                            <div style="filter: blur(2px); pointer-events: none; opacity: 0.5;">
+                                <div class="form-group">
+                                    <label>Brand Color</label>
+                                    <input type="color" class="color-picker" value="#00d9ff">
+                                </div>
+                                
+                                <div class="form-group" style="margin-top: 16px;">
+                                    <label>Font Style</label>
+                                    <select class="form-input">
+                                        <option>DM Sans (Modern)</option>
+                                        <option>Syne (Bold)</option>
+                                        <option>Inter (Clean)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group" style="margin-top: 16px;">
+                                    <label>Logo Upload</label>
+                                    <input type="file" class="form-input" accept="image/*">
+                                </div>
+                            </div>
+                            <div class="unlock-overlay">
+                                <span style="font-size: 32px;">🔒</span>
+                                <p style="font-weight: 700; margin: 12px 0;">Custom Branding</p>
+                                <button class="btn btn-primary" style="margin-top: 8px;" onclick="event.stopPropagation(); showPaywall('pro')">Upgrade to Pro</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Options -->
+                    <div class="form-group" style="margin-top: 24px;">
+                        <label class="form-label">📥 Export Options</label>
+                        
+                        <div class="export-tier" style="opacity: 0.5; cursor: not-allowed;">
+                            <div>
+                                <div style="font-weight: 600;">Free - Watermarked PDF</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Includes PromoSync branding</div>
+                            </div>
+                            <span class="tier-badge tier-free">FREE</span>
+                        </div>
+                        
+                        <div class="export-tier" style="cursor: pointer; transition: all 0.3s;" onclick="showPaywall('starter')" onmouseover="this.style.boxShadow='0 0 20px rgba(0, 217, 255, 0.4)'" onmouseout="this.style.boxShadow='none'">
+                            <div>
+                                <div style="font-weight: 600;">Starter - Clean PDF</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">No watermark, professional quality</div>
+                            </div>
+                            <span class="tier-badge tier-starter">STARTER</span>
+                        </div>
+                        
+                        <div class="export-tier" style="border-color: rgba(255, 215, 0, 0.3); cursor: pointer; transition: all 0.3s;" onclick="showPaywall('pro')" onmouseover="this.style.boxShadow='0 0 20px rgba(255, 215, 0, 0.4)'" onmouseout="this.style.boxShadow='none'">
+                            <div>
+                                <div style="font-weight: 600;">Pro - PDF + PNG + Link</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">All formats + shareable link + view counter</div>
+                            </div>
+                            <span class="tier-badge tier-pro">PRO</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons" style="margin-top: 24px;">
                         <button type="button" class="btn btn-primary" onclick="downloadPDF()">
-                            📥 Download PDF
+                            📥 Download My Kit
                         </button>
                         <button type="button" class="btn btn-secondary" onclick="saveKit()">
-                            💾 Save Kit
+                            💾 Save Draft
                         </button>
                     </div>
                 </form>
@@ -747,7 +838,52 @@
                     </div>
                 </div>
 
-                <!-- Media Kit Preview -->
+                <!-- Locked Preview -->
+                <div class="pro-feature-lock" onclick="showPaywall('starter')" style="min-height: 600px; position: relative;">
+                    <div style="filter: blur(2px); pointer-events: none; opacity: 0.5; position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; overflow: hidden;">
+                        <!-- Actual Preview Content (blurred) -->
+                        <div class="media-kit-preview" id="mediaKitPreviewLocked">
+                            <div class="kit-header">
+                                <div class="kit-avatar">JD</div>
+                                <h1 class="kit-name">John Doe</h1>
+                                <p class="kit-tagline">Gaming Creator & Streamer</p>
+                                <div class="kit-platforms">
+                                    <span class="platform-badge">Twitch</span>
+                                    <span class="platform-badge">YouTube</span>
+                                </div>
+                            </div>
+                            
+                            <div class="kit-stats">
+                                <div class="stat">
+                                    <div class="stat-value">47.8K</div>
+                                    <div class="stat-label">TOTAL FOLLOWERS</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">2.5K</div>
+                                    <div class="stat-label">AVG VIEWERS</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">12.8%</div>
+                                    <div class="stat-label">ENGAGEMENT RATE</div>
+                                </div>
+                            </div>
+                            
+                            <div class="kit-section">
+                                <h2 class="section-title">About Me</h2>
+                                <div class="section-content">I'm a passionate gaming creator focused on FPS and competitive gameplay.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="unlock-overlay" style="width: 400px; max-width: 90%;">
+                        <span style="font-size: 48px;">🔒</span>
+                        <p style="font-weight: 700; margin: 16px 0 8px 0; font-size: 20px;">Unlock Live Preview</p>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">See your media kit update in real-time</p>
+                        <button class="btn btn-primary" style="width: auto; padding: 12px 32px; margin: 0 auto; display: block;" onclick="event.stopPropagation(); showPaywall('starter')">Upgrade to Starter</button>
+                    </div>
+                </div>
+
+                <!-- Media Kit Preview (visible when unlocked) -->
+                <div class="media-kit-preview" id="mediaKitPreview" style="display: none;">
                 <div class="media-kit-preview" id="mediaKitPreview">
                     <div class="kit-header">
                         <div class="kit-avatar" id="previewAvatar">JD</div>
@@ -817,6 +953,21 @@
             try {
                 // Get user from localStorage
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                // Check user tier and show/hide preview accordingly
+                const userTier = user.subscription_tier || 'free'; // 'free', 'starter', 'pro'
+                const previewLocked = document.querySelector('.pro-feature-lock[onclick*="starter"]');
+                const previewUnlocked = document.getElementById('mediaKitPreview');
+                
+                if (userTier === 'starter' || userTier === 'pro') {
+                    // User has access - show real preview
+                    if (previewLocked) previewLocked.style.display = 'none';
+                    if (previewUnlocked) previewUnlocked.style.display = 'block';
+                } else {
+                    // Free user - show locked preview
+                    if (previewLocked) previewLocked.style.display = 'flex';
+                    if (previewUnlocked) previewUnlocked.style.display = 'none';
+                }
                 
                 if (user.username) {
                     document.getElementById('creatorName').value = user.full_name || user.username;
@@ -959,4 +1110,26 @@
                 console.error('Save error:', error);
                 alert('Error saving media kit. Please try again.');
             } finally {
-           
+                           loading.classList.remove('active');
+            }
+        }
+        
+        // Show paywall
+        function showPaywall(tier) {
+            tier = tier || 'pro';
+            if (typeof window.showPaywall === 'function') {
+                window.showPaywall(tier);
+            } else {
+                const tierName = tier === 'starter' ? 'Starter ($4.99/mo)' : 'Pro ($9.99/mo)';
+                const features = tier === 'starter' 
+                    ? '✨ Live Preview\n📄 5 Media Kits/month\n🎨 Professional Templates'
+                    : '✨ Everything in Starter\n🎨 Custom Colors & Fonts\n📷 Logo Upload\n📊 Unlimited Kits\n🔗 Shareable Links';
+                alert(`Upgrade to ${tierName}\n\n${features}`);
+            }
+        }
+        
+        // Load user data on page load
+        window.addEventListener('DOMContentLoaded', loadUserData);
+    </script>
+</body>
+</html>
