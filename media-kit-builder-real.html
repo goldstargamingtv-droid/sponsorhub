@@ -1215,14 +1215,19 @@
         // Show paywall
         function showPaywall(tier) {
             tier = tier || 'pro';
-            if (typeof window.showPaywall === 'function') {
-                window.showPaywall(tier);
+            
+            // Check if paywall-system.js is loaded and has the showPaywallModal function
+            if (typeof window.PaywallSystem !== 'undefined' && typeof window.PaywallSystem.show === 'function') {
+                window.PaywallSystem.show(tier);
+            } else if (typeof window.showPaywallModal === 'function') {
+                window.showPaywallModal(tier);
             } else {
+                // Fallback alert if paywall system isn't loaded
                 const tierName = tier === 'starter' ? 'Starter ($4.99/mo)' : 'Pro ($9.99/mo)';
                 const features = tier === 'starter' 
                     ? '✨ Live Preview\n📄 5 Media Kits/month\n🎨 Professional Templates'
                     : '✨ Everything in Starter\n🎨 Custom Colors & Fonts\n📷 Logo Upload\n📊 Unlimited Kits\n🔗 Shareable Links';
-                        alert(`Upgrade to ${tierName}\n\n${features}`);
+                alert(`Upgrade to ${tierName}\n\n${features}`);
             }
         }
         
