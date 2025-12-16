@@ -483,11 +483,41 @@ Creator | ${niche} Expert | Community Builder`;
         }
         
         // Call on page load
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Load user data from Supabase
+            await loadUserFromSupabase();
+            
             initializeTiers();
             updatePitchLimit();
             loadPitchCount();
         });
+        
+        async function loadUserFromSupabase() {
+            try {
+                const { data: { user: authUser } } = await supabase.auth.getUser();
+                if (!authUser) return;
+                
+                // Get user profile from database
+                const { data: profile } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', authUser.id)
+                    .single();
+                
+                if (profile) {
+                    // Store in localStorage
+                    localStorage.setItem('user', JSON.stringify({
+                        id: authUser.id,
+                        email: authUser.email,
+                        username: profile.username || profile.display_name,
+                        platform: profile.twitch_username ? 'twitch' : 'youtube',
+                        subscription_tier: profile.subscription_tier || 'free'
+                    }));
+                }
+            } catch (error) {
+                console.log('Error loading user data:', error);
+            }
+        }
 
         async function generatePitch() {
             const brandName = document.getElementById('brandName').value.trim();
