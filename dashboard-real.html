@@ -9,11 +9,13 @@
     <!-- Supabase & Auth -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="dashboard-check.js"></script>
     <script src="data-service.js"></script>
     
     <!-- Paywall System -->
     <script src="paywall-system.js"></script>
+    
+    <!-- SPA Navigation -->
+    <script src="spa-nav.js"></script>
     
     <style>
         * {
@@ -88,7 +90,6 @@
         .main-nav {
             display: flex;
             gap: 8px;
-            align-items: center;
         }
 
         .nav-link {
@@ -110,6 +111,7 @@
             background: rgba(255, 255, 255, 0.1);
             border-color: var(--accent-primary);
             transform: translateY(-2px);
+            text-decoration: none;
         }
 
         .nav-link.active {
@@ -451,13 +453,13 @@
             <div class="logo">PromoSync</div>
             
             <nav class="main-nav">
-                <a href="dashboard-real.html" class="nav-link active">Dashboard</a>
-                <a href="marketplace-real.html" class="nav-link">Marketplace</a>
-                <a href="rate-calculator-real.html" class="nav-link">Calculator</a>
-                <a href="pitch-generator-real.html" class="nav-link">Pitch AI</a>
-                <a href="media-kit-builder-real.html" class="nav-link">Media Kit</a>
-                <a href="analytics-real.html" class="nav-link">Analytics</a>
-                <a href="contracts-real.html" class="nav-link">Contracts</a>
+                <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
+                <a href="#" class="nav-link" data-page="marketplace">Marketplace</a>
+                <a href="#" class="nav-link" data-page="rate-calculator">Calculator</a>
+                <a href="#" class="nav-link" data-page="pitch-generator">Pitch AI</a>
+                <a href="#" class="nav-link" data-page="media-kit-builder">Media Kit</a>
+                <a href="#" class="nav-link" data-page="analytics">Analytics</a>
+                <a href="#" class="nav-link" data-page="contracts">Contracts</a>
             </nav>
             
             <div class="header-actions">
@@ -523,6 +525,8 @@
             </div>
         </header>
 
+        <!-- Dashboard Content -->
+        <div id="dashboard-content">
         <!-- Dashboard Page -->
         <div id="dashboard" class="page active">
             <!-- Reopen Actions Button (shown when dismissed) -->
@@ -721,6 +725,12 @@
                 <p style="font-size: 14px; color: var(--text-secondary);">Track your revenue and performance</p>
             </div>
         </div>
+        </div>
+        <!-- End Dashboard Content -->
+
+        <!-- Dynamic Page Content Container -->
+        <div id="page-content" style="display: none;">
+            <!-- Other pages load here -->
         </div>
 
         <!-- Marketplace Page -->
@@ -990,13 +1000,8 @@
         
         if (window.authManager) {
             await window.authManager.init();
-            // loadProfile() in init will redirect to onboarding if needed
         }
-        
-        // Only load dashboard if we're still here (onboarding check passed)
-        if (window.authManager && window.authManager.isAuthenticated()) {
-            await loadDashboardData();
-        }
+        await loadDashboardData();
     });
     </script>
 </body>
