@@ -1165,10 +1165,13 @@
                     }
                 };
 
-                // Save to Supabase
+                // Save to Supabase (upsert to update if exists)
                 const { error } = await supabase
                     .from('media_kits')
-                    .insert(kitData);
+                    .upsert(kitData, { 
+                        onConflict: 'user_id',
+                        ignoreDuplicates: false 
+                    });
 
                 if (error) {
                     console.error('Supabase error:', error);
