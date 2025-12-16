@@ -1143,11 +1143,15 @@
                 // Check if user is authenticated via Supabase
                 const { data: { user } } = await supabase.auth.getUser();
                 
+                console.log('Current user:', user);
+                
                 if (!user) {
                     alert('Please sign in to save media kits!');
                     loading.classList.remove('active');
                     return;
                 }
+
+                console.log('User ID:', user.id);
 
                 const kitData = {
                     user_id: user.id,
