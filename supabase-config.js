@@ -110,7 +110,6 @@ class AuthManager {
             .from('profiles')
             .insert([{
                 id: this.user.id,
-                email: this.user.email,
                 username: twitchUsername || this.user.email.split('@')[0],
                 full_name: fullName,
                 avatar_url: metadata.avatar_url || metadata.picture,
@@ -165,25 +164,6 @@ class AuthManager {
 
         if (error) {
             console.error('❌ Error signing in with Twitch:', error);
-            throw error;
-        }
-    }
-
-    async signInWithYouTube() {
-        console.log('▶️ Starting YouTube OAuth...');
-        
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: 'https://goldstargamingtv-droid.github.io/sponsorhub/dashboard-real.html',
-                scopes: 'https://www.googleapis.com/auth/youtube.readonly'
-            }
-        });
-
-        console.log('▶️ OAuth response:', data, error);
-
-        if (error) {
-            console.error('❌ Error signing in with YouTube:', error);
             throw error;
         }
     }
