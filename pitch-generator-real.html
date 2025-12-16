@@ -100,24 +100,12 @@
         
         .template-pill {
             padding: 12px 20px; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--border-color);
-            border-radius: 12px; cursor: pointer; transition: all 0.3s; font-weight: 600; position: relative;
+            border-radius: 12px; cursor: pointer; transition: all 0.3s; font-weight: 600;
         }
 
         .template-pill.active {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             border-color: transparent; color: white;
-        }
-
-        .template-pill.locked {
-            opacity: 0.6;
-        }
-
-        .template-pill.locked::after {
-            content: '🔒';
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            font-size: 14px;
         }
 
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
@@ -237,17 +225,9 @@
                 <div class="form-group">
                     <label class="form-label">Pitch Template</label>
                     <div class="template-pills">
-                        <div class="template-pill active" data-template="professional" data-tier="free" onclick="selectTemplate('professional', 'free')">
-                            Professional
-                        </div>
-                        <div class="template-pill locked" data-template="casual" data-tier="starter" onclick="selectTemplate('casual', 'starter')">
-                            Casual
-                            <span class="pro-badge" style="margin-left: 4px;">STARTER</span>
-                        </div>
-                        <div class="template-pill locked" data-template="creative" data-tier="pro" onclick="selectTemplate('creative', 'pro')">
-                            Creative
-                            <span class="pro-badge" style="margin-left: 4px;">PRO</span>
-                        </div>
+                        <div class="template-pill active" data-template="professional" onclick="selectTemplate('professional')">Professional</div>
+                        <div class="template-pill" data-template="casual" onclick="selectTemplate('casual')">Casual <span class="pro-badge">STARTER</span></div>
+                        <div class="template-pill" data-template="creative" onclick="selectTemplate('creative')">Creative <span class="pro-badge">STARTER</span></div>
                     </div>
                 </div>
 
@@ -264,29 +244,48 @@
                     <div class="stats-grid">
                         <div class="stat-item">
                             <div class="stat-label">Followers</div>
-                            <div class="stat-value" id="statFollowers">-</div>
+                            <div class="stat-value" id="statFollowers">50K</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Avg Viewers</div>
-                            <div class="stat-value" id="statViewers">-</div>
+                            <div class="stat-value" id="statViewers">2.5K</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Engagement</div>
-                            <div class="stat-value" id="statEngagement">-</div>
+                            <div class="stat-value" id="statEngagement">5.0%</div>
                         </div>
                     </div>
 
                     <div style="text-align: center;">
-                        <span class="twitch-badge" id="twitchBadge" style="display: none;">
-                            <span style="font-size: 16px;">📺</span> Stats from Twitch
-                        </span>
+                        <span class="twitch-badge" id="statsBadge"><span style="font-size: 16px;">📺</span> Stats from Twitch</span>
                     </div>
                 </div>
 
                 <div class="card">
                     <h2>✉️ Generated Pitch Preview</h2>
                     
-                    <div class="preview-card">
+                    <!-- Locked Preview for Free Users -->
+                    <div class="preview-card" id="previewLocked" style="position: relative; min-height: 400px; display: none;">
+                        <div style="filter: blur(3px); pointer-events: none; opacity: 0.4;">
+                            <div class="preview-header">
+                                <div style="font-weight: 700;">Email Preview</div>
+                            </div>
+                            <div class="pitch-content">
+                                <p>Subject: Partnership Opportunity</p>
+                                <p>Dear Brand Team,</p>
+                                <p>I'm reaching out to discuss a potential partnership...</p>
+                            </div>
+                        </div>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(10, 14, 26, 0.95); padding: 32px; border-radius: 16px; z-index: 10; border: 2px dashed rgba(255, 215, 0, 0.3);">
+                            <span style="font-size: 48px;">🔒</span>
+                            <p style="font-weight: 700; margin: 16px 0 8px 0; font-size: 20px;">Unlock Pitch Preview</p>
+                            <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">See generated pitches instantly</p>
+                            <button class="btn btn-primary" style="width: auto; padding: 12px 32px; margin: 0 auto; display: block; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer;" onclick="if(window.paywall) window.paywall.showPaywall('pro')">Upgrade to Pro</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Unlocked Preview for Pro Users -->
+                    <div class="preview-card" id="previewUnlocked">
                         <div class="placeholder" id="placeholder">
                             <div class="placeholder-icon">📧</div>
                             <div>Your pitch will appear here...</div>
@@ -317,97 +316,18 @@
         let currentPitch = '';
         let pitchCount = 0;
         let pitchLimit = 1;
-        let userTier = 'free';
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadUserData();
-            await loadPitchCount();
-        });
-
-        async function loadUserData() {
-            try {
-                if (!window.authManager || !window.authManager.isAuthenticated()) {
-                    document.getElementById("statFollowers").textContent = "50K";
-                    document.getElementById("statViewers").textContent = "2.5K";
-                    document.getElementById("statEngagement").textContent = "5.0%";
-                    return;
-                }
-
-                const userId = window.authManager.user.id;
-                const profile = await window.dataService.getProfile(userId);
-                
-                if (profile) {
-                    if (profile.followers) {
-                        document.getElementById("statFollowers").textContent = formatNumber(profile.followers);
-                    } else {
-                        document.getElementById("statFollowers").textContent = "50K";
-                    }
-                    
-                    if (profile.avg_viewers) {
-                        document.getElementById("statViewers").textContent = formatNumber(profile.avg_viewers);
-                    } else {
-                        document.getElementById("statViewers").textContent = "2.5K";
-                    }
-                    
-                    if (profile.engagement_rate) {
-                        document.getElementById("statEngagement").textContent = profile.engagement_rate.toFixed(1) + "%";
-                    } else {
-                        document.getElementById("statEngagement").textContent = "5.0%";
-                    }
-                    
-                    if (profile.content_niche) {
-                        document.getElementById("niche").value = profile.content_niche;
-                    }
-                    
-                    if (profile.twitch_username) {
-                        document.getElementById("twitchBadge").style.display = "inline-flex";
-                    }
-                }
-            } catch (error) {
-                console.error("Error loading user data:", error);
-                document.getElementById("statFollowers").textContent = "50K";
-                document.getElementById("statViewers").textContent = "2.5K";
-                document.getElementById("statEngagement").textContent = "5.0%";
-            }
-        }
-
-        async function loadPitchCount() {
-            try {
-                // Get tier from paywall
-                userTier = window.paywall?.currentTier || 'free';
-                
-                if (userTier === 'free') pitchLimit = 1;
-                else if (userTier === 'starter') pitchLimit = 10;
-                else if (userTier === 'pro') pitchLimit = Infinity;
-
-                // Load count from localStorage (persists across refreshes)
-                const stored = localStorage.getItem('pitchCount_' + getCurrentMonth());
-                pitchCount = stored ? parseInt(stored) : 0;
-                
-                updateUsageDisplay();
-            } catch (error) {
-                console.error('Error loading pitch count:', error);
-            }
-        }
-
-        function getCurrentMonth() {
-            const now = new Date();
-            return `${now.getFullYear()}-${now.getMonth() + 1}`;
-        }
-
-        function updateUsageDisplay() {
-            document.getElementById('pitchCount').textContent = pitchCount;
-            document.getElementById('pitchLimit').textContent = pitchLimit === Infinity ? '∞' : pitchLimit;
-        }
-
-        function selectTemplate(template, requiredTier) {
-            // Check tier access
-            const tierLevels = { free: 0, starter: 1, pro: 2 };
-            const userLevel = tierLevels[userTier];
-            const requiredLevel = tierLevels[requiredTier];
+        function selectTemplate(template) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const userTier = user.subscription_tier || 'free';
             
-            if (userLevel < requiredLevel) {
-                if (window.paywall) window.paywall.showPaywall();
+            // Check tier access
+            if (template === 'casual' && userTier === 'free') {
+                if (window.paywall) window.paywall.showPaywall('starter');
+                return;
+            }
+            if (template === 'creative' && (userTier === 'free' || userTier === 'starter')) {
+                if (window.paywall) window.paywall.showPaywall('pro');
                 return;
             }
             
@@ -415,6 +335,37 @@
             document.querySelectorAll('.template-pill').forEach(p => p.classList.remove('active'));
             document.querySelector(`[data-template="${template}"]`).classList.add('active');
         }
+        
+        // Check tiers on page load
+        function initializeTiers() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const userTier = user.subscription_tier || 'free';
+            
+            // Show/hide preview based on tier
+            const previewLocked = document.getElementById('previewLocked');
+            const previewUnlocked = document.getElementById('previewUnlocked');
+            
+            if (userTier === 'pro') {
+                previewLocked.style.display = 'none';
+                previewUnlocked.style.display = 'block';
+            } else {
+                previewLocked.style.display = 'flex';
+                previewUnlocked.style.display = 'none';
+            }
+            
+            // Update stats badge based on platform
+            const statsBadge = document.getElementById('statsBadge');
+            if (user.platform === 'youtube') {
+                statsBadge.innerHTML = '<span style="font-size: 16px;">▶️</span> Stats from YouTube';
+                statsBadge.style.background = 'linear-gradient(135deg, #ff0000, #c4302b)';
+            } else {
+                statsBadge.innerHTML = '<span style="font-size: 16px;">📺</span> Stats from Twitch';
+                statsBadge.style.background = 'linear-gradient(135deg, #9146ff, #6441a5)';
+            }
+        }
+        
+        // Call on page load
+        window.addEventListener('DOMContentLoaded', initializeTiers);
 
         async function generatePitch() {
             const brandName = document.getElementById('brandName').value.trim();
@@ -428,21 +379,29 @@
 
             try {
                 await new Promise(r => setTimeout(r, 2000));
-                
-                const followers = document.getElementById('statFollowers').textContent;
-                const viewers = document.getElementById('statViewers').textContent;
-                const engagement = document.getElementById('statEngagement').textContent;
-                const notes = document.getElementById('additionalNotes').value;
-                
-                const pitch = generatePitchText(brandName, selectedTemplate, followers, viewers, engagement, notes);
+                const pitch = `Subject: Partnership Opportunity with ${brandName}
+
+Dear ${brandName} Team,
+
+I'm reaching out to explore a partnership between ${brandName} and my gaming community. With <strong>50,000 followers</strong> and <strong>2,500 average viewers</strong>, I've built an engaged audience that aligns with your brand.
+
+<strong>Why Partner With Me?</strong>
+My community has a <strong>5.0% engagement rate</strong>, well above industry standards. My audience actively seeks recommendations from trusted creators.
+
+<strong>Collaboration Ideas:</strong>
+• Sponsored stream segments
+• Product reviews & demonstrations  
+• Custom discount codes
+• Social media promotion
+
+I'd love to discuss creating authentic content that drives results for ${brandName}.
+
+Best regards,
+[Your Name]`;
 
                 displayPitch(pitch);
-                
-                // Save count
                 pitchCount++;
-                localStorage.setItem('pitchCount_' + getCurrentMonth(), pitchCount.toString());
-                updateUsageDisplay();
-                
+                document.getElementById('pitchCount').textContent = pitchCount;
                 showToast('✨ Pitch ready!');
                 if (typeof confetti !== 'undefined') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
             } finally {
@@ -451,95 +410,46 @@
             }
         }
 
-        function generatePitchText(brandName, template, followers, viewers, engagement, notes) {
-            if (template === 'professional') {
-                return `Subject: Partnership Opportunity with ${brandName}
-
-Dear ${brandName} Team,
-
-I am writing to propose a strategic partnership between ${brandName} and my content platform. With <strong>${followers} followers</strong> and an average of <strong>${viewers} viewers</strong> per stream, I have cultivated a highly engaged community that aligns with your brand values.
-
-<strong>Performance Metrics:</strong>
-My content consistently achieves a <strong>${engagement} engagement rate</strong>, significantly exceeding industry benchmarks. This demonstrates the quality of my audience and their receptiveness to brand partnerships.
-
-<strong>Proposed Collaboration:</strong>
-• Dedicated sponsored content featuring ${brandName} products
-• In-depth product demonstrations and reviews
-• Exclusive promotional codes for my audience
-• Cross-platform social media amplification
-
-${notes ? `<strong>Additional Value:</strong>\n${notes}\n\n` : ''}I am confident that a partnership between ${brandName} and my platform would deliver measurable results and authentic audience engagement.
-
-I would welcome the opportunity to discuss this proposal further at your convenience.
-
-Sincerely,
-[Your Name]
-[Your Channel]`;
-            } else if (template === 'casual') {
-                return `Subject: Hey ${brandName}! Let's Work Together 🎮
-
-Hey ${brandName} Team!
-
-I've been a huge fan of your brand and I think we'd be an awesome fit for a collab! My community is pretty engaged (we're talking <strong>${followers} followers</strong> and <strong>${viewers} viewers</strong> per stream with a solid <strong>${engagement} engagement rate</strong>).
-
-<strong>Here's what I'm thinking:</strong>
-We could do some really cool content together - product showcases, honest reviews, maybe some fun challenges featuring your stuff. My audience trusts my recommendations and they're always asking what gear I use.
-
-${notes ? `Also: ${notes}\n\n` : ''}What do you say? Want to chat about making something awesome together?
-
-Looking forward to hearing from you!
-[Your Name]
-[Your Channel]`;
-            } else { // creative
-                return `Subject: 🚀 ${brandName} x [Your Name] = Magic ✨
-
-Dear ${brandName} Visionaries,
-
-Imagine this: <strong>${followers} passionate fans</strong>, <strong>${viewers} live viewers</strong> per show, and a <strong>${engagement} engagement rate</strong> that makes marketing teams weep with joy. That's what I bring to the table.
-
-<strong>The Opportunity:</strong>
-This isn't just another sponsorship pitch. This is your chance to tap into an audience that doesn't just watch—they <em>participate</em>, they <em>share</em>, they <em>buy</em>.
-
-<strong>What We'll Create:</strong>
-🎬 Cinematic product showcases that go viral
-💡 Authentic storytelling that converts
-🔥 Content so good, your competitors will wish they got here first
-
-${notes ? `<strong>The Secret Sauce:</strong>\n${notes}\n\n` : ''}${brandName}, you don't need another influencer. You need a <em>partner</em> who understands your vision and can amplify it to the right audience.
-
-Let's create something legendary.
-
-[Your Name]
-Creator. Storyteller. Your Next Best Investment.`;
-            }
-        }
-
         function displayPitch(pitch) {
             currentPitch = pitch;
             const html = pitch.split('\n').filter(l => l.trim()).map(line => {
                 if (line.startsWith('Subject:')) return `<div class="pitch-subject">${line}</div>`;
-                return `<p class="pitch-body">${line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/<em>(.+?)<\/em>/g, '<em style="color: var(--accent-secondary);">$1</em>')}</p>`;
+                return `<p class="pitch-body">${line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</p>`;
             }).join('');
             
-            document.getElementById('pitchContent').innerHTML = html;
+            // Check if user is Pro to show preview
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const userTier = user.subscription_tier || 'free';
+            
+            if (userTier === 'pro') {
+                document.getElementById('pitchContent').innerHTML = html;
+                document.getElementById('placeholder').style.display = 'none';
+                document.getElementById('pitchPreview').style.display = 'block';
+            }
+            
+            // Ask if user wants to download
+            if (confirm('Would you like to download this pitch as a text file?')) {
+                const cleanPitch = pitch.replace(/<\/?strong>/g, '');
+                const blob = new Blob([cleanPitch], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${document.getElementById('brandName').value}_Pitch.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }
             document.getElementById('placeholder').style.display = 'none';
             document.getElementById('pitchPreview').style.display = 'block';
         }
 
         function copyPitch() {
-            const plainText = currentPitch.replace(/<strong>|<\/strong>/g, '').replace(/<em>|<\/em>/g, '');
-            navigator.clipboard.writeText(plainText);
+            navigator.clipboard.writeText(currentPitch);
             showToast('📋 Copied!');
         }
 
         function sendEmail() {
             if (window.paywall) window.paywall.showPaywall();
-        }
-
-        function formatNumber(num) {
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-            return num.toString();
         }
 
         function showToast(msg) {
