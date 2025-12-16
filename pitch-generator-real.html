@@ -336,6 +336,72 @@
             document.querySelector(`[data-template="${template}"]`).classList.add('active');
         }
         
+        function generateMockPitch(brand, template, niche, followers, viewers, engagement) {
+            if (template === 'professional') {
+                return `Subject: Partnership Opportunity with ${brand}
+
+Dear ${brand} Team,
+
+I'm reaching out to explore a partnership between ${brand} and my ${niche} community. With ${followers} followers and ${viewers} average viewers, I've built an engaged audience that aligns perfectly with your brand.
+
+Why Partner With Me?
+My community has a ${engagement} engagement rate, well above industry standards. My audience actively seeks recommendations from trusted creators like myself.
+
+Collaboration Ideas:
+• Sponsored stream segments featuring ${brand} products
+• Product reviews & demonstrations
+• Custom discount codes for my community
+• Social media promotion across multiple platforms
+
+I'd love to discuss creating authentic content that drives measurable results for ${brand}.
+
+Best regards,
+[Your Name]`;
+            } else if (template === 'casual') {
+                return `Subject: Hey ${brand}! Let's work together 🎮
+
+Hey there!
+
+I've been a huge fan of ${brand} and thought it'd be awesome to partner up! I'm a ${niche} creator with ${followers} followers and about ${viewers} people tuning in to my streams.
+
+Here's the cool part - my audience LOVES when I recommend products I actually use. With a ${engagement} engagement rate, they're super active and always asking what gear/products I'm using.
+
+Some ideas for collabs:
+• I could feature ${brand} in my streams
+• Do honest reviews my community would dig
+• Maybe create a custom discount code?
+• Share across my socials
+
+Would love to chat more about this! Think we could create some really authentic content together.
+
+Cheers,
+[Your Name]`;
+            } else { // creative
+                return `Subject: 🚀 ${brand} x [Your Name] = Perfect Partnership
+
+Hey ${brand} Team!
+
+Picture this: ${followers} engaged ${niche} fans discovering ${brand} through authentic, entertaining content. That's what I'm offering.
+
+The Numbers That Matter:
+👥 ${followers} followers who trust my recommendations
+📊 ${viewers} average viewers per stream
+💯 ${engagement} engagement rate (that's not a typo!)
+
+But here's what really matters - my community doesn't just watch, they ACT. When I recommend something, they listen. When I partner with brands, they convert.
+
+Let's Create Something Amazing:
+✨ Integration that feels natural, not forced
+🎯 Content that resonates with both our audiences
+📈 Results you can actually measure
+
+Ready to make some magic happen?
+
+[Your Name]
+Creator | ${niche} Expert | Community Builder`;
+            }
+        }
+        
         // Check tiers on page load
         function initializeTiers() {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -419,21 +485,11 @@ Include:
 
 Format as a complete email ready to send.`;
 
-                // Call Claude API
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 1000,
-                        messages: [{ role: 'user', content: prompt }]
-                    })
-                });
+                // Call Claude API (mock for now - needs backend proxy)
+                // TODO: Implement backend API endpoint for Claude
+                await new Promise(r => setTimeout(r, 2000)); // Simulate API delay
                 
-                const data = await response.json();
-                const pitch = data.content[0].text;
+                const pitch = generateMockPitch(brandName, selectedTemplate, niche, followers, viewers, engagement);
 
                 displayPitch(pitch);
                 pitchCount++;
@@ -479,19 +535,19 @@ Format as a complete email ready to send.`;
                 
                 const currentMonth = new Date().toISOString().slice(0, 7);
                 
-                const { data } = await supabase
+                const { data, error } = await supabase
                     .from('pitch_usage')
                     .select('count')
                     .eq('user_id', user.id)
                     .eq('month', currentMonth)
-                    .single();
+                    .maybeSingle();
                 
                 if (data) {
                     pitchCount = data.count;
                     document.getElementById('pitchCount').textContent = pitchCount;
                 }
             } catch (error) {
-                console.log('No existing pitch count');
+                console.log('Pitch usage table not ready yet');
             }
         }
 
