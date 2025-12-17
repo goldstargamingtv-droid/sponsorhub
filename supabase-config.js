@@ -2,7 +2,9 @@
 const SUPABASE_URL = 'https://dvbyxtkghbsjiglxjnvt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2Ynl4dGtnaGJzamlnbHhqbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MTMzNjUsImV4cCI6MjA4MTE4OTM2NX0.7Ari03dGk3fQLUIauZZnl21pDrxz7-ImPYR_idaAoyM';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Create Supabase client
+const { createClient } = supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 class AuthManager {
     constructor() {
@@ -23,7 +25,7 @@ class AuthManager {
 
         // Check auth state
         console.log('🔍 Checking session...');
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
         console.log('📊 Session result:', session ? 'FOUND' : 'NONE', error);
         
         if (session) {
@@ -35,7 +37,7 @@ class AuthManager {
         }
 
         // Listen for auth changes
-        supabase.auth.onAuthStateChange((event, session) => {
+        supabaseClient.auth.onAuthStateChange((event, session) => {
             console.log('🔔 Auth event:', event, session ? 'with session' : 'no session');
             
             if (event === 'SIGNED_IN') {
@@ -81,7 +83,7 @@ class AuthManager {
     async loadProfile() {
         console.log('📂 Loading profile for user:', this.user.id);
         
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('profiles')
             .select('*')
             .eq('id', this.user.id)
@@ -106,7 +108,7 @@ class AuthManager {
         const twitchUsername = metadata.name || metadata.nickname || metadata.preferred_username;
         const fullName = metadata.full_name || metadata.name || twitchUsername;
         
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('profiles')
             .insert([{
                 id: this.user.id,
@@ -134,7 +136,7 @@ class AuthManager {
             return;
         }
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('profiles')
             .update(updates)
             .eq('id', this.user.id)
@@ -153,7 +155,7 @@ class AuthManager {
     async signInWithTwitch() {
         console.log('🎮 Starting Twitch OAuth...');
         
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'twitch',
             options: {
                 redirectTo: 'https://goldstargamingtv-droid.github.io/sponsorhub/dashboard-real.html'
@@ -171,7 +173,7 @@ class AuthManager {
     async signInWithYouTube() {
         console.log('▶️ Starting YouTube OAuth...');
         
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 redirectTo: 'https://goldstargamingtv-droid.github.io/sponsorhub/dashboard-real.html',
@@ -188,7 +190,7 @@ class AuthManager {
     }
 
     async signInWithEmail(email, password) {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password
         });
@@ -198,7 +200,7 @@ class AuthManager {
     }
 
     async signUpWithEmail(email, password, username) {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
             options: {
@@ -213,7 +215,7 @@ class AuthManager {
     }
 
     async signOut() {
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
     }
 
     isAuthenticated() {
@@ -227,3 +229,6 @@ class AuthManager {
 
 console.log('🚀 Creating AuthManager instance');
 window.authManager = new AuthManager();
+
+// Export supabase client globally for other scripts
+window.supabase = supabaseClient;
