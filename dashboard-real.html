@@ -1018,9 +1018,6 @@
             ctx.fillStyle = gradient;
             ctx.fill();
         }
-    </script>
-    <script>
-    // Dashboard Data Loading
     async function loadDashboardData() {
         if (!window.authManager) {
             console.log('Auth not ready');
@@ -1178,7 +1175,6 @@ function updateChartOverlays(metrics) {
             await loadDashboardData();
         }
     });
-</body>
 let currentAnalyticsPeriod = '30d';
 let revenueChartInstance = null;
 let dealsChartInstance = null;
