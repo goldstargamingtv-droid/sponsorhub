@@ -1122,6 +1122,7 @@
             
             // Update charts with real data for current period (30d by default)
             updateChartsForPeriod('30d', metrics);
+            console.log('Calling updateChartsForPeriod with metrics:', metrics);
             
         } catch (error) {
             console.error('Error loading dashboard data:', error);
@@ -1144,6 +1145,7 @@
 
 // Show/hide chart overlays based on data
 function updateChartOverlays(metrics) {
+    console.log('updateChartOverlays called with:', metrics);
     // Revenue chart overlay
     const revenueOverlay = document.getElementById('revenueChartOverlay');
     const hasRevenueData = metrics && metrics.revenue_over_time && 
@@ -1232,10 +1234,12 @@ async function updateAnalyticsData(period) {
 }
 
 function updateChartsForPeriod(period, metrics) {
+    console.log('updateChartsForPeriod called - period:', period, 'metrics:', metrics);
     let labels, revenueData;
     
     // Use real data if available, otherwise use mock data
     if (metrics && metrics.revenue_over_time) {
+        console.log('Using real revenue data - labels:', labels, 'data:', revenueData);
         labels = metrics.revenue_over_time.labels;
         revenueData = metrics.revenue_over_time.data;
     } else {
@@ -1262,6 +1266,7 @@ function updateChartsForPeriod(period, metrics) {
                 revenueData = [0, 0, 0, 0];
                 break;
         }
+        console.log('Using fallback data - labels:', labels, 'data:', revenueData);
     }
     
     // Update revenue chart
@@ -1271,6 +1276,7 @@ function updateChartsForPeriod(period, metrics) {
         revenueChartInstance.update();
     }
     
+        console.log('Updating deals chart with data:', dealsData);
     // Update deals chart (doughnut)
     if (dealsChartInstance && metrics) {
         const dealsData = metrics.deal_status || {
@@ -1284,6 +1290,7 @@ function updateChartsForPeriod(period, metrics) {
             dealsData.pending || 0,
             dealsData.completed || 0,
             dealsData.cancelled || 0
+        console.log('Updating applications chart with data:', appsData);
         ];
         dealsChartInstance.update();
     }
