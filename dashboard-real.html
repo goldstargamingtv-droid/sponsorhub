@@ -1178,10 +1178,7 @@ function updateChartOverlays(metrics) {
             await loadDashboardData();
         }
     });
-    </script>
 </body>
-</html><script>
-
 let currentAnalyticsPeriod = '30d';
 let revenueChartInstance = null;
 let dealsChartInstance = null;
@@ -1290,8 +1287,8 @@ function updateChartsForPeriod(period, metrics) {
             dealsData.pending || 0,
             dealsData.completed || 0,
             dealsData.cancelled || 0
-        console.log('Updating applications chart with data:', appsData);
         ];
+        console.log('Updating deals chart with data:', dealsData);
         dealsChartInstance.update();
     }
     
@@ -1302,6 +1299,7 @@ function updateChartsForPeriod(period, metrics) {
             pending: 0,
             rejected: 0
         };
+        console.log('Updating applications chart with data:', appsData);
         applicationsChartInstance.data.datasets[0].data = [
             appsData.accepted || 0,
             appsData.pending || 0,
@@ -1443,3 +1441,5 @@ if (typeof Chart !== 'undefined') {
     });
 }
 </script>
+</body>
+</html>
