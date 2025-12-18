@@ -1062,7 +1062,6 @@
                 application_status: { accepted: 26, pending: 5, rejected: 7 }
             };
             updateChartsForPeriod('30d', demoMetrics);
-            initSparklines();
             return;
         }
 
@@ -1092,12 +1091,7 @@
             // Load real metrics
             const metrics = await window.dataService.getUserMetrics(userId);
             
-            document.getElementById('totalRevenue').textContent = 
-                '$' + metrics.total_revenue.toLocaleString();
-            document.getElementById('activeDeals').textContent = metrics.active_deals;
-            document.getElementById('brandMatches').textContent = metrics.brand_matches || 0;
-            document.getElementById('avgDealValue').textContent = 
-                '$' + Math.round(metrics.avg_deal_value).toLocaleString();
+            console.log('Metrics loaded:', metrics);
             
             // Update analytics stat cards (top section)
             document.getElementById('analyticsTotalRevenue').textContent = 
@@ -1112,24 +1106,19 @@
             
             // Update change indicators
             if (metrics.total_revenue > 0) {
-                document.getElementById('revenueChange').textContent = '↑ Revenue growing';
                 document.getElementById('analyticsRevenueChange').textContent = '↑ Revenue growing';
             }
             if (metrics.active_deals > 0) {
-                document.getElementById('dealsChange').textContent = metrics.active_deals + ' active';
                 document.getElementById('analyticsDealsChange').textContent = metrics.active_deals + ' active';
             }
             if (metrics.brand_matches > 0) {
-                document.getElementById('matchesChange').textContent = metrics.brand_matches + ' matches';
                 document.getElementById('analyticsMatchesChange').textContent = metrics.brand_matches + ' matches';
             }
             if (metrics.avg_deal_value > 0) {
-                document.getElementById('avgChange').textContent = '↑ Growing';
                 document.getElementById('analyticsAvgChange').textContent = '↑ Growing';
             }
             
             // Initialize sparklines
-            initSparklines();
             
             // Update charts with real data for current period (30d by default)
             updateChartsForPeriod('30d', metrics);
