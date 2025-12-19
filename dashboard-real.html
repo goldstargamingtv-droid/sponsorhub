@@ -1140,6 +1140,11 @@
         
         // Only load dashboard if we're still here (onboarding check passed)
 
+        if (window.authManager && window.authManager.isAuthenticated()) {
+            await loadDashboardData();
+        }
+    });
+
 // Show/hide chart overlays based on data
 function updateChartOverlays(metrics) {
     console.log('updateChartOverlays called with:', metrics);
@@ -1171,10 +1176,6 @@ function updateChartOverlays(metrics) {
     }
 }
 
-        if (window.authManager && window.authManager.isAuthenticated()) {
-            await loadDashboardData();
-        }
-    });
 let currentAnalyticsPeriod = '30d';
 let revenueChartInstance = null;
 let dealsChartInstance = null;
