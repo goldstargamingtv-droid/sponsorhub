@@ -310,6 +310,80 @@ class DataService {
         return data;
     }
 
+    // ========== PENDING ACTIONS ==========
+    async getPendingActions(userId) {
+        try {
+            const { data, error } = await this.supabase
+                .from('pending_actions')
+                .select('*')
+                .eq('user_id', userId)
+                .eq('is_read', false)
+                .order('is_urgent', { ascending: false })
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching pending actions:', error);
+            return [];
+        }
+    }
+
+    async markActionRead(actionId) {
+        try {
+            const { error } = await this.supabase
+                .from('pending_actions')
+                .update({ is_read: true })
+                .eq('id', actionId);
+
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('Error marking action as read:', error);
+            return false;
+        }
+    }
+
+    async dismissAction(actionId, userId) {
+        try {
+            const { error } = await this.supabase
+                .from('pending_actions')
+                .delete()
+                .eq('id', actionId)
+                .eq('user_id', userId);
+
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('Error dismissing action:', error);
+            return false;
+        }
+    }
+
+    async addPendingAction(userId, actionData) {
+        try {
+            const { data, error } = await this.supabase
+                .from('pending_actions')
+                .insert([{
+                    user_id: userId,
+                    action_type: actionData.action_type || 'custom',
+                    title: actionData.title,
+                    description: actionData.description,
+                    link_url: actionData.link_url || null,
+                    icon_emoji: actionData.icon_emoji || '⚡',
+                    is_urgent: actionData.is_urgent || false
+                }])
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Error adding pending action:', error);
+            throw error;
+        }
+    }
+
     // ========== MEDIA KITS ==========
     async getMediaKits(userId) {
         const { data, error } = await this.supabase
