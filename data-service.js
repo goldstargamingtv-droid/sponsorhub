@@ -109,6 +109,196 @@ class DataService {
         }
     }
 
+    async getUserMetricsByPeriod(userId, period) {
+        try {
+            console.log('📊 Fetching metrics for period:', period);
+            
+            // Calculate date range based on period
+            let startDate = new Date();
+            switch(period) {
+                case '7d':
+                    startDate.setDate(startDate.getDate() - 7);
+                    break;
+                case '30d':
+                    startDate.setDate(startDate.getDate() - 30);
+                    break;
+                case '90d':
+                    startDate.setDate(startDate.getDate() - 90);
+                    break;
+                case '1y':
+                    startDate.setFullYear(startDate.getFullYear() - 1);
+                    break;
+                case 'all':
+                    startDate = new Date('2000-01-01'); // Far past date
+                    break;
+            }
+            
+            const startDateStr = startDate.toISOString().split('T')[0];
+            
+            // Get user_metrics table data (always current)
+            const { data: metricsData, error: metricsError } = await this.supabase
+                .from('user_metrics')
+                .select('*')
+                .eq('user_id', userId)
+                .single();
+            
+            if (metricsError && metricsError.code !== 'PGRST116') {
+                console.error('Error fetching metrics:', metricsError);
+            }
+            
+            // Get deals in period
+            const { data: deals } = await this.supabase
+                .from('deals')
+                .select('status, created_at, completed_at, cancelled_at')
+                .eq('user_id', userId);
+            
+            // Filter deals by period
+            const dealsInPeriod = deals?.filter(d => {
+                const dealDate = new Date(d.created_at);
+                return dealDate >= startDate;
+            }) || [];
+            
+            const dealStatus = {
+                active: metricsData?.active_deals || 0, // Always show current active
+                pending: dealsInPeriod.filter(d => d.status === 'pending').length,
+                completed: dealsInPeriod.filter(d => d.status === 'completed').length,
+                cancelled: dealsInPeriod.filter(d => d.status === 'cancelled').length
+            };
+            
+            // Get applications in period
+            const { data: apps } = await this.supabase
+                .from('applications')
+                .select('status, applied_at, responded_at')
+                .eq('user_id', userId)
+                .gte('applied_at', startDateStr);
+            
+            const applicationStatus = {
+                accepted: apps?.filter(a => a.status === 'accepted').length || 0,
+                pending: apps?.filter(a => a.status === 'pending').length || 0,
+                rejected: apps?.filter(a => a.status === 'rejected').length || 0
+            };
+            
+            // Get revenue for period
+            const { data: revenue } = await this.supabase
+                .from('revenue_records')
+                .select('payment_date, amount')
+                .eq('user_id', userId)
+                .gte('payment_date', startDateStr)
+                .order('payment_date');
+            
+            console.log('📈 Revenue records for period:', revenue?.length || 0);
+            
+            // Build revenue over time based on period
+            let revenueOverTime = { labels: [], data: [] };
+            
+            if (revenue && revenue.length > 0) {
+                switch(period) {
+                    case '7d':
+                        // Daily for 7 days
+                        const dailyRevenue = {};
+                        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                        revenue.forEach(r => {
+                            const date = new Date(r.payment_date);
+                            const dayName = days[date.getDay()];
+                            dailyRevenue[dayName] = (dailyRevenue[dayName] || 0) + parseFloat(r.amount);
+                        });
+                        revenueOverTime.labels = days;
+                        revenueOverTime.data = days.map(d => dailyRevenue[d] || 0);
+                        break;
+                        
+                    case '30d':
+                        // Weekly for 30 days
+                        const weeklyRevenue = { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0 };
+                        revenue.forEach(r => {
+                            const date = new Date(r.payment_date);
+                            const daysAgo = Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000));
+                            const weekNum = Math.min(3, Math.floor(daysAgo / 7));
+                            const weekLabel = `Week ${4 - weekNum}`;
+                            weeklyRevenue[weekLabel] = (weeklyRevenue[weekLabel] || 0) + parseFloat(r.amount);
+                        });
+                        revenueOverTime.labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                        revenueOverTime.data = revenueOverTime.labels.map(w => weeklyRevenue[w]);
+                        break;
+                        
+                    case '90d':
+                        // Monthly for 90 days
+                        const monthlyRevenue90 = { 'Month 1': 0, 'Month 2': 0, 'Month 3': 0 };
+                        revenue.forEach(r => {
+                            const date = new Date(r.payment_date);
+                            const daysAgo = Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000));
+                            const monthNum = Math.min(2, Math.floor(daysAgo / 30));
+                            const monthLabel = `Month ${3 - monthNum}`;
+                            monthlyRevenue90[monthLabel] = (monthlyRevenue90[monthLabel] || 0) + parseFloat(r.amount);
+                        });
+                        revenueOverTime.labels = ['Month 1', 'Month 2', 'Month 3'];
+                        revenueOverTime.data = revenueOverTime.labels.map(m => monthlyRevenue90[m]);
+                        break;
+                        
+                    case '1y':
+                    case 'all':
+                        // Monthly for year
+                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                        const monthlyRevenue = {};
+                        revenue.forEach(r => {
+                            const date = new Date(r.payment_date);
+                            const monthName = months[date.getMonth()];
+                            monthlyRevenue[monthName] = (monthlyRevenue[monthName] || 0) + parseFloat(r.amount);
+                        });
+                        revenueOverTime.labels = months;
+                        revenueOverTime.data = months.map(m => monthlyRevenue[m] || 0);
+                        break;
+                }
+            } else {
+                // No data - use empty arrays for period
+                switch(period) {
+                    case '7d':
+                        revenueOverTime.labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                        revenueOverTime.data = [0, 0, 0, 0, 0, 0, 0];
+                        break;
+                    case '30d':
+                        revenueOverTime.labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                        revenueOverTime.data = [0, 0, 0, 0];
+                        break;
+                    case '90d':
+                        revenueOverTime.labels = ['Month 1', 'Month 2', 'Month 3'];
+                        revenueOverTime.data = [0, 0, 0];
+                        break;
+                    case '1y':
+                    case 'all':
+                        revenueOverTime.labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                        revenueOverTime.data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                        break;
+                }
+            }
+            
+            // Calculate period-specific totals
+            const periodRevenue = revenue?.reduce((sum, r) => sum + parseFloat(r.amount), 0) || 0;
+            const periodApplications = apps?.length || 0;
+            const periodAcceptanceRate = apps?.length > 0 
+                ? Math.round((apps.filter(a => a.status === 'accepted').length / apps.length) * 100)
+                : 0;
+            
+            const result = {
+                total_revenue: periodRevenue,
+                active_deals: metricsData?.active_deals || 0,
+                brand_matches: metricsData?.brand_matches || 0,
+                avg_deal_value: metricsData?.avg_deal_value || 0,
+                applications_sent: periodApplications,
+                acceptance_rate: periodAcceptanceRate,
+                deal_status: dealStatus,
+                application_status: applicationStatus,
+                revenue_over_time: revenueOverTime
+            };
+            
+            console.log('✅ Built period metrics:', result);
+            return result;
+            
+        } catch (error) {
+            console.error('❌ getUserMetricsByPeriod error:', error);
+            return this.getUserMetrics(userId); // Fallback to all-time
+        }
+    }
+
     async updateUserMetrics(userId, metrics) {
         const { data, error } = await this.supabase
             .from('user_metrics')
