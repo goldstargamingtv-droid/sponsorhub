@@ -7,19 +7,106 @@ class DataService {
 
     // ========== USER METRICS ==========
     async getUserMetrics(userId) {
-        const { data, error } = await this.supabase
-            .from('user_metrics')
-            .select('*')
-            .eq('user_id', userId)
-            .single();
-
-        if (error && error.code !== 'PGRST116') throw error;
-        return data || {
-            total_revenue: 0,
-            active_deals: 0,
-            brand_matches: 0,
-            avg_deal_value: 0
-        };
+        try {
+            console.log('📊 Fetching comprehensive metrics for user:', userId);
+            
+            // Get user_metrics table data
+            const { data: metricsData, error: metricsError } = await this.supabase
+                .from('user_metrics')
+                .select('*')
+                .eq('user_id', userId)
+                .single();
+            
+            if (metricsError && metricsError.code !== 'PGRST116') {
+                console.error('Error fetching metrics:', metricsError);
+            }
+            
+            // Get deal status breakdown
+            const { data: deals } = await this.supabase
+                .from('deals')
+                .select('status')
+                .eq('user_id', userId);
+            
+            const dealStatus = {
+                active: deals?.filter(d => d.status === 'active').length || 0,
+                pending: deals?.filter(d => d.status === 'pending').length || 0,
+                completed: deals?.filter(d => d.status === 'completed').length || 0,
+                cancelled: deals?.filter(d => d.status === 'cancelled').length || 0
+            };
+            
+            // Get application status breakdown
+            const { data: apps } = await this.supabase
+                .from('applications')
+                .select('status')
+                .eq('user_id', userId);
+            
+            const applicationStatus = {
+                accepted: apps?.filter(a => a.status === 'accepted').length || 0,
+                pending: apps?.filter(a => a.status === 'pending').length || 0,
+                rejected: apps?.filter(a => a.status === 'rejected').length || 0
+            };
+            
+            // Get revenue over time (last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            const { data: revenue } = await this.supabase
+                .from('revenue_records')
+                .select('payment_date, amount')
+                .eq('user_id', userId)
+                .gte('payment_date', thirtyDaysAgo.toISOString().split('T')[0])
+                .order('payment_date');
+            
+            console.log('📈 Revenue records found:', revenue?.length || 0);
+            
+            // Build revenue over time data
+            let revenueOverTime = { labels: [], data: [] };
+            if (revenue && revenue.length > 0) {
+                // Group by week for 30-day view
+                const weeklyRevenue = { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0 };
+                
+                revenue.forEach(r => {
+                    const date = new Date(r.payment_date);
+                    const daysAgo = Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000));
+                    const weekNum = Math.min(3, Math.floor(daysAgo / 7));
+                    const weekLabel = `Week ${4 - weekNum}`;
+                    weeklyRevenue[weekLabel] = (weeklyRevenue[weekLabel] || 0) + parseFloat(r.amount);
+                });
+                
+                revenueOverTime.labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                revenueOverTime.data = revenueOverTime.labels.map(w => weeklyRevenue[w] || 0);
+            }
+            
+            // Combine everything
+            const result = {
+                total_revenue: metricsData?.total_revenue || 0,
+                active_deals: metricsData?.active_deals || 0,
+                brand_matches: metricsData?.brand_matches || 0,
+                avg_deal_value: metricsData?.avg_deal_value || 0,
+                applications_sent: metricsData?.applications_sent || 0,
+                acceptance_rate: metricsData?.acceptance_rate || 0,
+                deal_status: dealStatus,
+                application_status: applicationStatus,
+                revenue_over_time: revenueOverTime
+            };
+            
+            console.log('✅ Built complete metrics:', result);
+            return result;
+            
+        } catch (error) {
+            console.error('❌ getUserMetrics error:', error);
+            return {
+                total_revenue: 0,
+                active_deals: 0,
+                brand_matches: 0,
+                avg_deal_value: 0,
+                applications_sent: 0,
+                acceptance_rate: 0,
+                deal_status: { active: 0, pending: 0, completed: 0, cancelled: 0 },
+                application_status: { accepted: 0, pending: 0, rejected: 0 },
+                revenue_over_time: { labels: [], data: [] }
+            };
+        }
     }
 
     async updateUserMetrics(userId, metrics) {
