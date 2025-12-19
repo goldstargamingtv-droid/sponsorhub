@@ -1088,7 +1088,7 @@
             // Load real metrics
             const metrics = await window.dataService.getUserMetrics(userId);
             
-            console.log('Metrics loaded:', metrics);
+            console.log('Metrics loaded:', JSON.stringify(metrics, null, 2));
             
             // Update analytics stat cards (top section)
             document.getElementById('analyticsTotalRevenue').textContent = 
@@ -1237,6 +1237,7 @@ function updateChartsForPeriod(period, metrics) {
         revenueData = metrics.revenue_over_time.data;
     } else {
         // Fallback mock data based on period
+    console.log('revenue_over_time value:', metrics?.revenue_over_time);
         switch(period) {
             case '7d':
                 labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -1269,7 +1270,6 @@ function updateChartsForPeriod(period, metrics) {
         revenueChartInstance.update();
     }
     
-        console.log('Updating deals chart with data:', dealsData);
     // Update deals chart (doughnut)
     if (dealsChartInstance && metrics) {
         const dealsData = metrics.deal_status || {
@@ -1278,6 +1278,7 @@ function updateChartsForPeriod(period, metrics) {
             completed: 0,
             cancelled: 0
         };
+        console.log('Updating deals chart with data:', dealsData);
         dealsChartInstance.data.datasets[0].data = [
             dealsData.active || 0,
             dealsData.pending || 0,
