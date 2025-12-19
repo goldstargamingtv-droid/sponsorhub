@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="dashboard-check.js"></script>
-    <script src="data-service.js?v=3"></script>
+    <script src="data-service.js?v=4"></script>
     
     <!-- Paywall System -->
     <script src="paywall-system.js"></script>
@@ -978,6 +978,108 @@
             ctx.fillStyle = gradient;
             ctx.fill();
         }
+// Add this to dashboard-real.html in the script section
+
+async function loadPendingActions() {
+    if (!window.authManager || !window.authManager.isAuthenticated()) {
+        return;
+    }
+
+    const userId = window.authManager.user.id;
+    
+    try {
+        const actions = await window.dataService.getPendingActions(userId);
+        console.log('📋 Loaded pending actions:', actions);
+        
+        // Update urgent count
+        const urgentCount = actions.filter(a => a.is_urgent).length;
+        const urgentBadge = document.getElementById('urgentCount');
+        if (urgentBadge) {
+            if (urgentCount > 0) {
+                urgentBadge.textContent = `${urgentCount} Urgent`;
+                urgentBadge.style.display = 'inline-block';
+            } else {
+                urgentBadge.style.display = 'none';
+            }
+        }
+        
+        // Render actions
+        const container = document.getElementById('actionsContainer');
+        if (!container) return;
+        
+        if (actions.length === 0) {
+            container.innerHTML = `
+                <div style="padding: 40px; text-align: center; color: var(--text-muted);">
+                    <div style="font-size: 48px; margin-bottom: 16px;">✨</div>
+                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">All caught up!</div>
+                    <div style="font-size: 14px;">No pending actions at the moment</div>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = actions.map(action => `
+            <div class="action-item" id="action-${action.id}" data-action-id="${action.id}">
+                <div class="action-info">
+                    <div class="action-icon ${action.is_urgent ? 'warning' : 'info'}">${action.icon_emoji}</div>
+                    <div class="action-text">
+                        <h4>${action.title}</h4>
+                        <p>${action.description}</p>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    ${action.link_url ? `<button class="action-btn" onclick="window.location.href='${action.link_url}'">Open</button>` : ''}
+                    <button class="action-btn-secondary" onclick="dismissPendingAction('${action.id}')">Dismiss</button>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error loading pending actions:', error);
+    }
+}
+
+async function dismissPendingAction(actionId) {
+    if (!window.authManager || !window.authManager.isAuthenticated()) {
+        return;
+    }
+
+    const userId = window.authManager.user.id;
+    
+    try {
+        await window.dataService.dismissAction(actionId, userId);
+        
+        // Remove from UI with animation
+        const actionElement = document.querySelector(`[data-action-id="${actionId}"]`);
+        if (actionElement) {
+            actionElement.style.opacity = '0';
+            actionElement.style.transform = 'translateX(20px)';
+            setTimeout(() => {
+                actionElement.remove();
+                
+                // Check if no actions left
+                const container = document.getElementById('actionsContainer');
+                if (container && container.children.length === 0) {
+                    loadPendingActions(); // Reload to show "all caught up" message
+                }
+            }, 300);
+        }
+        
+        // Reload to update count
+        setTimeout(() => loadPendingActions(), 350);
+        
+    } catch (error) {
+        console.error('Error dismissing action:', error);
+    }
+}
+
+function dismissActions() {
+    const card = document.getElementById('pendingActionsCard');
+    if (card) {
+        card.style.display = 'none';
+    }
+}
+
     async function loadDashboardData() {
         if (!window.authManager) {
             console.log('Auth not ready');
@@ -1080,6 +1182,9 @@
             // Update charts with real data for current period (30d by default)
             updateChartsForPeriod('30d', metrics);
             console.log('Calling updateChartsForPeriod with metrics:', metrics);
+            
+            // Load pending actions
+            await loadPendingActions();
             
         } catch (error) {
             console.error('Error loading dashboard data:', error);
